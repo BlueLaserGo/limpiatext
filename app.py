@@ -204,25 +204,14 @@ Estructura obligatoria de respuesta JSON:
   }
 ]
 """
-
 # 4. Barra lateral (Sidebar)
 with st.sidebar:
-    st.markdown("""
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; padding-bottom: 0.6rem; border-bottom: 1px solid #D5D5D0;">
-        <img src="https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg" 
-             style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
-        <div style="line-height: 1.2;">
-            <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
-            <div style="font-size: 0.88rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
-            <a href="www.linkedin.com/in/lauserrano" target="_blank" style="font-size: 0.75rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
+    # 1. API Key primero
     api_key = st.text_input("Gemini API Key:", type="password", help="Introduce tu clave de API de Google Gemini.")
 
     st.write("---")
 
+    # 2. Idiomas soportados
     st.markdown("**Idiomas de exportación:**")
     st.markdown("""
     <div style="margin-top: 10px;">
@@ -230,6 +219,19 @@ with st.sidebar:
         <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
         <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
         <div class="lang-item"><span class="lang-badge">EU</span> Euskera</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 3. Firma y LinkedIn al final (discreto)
+    st.markdown("""
+    <div style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #D5D5D0; display: flex; align-items: center; gap: 8px;">
+        <img src="https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg" 
+             style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
+        <div style="line-height: 1.15;">
+            <div style="font-size: 0.78rem; font-weight: 600; color: #222222;">Laura Serrano Gómez</div>
+            <a href="https://www.linkedin.com/in/lauraserranogomez/" target="_blank" 
+               style="font-size: 0.70rem; color: #666666; text-decoration: none;">LinkedIn ↗</a>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
