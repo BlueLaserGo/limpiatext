@@ -160,7 +160,15 @@ st.markdown("""
 
 # 3. Barra lateral
 with st.sidebar:
-    api_key = st.text_input("Gemini API Key:", type="password", help="Introduce tu clave de API de Google Gemini.")
+    # Obtiene la clave secreta si está configurada en Streamlit Cloud
+    default_api_key = st.secrets.get("GEMINI_API_KEY", "")
+
+    api_key = st.text_input(
+        "Gemini API Key:",
+        value=default_api_key,
+        type="password",
+        help="Clave para procesar con Gemini. Si la app ya tiene una configurada por defecto, puedes dejar este campo tal cual."
+    )
 
     st.write("---")
 
@@ -181,7 +189,7 @@ with st.sidebar:
         <div style="line-height: 1.15;">
             <div style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
             <div style="font-size: 0.78rem; font-weight: 600; color: #222222;">Laura Serrano Gómez</div>
-            <a href="https://www.linkedin.com/in/lauraserranogomez/" target="_blank" 
+            <a href="https://www.linkedin.com/in/lauserrano/" target="_blank" 
                style="font-size: 0.70rem; color: #666666; text-decoration: none;">LinkedIn ↗</a>
         </div>
     </div>
