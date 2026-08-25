@@ -41,7 +41,7 @@ Para cada literal encontrado, debes proporcionar:
 4. tipo_elemento: Tipo de elemento (Botón, Campo, Mensaje de error, Alerta, Opción desplegable, etc.).
 5. texto_es: El literal original en español.
 6. traduccion_en: Traducción profesional al inglés.
-7. traduccion_ca: Traducción profesional al catalán / valenciano.
+7. traduccion_ca: Traducción profesional al catalán / valenciano / balear.
 8. traduccion_gl: Traducción profesional al gallego.
 9. traduccion_eu: Traducción profesional al euskera.
 
