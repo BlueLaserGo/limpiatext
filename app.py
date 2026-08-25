@@ -222,12 +222,13 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    # 3. Firma y LinkedIn al final (discreto)
+    # 3. Firma al final con "Desarrollado por"
     st.markdown("""
     <div style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #D5D5D0; display: flex; align-items: center; gap: 8px;">
         <img src="https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg" 
              style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
         <div style="line-height: 1.15;">
+            <div style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
             <div style="font-size: 0.78rem; font-weight: 600; color: #222222;">Laura Serrano Gómez</div>
             <a href="https://www.linkedin.com/in/lauraserranogomez/" target="_blank" 
                style="font-size: 0.70rem; color: #666666; text-decoration: none;">LinkedIn ↗</a>
