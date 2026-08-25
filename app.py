@@ -75,34 +75,34 @@ st.markdown("""
         padding: 0.8rem !important;
     }
 
-    /* Botón examinar archivos */
-    div[data-testid="stFileUploader"] section button {
+    /* Botón examinar archivos principal */
+    div[data-testid="stFileUploader"] section > button {
         background-color: #111111 !important;
         border: 1px solid #111111 !important;
         border-radius: 4px !important;
         padding: 0.35rem 1rem !important;
         transition: all 0.2s ease !important;
     }
-    div[data-testid="stFileUploader"] section button * {
+    div[data-testid="stFileUploader"] section > button * {
         display: none !important;
     }
-    div[data-testid="stFileUploader"] section button::after {
+    div[data-testid="stFileUploader"] section > button::after {
         content: "Examinar archivos";
         font-family: 'Space Grotesk', sans-serif !important;
         font-size: 0.85rem !important;
         font-weight: 600 !important;
         color: #FFFFFF !important;
     }
-    div[data-testid="stFileUploader"] section button:hover {
+    div[data-testid="stFileUploader"] section > button:hover {
         background-color: #FACC15 !important;
         border-color: #FACC15 !important;
     }
-    div[data-testid="stFileUploader"] section button:hover::after {
+    div[data-testid="stFileUploader"] section > button:hover::after {
         color: #111111 !important;
     }
 
-    /* Texto de ayuda en español */
-    div[data-testid="stFileUploaderInstructions"] * {
+    /* Ocultar texto nativo y evitar botones dobles */
+    div[data-testid="stFileUploaderInstructions"] > div:first-child {
         display: none !important;
     }
     div[data-testid="stFileUploaderInstructions"]::after {
@@ -111,7 +111,16 @@ st.markdown("""
         font-size: 0.82rem !important;
         color: #666666 !important;
         display: inline-block;
-        margin-left: 0.75rem;
+        margin-left: 0.5rem;
+    }
+
+    /* Botón de eliminar archivo cargado (icono papelera limpio) */
+    div[data-testid="stFileUploaderFileData"] button {
+        background: transparent !important;
+        border: none !important;
+    }
+    div[data-testid="stFileUploaderFileData"] button::after {
+        content: "" !important;
     }
 
     /* Badges de idiomas */
@@ -137,7 +146,7 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* Botones principales */
+    /* Botones principales y de descarga */
     .stButton > button, div[data-testid="stDownloadButton"] > button {
         background-color: #111111 !important;
         color: #FFFFFF !important;
@@ -158,16 +167,22 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. Barra lateral
+# 3. Datos de ejemplo para demo
+EJEMPLO_CSV = """ID;Title;Description;Acceptance Criteria
+1042;Formulario de Alta de Expedientes;<div><p>Como tramitador quiero dar de alta un nuevo expediente.</p></div>;<div><ul><li>El botón debe ser <b>Guardar borrador</b> y <b>Enviar a revisión</b>.</li><li>Si falta el NIF mostrar: <i>El NIF introducido no es válido o está incompleto</i>.</li><li>El selector de estado tendrá: <i>Pendiente</i>, <i>En trámite</i> y <i>Resuelto</i>.</li></ul></div>
+1043;Gestión de Notificaciones de Usuario;<div><p>Configuración de avisos por correo y SMS.</p></div>;<div><ul><li>Título de ventana: <b>Preferencias de Notificación</b>.</li><li>Pestaña: <b>Canales directos</b>.</li><li>Checkbox: <b>Recibir alertas urgentes vía SMS</b>.</li><li>Modal de confirmación: <b>¿Desea aplicar los cambios en sus suscripciones activas?</b></li></ul></div>
+1044;Buscador Avanzado de Facturas;<div><p>Filtros por rango de fecha e importe.</p></div>;<div><ul><li>Etiquetas de campo: <b>Fecha desde</b> y <b>Fecha hasta</b>.</li><li>Botón de acción: <b>Exportar listado</b>.</li><li>Alerta si no hay datos: <b>No se han encontrado facturas para el periodo seleccionado</b>.</li></ul></div>
+"""
+
+# 4. Barra lateral
 with st.sidebar:
-    # Obtiene la clave secreta si está configurada en Streamlit Cloud
     default_api_key = st.secrets.get("GEMINI_API_KEY", "")
 
     api_key = st.text_input(
         "Gemini API Key:",
         value=default_api_key,
         type="password",
-        help="Clave para procesar con Gemini. Si la app ya tiene una configurada por defecto, puedes dejar este campo tal cual."
+        help="Clave para procesar con Gemini."
     )
 
     st.write("---")
@@ -195,7 +210,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# 4. Encabezado principal
+# 5. Encabezado principal
 st.markdown("""
 <div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
     Extracción y traducción de literales
@@ -207,90 +222,110 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Inicializar sesión
+# Estado de sesión
+if "df_devops" not in st.session_state:
+    st.session_state.df_devops = None
 if "df_literales" not in st.session_state:
     st.session_state.df_literales = None
 if "traducido" not in st.session_state:
     st.session_state.traducido = False
 
-# 5. Pestañas
+# 6. Pestañas
 tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
 
 with tab_app:
     archivo_subido = st.file_uploader(
-        "Carga el CSV exportado de Azure DevOps')",
+        "Carga el CSV exportado de Azure DevOps",
         type=["csv"]
     )
 
-    if archivo_subido:
+    col_demo1, col_demo2 = st.columns([1.8, 1])
+    with col_demo1:
+        if st.button("📁 Cargar datos de prueba de ejemplo"):
+            st.session_state.df_devops = pd.read_csv(io.StringIO(EJEMPLO_CSV), sep=";")
+            st.session_state.df_literales = None
+            st.session_state.traducido = False
+    with col_demo2:
+        st.download_button(
+            label="⬇ Descargar CSV de ejemplo",
+            data=EJEMPLO_CSV.encode("utf-8-sig"),
+            file_name="Export_DevOps_Sprint42_Sample.csv",
+            mime="text/csv"
+        )
+
+    if archivo_subido is not None:
         try:
-            df_devops = pd.read_csv(archivo_subido, sep=None, engine='python', encoding='utf-8-sig')
-            st.success(f"Archivo cargado con éxito: **{len(df_devops)}** Historias de Usuario detectadas.")
-            
-            with st.expander("Vista previa del CSV original"):
-                st.dataframe(df_devops.head(3), use_container_width=True)
-                
-            # PASO 1: EXTRAER Y LIMPIAR (SOLO ESPAÑOL)
-            if st.button("1. Extraer y Limpiar Literales (Español)"):
-                if not api_key:
-                    st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
-                else:
-                    with st.spinner("Limpiando HTML y procesando HDUs con Gemini..."):
-                        col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id", "Id de elemento de trabajo"], 0)
-                        col_title = obtener_columna(df_devops, ["Title", "Título"], 1)
-                        col_desc = obtener_columna(df_devops, ["Description", "Descripción"], 2)
-                        col_ac = obtener_columna(df_devops, ["Acceptance Criteria", "Criterios de Aceptación", "Criterios de aceptacion"], 3)
-                        
-                        df_devops["Description_Clean"] = df_devops[col_desc].apply(limpiar_html_devops) if col_desc else ""
-                        df_devops["Acceptance_Criteria_Clean"] = df_devops[col_ac].apply(limpiar_html_devops) if col_ac else ""
-                        
-                        df_devops["Full_HDU_Text"] = (
-                            "HDU ID: " + df_devops[col_id].astype(str) + "\n" +
-                            "Título: " + df_devops[col_title].astype(str) + "\n" +
-                            "Descripción: " + df_devops["Description_Clean"] + "\n" +
-                            "Criterios de Aceptación: " + df_devops["Acceptance_Criteria_Clean"]
-                        )
-                        texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
-
-                        client = genai.Client(api_key=api_key)
-                        prompt_usuario = f"Historias de Usuario:\n\n{texto_completo_hdus}\n\nExtrae únicamente los literales de interfaz en español."
-                        
-                        response = client.models.generate_content(
-                            model='gemini-3.6-flash',
-                            contents=prompt_usuario,
-                            config=types.GenerateContentConfig(
-                                system_instruction=PROMPT_EXTRACCION,
-                                response_mime_type="application/json",
-                                temperature=0.1
-                            )
-                        )
-                        
-                        try:
-                            resultado_json = json.loads(response.text)
-                            df_res = pd.DataFrame(resultado_json)
-                            columnas_renombradas = {
-                                'id_hdu': 'ID HDU',
-                                'modulo': 'Módulo Funcional',
-                                'pantalla': 'Pantalla / Vista',
-                                'tipo_elemento': 'Tipo de Elemento',
-                                'texto_es': 'Literal (ES)'
-                            }
-                            st.session_state.df_literales = df_res.rename(columns=columnas_renombradas)
-                            st.session_state.traducido = False
-                        except Exception:
-                            st.error("Gemini no devolvió un formato JSON válido.")
-                            st.code(response.text)
-
+            st.session_state.df_devops = pd.read_csv(archivo_subido, sep=None, engine='python', encoding='utf-8-sig')
+            st.session_state.df_literales = None
+            st.session_state.traducido = False
         except Exception as e:
-            st.error(f"Ocurrió un error al procesar el archivo: {e}")
+            st.error(f"Error al leer el archivo subido: {e}")
 
-    # Si ya se extrajeron literales, mostrar editor y opción de traducir
+    # Si hay datos cargados
+    if st.session_state.df_devops is not None:
+        df_act = st.session_state.df_devops
+        st.success(f"Archivo listo: **{len(df_act)}** Historias de Usuario cargadas.")
+        
+        with st.expander("Vista previa del CSV original"):
+            st.dataframe(df_act.head(3), use_container_width=True)
+            
+        # PASO 1: EXTRAER Y LIMPIAR
+        if st.button("1. Extraer y Limpiar Literales (Español)"):
+            if not api_key:
+                st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
+            else:
+                with st.spinner("Limpiando marcado HTML y procesando HDUs con Gemini..."):
+                    col_id = obtener_columna(df_act, ["ID", "Id", "Work Item Id", "Id de elemento de trabajo"], 0)
+                    col_title = obtener_columna(df_act, ["Title", "Título"], 1)
+                    col_desc = obtener_columna(df_act, ["Description", "Descripción"], 2)
+                    col_ac = obtener_columna(df_act, ["Acceptance Criteria", "Criterios de Aceptación", "Criterios de aceptacion"], 3)
+                    
+                    df_act["Description_Clean"] = df_act[col_desc].apply(limpiar_html_devops) if col_desc else ""
+                    df_act["Acceptance_Criteria_Clean"] = df_act[col_ac].apply(limpiar_html_devops) if col_ac else ""
+                    
+                    df_act["Full_HDU_Text"] = (
+                        "HDU ID: " + df_act[col_id].astype(str) + "\n" +
+                        "Título: " + df_act[col_title].astype(str) + "\n" +
+                        "Descripción: " + df_act["Description_Clean"] + "\n" +
+                        "Criterios de Aceptación: " + df_act["Acceptance_Criteria_Clean"]
+                    )
+                    texto_completo_hdus = "\n\n---\n\n".join(df_act["Full_HDU_Text"].tolist())
+
+                    client = genai.Client(api_key=api_key)
+                    prompt_usuario = f"Historias de Usuario:\n\n{texto_completo_hdus}\n\nExtrae únicamente los literales de interfaz en español."
+                    
+                    response = client.models.generate_content(
+                        model='gemini-3.6-flash',
+                        contents=prompt_usuario,
+                        config=types.GenerateContentConfig(
+                            system_instruction=PROMPT_EXTRACCION,
+                            response_mime_type="application/json",
+                            temperature=0.1
+                        )
+                    )
+                    
+                    try:
+                        resultado_json = json.loads(response.text)
+                        df_res = pd.DataFrame(resultado_json)
+                        columnas_renombradas = {
+                            'id_hdu': 'ID HDU',
+                            'modulo': 'Módulo Funcional',
+                            'pantalla': 'Pantalla / Vista',
+                            'tipo_elemento': 'Tipo de Elemento',
+                            'texto_es': 'Literal (ES)'
+                        }
+                        st.session_state.df_literales = df_res.rename(columns=columnas_renombradas)
+                        st.session_state.traducido = False
+                    except Exception:
+                        st.error("Gemini no devolvió un formato JSON válido.")
+                        st.code(response.text)
+
+    # Si ya se extrajeron literales
     if st.session_state.df_literales is not None:
         st.write("---")
         st.subheader("Catálogo de UI (Editable)")
         st.caption("Revisa o edita la tabla antes de descargar o traducir.")
         
-        # Editor interactivo
         df_editado = st.data_editor(
             st.session_state.df_literales,
             use_container_width=True,
@@ -341,7 +376,7 @@ with tab_app:
                             st.error("Error al procesar las traducciones.")
                             st.code(response.text)
 
-        # BLOQUE DE DESCARGA (Excel o CSV)
+        # BLOQUE DE DESCARGA
         st.write("---")
         col_formato, col_boton = st.columns([1, 2])
         
@@ -386,15 +421,15 @@ with tab_guia:
     * Ve a **Boards > Queries** en tu proyecto de Azure DevOps.
     * Crea o abre una consulta con las HDUs de la iteración correspondiente.
     * Asegúrate de incluir en la vista las columnas mínimas: `ID`, `Title`, `Description` y `Acceptance Criteria`.
-    * Pulsa en **Export to CSV** (detecta automáticamente delimitadores ,, ; o tabulador con codificación UTF-8).
+    * Pulsa en **Export to CSV** (detecta automáticamente delimitadores `,`, `;` o tabulador con codificación UTF-8).
     """)
 
     st.markdown("**2. Flujo de Trabajo en LimpiaText**")
     st.markdown("""
-    * **Paso 1 (Extracción & Limpieza):** Sube el CSV y pulsa **1. Extraer y Limpiar Literales (Español)**. El sistema depura etiquetas HTML/comentarios y aísla botones, campos, mensajes de error, modales y opciones desplegables.
-    * **Edición interactiva:** Corrige erratas, añade términos o elimina filas sobrantes haciendo doble clic directamente sobre la tabla.
-    * **Paso 2 (Localización Multilingüe):** Si requieres el catálogo en varios idiomas, pulsa **2. Traducir Catálogo** para generar las variantes en Inglés, Catalán/Valenciano/Balear, Gallego y Euskera.
-    * **Exportación:** Selecciona formato Excel (`.xlsx`) o CSV (`.csv`) y descarga el archivo final.
+    * **Paso 1 (Extracción & Limpieza):** Sube tu archivo CSV (o usa los datos de prueba de ejemplo) y pulsa **1. Extraer y Limpiar Literales (Español)**.
+    * **Edición interactiva:** Corrige erratas o añade términos directamente en la tabla editable.
+    * **Paso 2 (Localización Multilingüe):** Pulsa **2. Traducir Catálogo** para generar las columnas en Inglés, Catalán/Valenciano/Balear, Gallego y Euskera.
+    * **Exportación:** Elige formato Excel (`.xlsx`) o CSV (`.csv`) y descarga el catálogo listo para tu equipo.
     """)
 
     st.write("---")
@@ -413,5 +448,5 @@ with tab_guia:
 
     with st.expander("¿Qué hacer si el CSV da error al cargar?"):
         st.write("""
-        LimpiaText detecta automáticamente delimitadores habituales (;, ,, tabulador). Si persiste el fallo comprueba que el archivo esté guardado con codificación **UTF-8** para evitar problemas con tildes, caracteres especiales o saltos de línea dentro de las descripciones.
+        LimpiaText detecta automáticamente delimitadores habituales (`;`, `,`, tabulador). Si persiste el fallo, comprueba que el archivo esté guardado con codificación **UTF-8** para evitar problemas con caracteres especiales.
         """)
