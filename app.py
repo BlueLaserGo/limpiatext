@@ -17,6 +17,12 @@ st.set_page_config(
 # 2. Estilo Editorial Minimalista (CSS personalizado)
 st.markdown("""
 <style>
+    /* Compacta la barra lateral para ver tu perfil sin scroll */
+    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
+        gap: 0.5rem !important;
+        padding-top: 1rem !important;
+        padding-bottom: 0.5rem !important;
+    }
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
     /* Oculta header y compacta la vista para evitar scroll */
