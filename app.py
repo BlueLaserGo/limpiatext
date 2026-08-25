@@ -115,7 +115,7 @@ if archivo_subido:
                     prompt_usuario = f"A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n{texto_completo_hdus}\n\nExtrae todos los literales de UI, clasifícalos y tradúcelos según las directrices establecidas."
                     
                     response = client.models.generate_content(
-                        model='gemini-2.5-flash',
+                        model='gemini-3.6-flash',
                         contents=prompt_usuario,
                         config=types.GenerateContentConfig(
                             system_instruction=SYSTEM_PROMPT,
