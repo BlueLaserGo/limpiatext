@@ -15,11 +15,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Estilo Editorial Minimalista (CSS limpio y probado)
+# 2. Estilo Editorial Minimalista (CSS Completo y Blindado)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
+    /* Margen superior para no ser tapado por la barra de Streamlit */
     .block-container {
         padding-top: 4.5rem !important;
         padding-bottom: 2rem !important;
@@ -71,39 +72,79 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Badges de idiomas en barra lateral */
+    /* Caja del uploader con BORDE AMARILLO DISCONTINUO */
+    div[data-testid="stFileUploader"] {
+        background-color: #FFFFFF !important;
+        border: 2px dashed #FACC15 !important;
+        border-radius: 6px !important;
+        padding: 0.8rem !important;
+    }
+
+    /* Botón Uploader: Negro con texto blanco */
+    div[data-testid="stFileUploader"] section button {
+        background-color: #111111 !important;
+        border: 1px solid #111111 !important;
+        border-radius: 4px !important;
+        padding: 0.35rem 1rem !important;
+        transition: all 0.2s ease !important;
+    }
+    div[data-testid="stFileUploader"] section button * {
+        display: none !important;
+    }
+    div[data-testid="stFileUploader"] section button::after {
+        content: "Examinar archivos";
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        color: #FFFFFF !important;
+    }
+
+    /* Hover Amarillo en el botón del uploader */
+    div[data-testid="stFileUploader"] section button:hover {
+        background-color: #FACC15 !important;
+        border-color: #FACC15 !important;
+    }
+    div[data-testid="stFileUploader"] section button:hover::after {
+        color: #111111 !important;
+    }
+
+    /* Ocultar texto 200MB nativo y ponerlo en español */
+    div[data-testid="stFileUploaderInstructions"] * {
+        display: none !important;
+    }
+    div[data-testid="stFileUploaderInstructions"]::after {
+        content: "Máx. 200 MB por archivo • Archivo CSV";
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.82rem !important;
+        color: #666666 !important;
+        display: inline-block;
+        margin-left: 0.75rem;
+    }
+
+    /* Badges de idiomas (Negro con letras amarillas, en línea sin partirse) */
     .lang-item {
         display: flex;
         align-items: center;
         gap: 10px;
         margin-bottom: 8px;
         font-size: 0.85rem;
-        font-weight: 500;
-        color: #000000;
-    }
-    .lang-badge {
-        background: #000000;
-        color: #FFDE00;
-        font-family: 'Space Grotesk', monospace;
-        font-weight: 700;
-        padding: 2px 7px;
-        border-radius: 0px;
-        font-size: 0.75rem;
+        color: #111111;
+        white-space: nowrap;
     }
     .lang-badge {
         background-color: #000000;
         color: #FFDE00;
         font-family: 'Space Grotesk', monospace;
         font-weight: 700;
-        padding: 4px 8px;
+        padding: 3px 6px;
         border-radius: 4px;
-        font-size: 0.8rem;
-        min-width: 32px;
+        font-size: 0.75rem;
+        min-width: 28px;
         text-align: center;
-        display: inline-block;
+        flex-shrink: 0;
     }
 
-    /* Botón procesar */
+    /* Botón principal Procesar */
     .stButton > button {
         background-color: #111111;
         color: #FFFFFF;
@@ -184,7 +225,7 @@ with st.sidebar:
 
     st.markdown("**Idiomas de exportación:**")
     st.markdown("""
-    <div style="margin-top: 12px;">
+    <div style="margin-top: 10px;">
         <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
         <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
         <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
