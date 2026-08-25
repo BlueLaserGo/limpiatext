@@ -15,117 +15,92 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Estilo Editorial Minimalista (CSS personalizado)
+# 2. Estilo Editorial Minimalista (CSS limpio y probado)
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
     .block-container {
         padding-top: 4.5rem !important;
         padding-bottom: 2rem !important;
     }
 
+    /* Fondo general */
     .stApp {
-        background-color: #E6E6E4;
-        color: #000000;
+        background-color: #EFEFEF;
+        color: #111111;
         font-family: 'Inter', sans-serif;
     }
 
+    /* Barra lateral */
     section[data-testid="stSidebar"] {
-        background-color: #DADAD7;
-        border-right: 1px solid #C5C5C0;
+        background-color: #E8E8E6;
+        border-right: 1px solid #D5D5D0;
     }
 
-    /* Titular estilo cartel */
+    /* Titular */
     .hero-title {
-        font-family: 'Anton', sans-serif;
-        font-size: 3.8rem;
-        letter-spacing: 0.5px;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 2.1rem;
+        font-weight: 700;
+        letter-spacing: -1px;
         text-transform: uppercase;
-        line-height: 0.95;
-        color: #000000;
-        margin-top: 0.6rem;
-        margin-bottom: 0.4rem;
+        line-height: 1.1;
+        color: #111111;
+        margin-top: 0.4rem;
+        margin-bottom: 0.2rem;
     }
 
     .hero-subtitle {
         font-size: 0.95rem;
-        color: #333333;
+        color: #555555;
         line-height: 1.4;
-        max-width: 820px;
-        margin-bottom: 1.5rem;
+        max-width: 800px;
+        margin-bottom: 1rem;
     }
 
     /* Pestañas */
     .stTabs [data-baseweb="tab-list"] {
         gap: 1.5rem;
-        border-bottom: 2px solid #000000;
+        border-bottom: 1px solid #CCCCCC;
     }
     .stTabs [data-baseweb="tab"] {
         font-family: 'Space Grotesk', sans-serif !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        font-size: 0.88rem !important;
-        color: #000000 !important;
-        border-radius: 0 !important;
-        padding: 0.5rem 0 !important;
-    }
-    .stTabs [aria-selected="true"] {
-        border-bottom: 3px solid #000000 !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+        color: #111111 !important;
     }
 
-    /* Caja del uploader */
-    div[data-testid="stFileUploaderDropzone"],
-    div[data-testid="stFileUploader"] section {
-        background-color: #FFFFFF !important;
-        border: 2px dashed #000000 !important;
-        border-radius: 4px !important;
-        padding: 0.8rem !important;
-    }
-
-    /* Botón nativo de subida */
-    div[data-testid="stFileUploader"] button {
-        background-color: #000000 !important;
-        color: #FFFFFF !important;
-        border: 1px solid #000000 !important;
-        border-radius: 3px !important;
-        font-family: 'Space Grotesk', sans-serif !important;
-        font-weight: 700 !important;
-        transition: all 0.2s ease !important;
-    }
-    div[data-testid="stFileUploader"] button:hover {
-        background-color: #FFDE00 !important;
-        color: #000000 !important;
-        border-color: #000000 !important;
-    }
-
-    /* Píldoras de idiomas */
+    /* Badges de idiomas exactos a tu captura */
     .lang-item {
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin-bottom: 8px;
-        font-size: 0.85rem;
-        color: #000000;
-        white-space: nowrap;
+        gap: 12px;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+        color: #111111;
+        font-family: 'Inter', sans-serif;
     }
     .lang-badge {
-        background: #000000;
+        background-color: #000000;
         color: #FFDE00;
         font-family: 'Space Grotesk', monospace;
         font-weight: 700;
-        padding: 2px 7px;
-        border-radius: 2px;
-        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        min-width: 32px;
+        text-align: center;
+        display: inline-block;
     }
 
-    /* Botón principal */
+    /* Botón procesar */
     .stButton > button {
-        background-color: #000000;
+        background-color: #111111;
         color: #FFFFFF;
-        border-radius: 3px;
+        border-radius: 4px;
         font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700;
+        font-weight: 600;
         font-size: 0.95rem;
         letter-spacing: 0.5px;
         text-transform: uppercase;
@@ -134,13 +109,13 @@ st.markdown("""
         transition: all 0.2s ease;
     }
     .stButton > button:hover {
-        background-color: #FFDE00;
-        color: #000000;
+        background-color: #FACC15;
+        color: #111111;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. Funciones de soporte
+# 3. Funciones de limpieza y soporte
 def limpiar_html_devops(texto: str) -> str:
     if not isinstance(texto, str) or not texto.strip():
         return ""
@@ -164,18 +139,20 @@ Tu tarea es analizar las Historias de Usuario (HDUs) de una iteración, una vez 
 
 NO extraigas descripciones narrativas ni requisitos técnicos. Extrae solo textos visibles para el usuario final en la UI.
 
-Para cada literal encontrado, debes proporcionar:
-1. id_hdu: El ID de la Historia de Usuario correspondiente.
-2. modulo: El área funcional o módulo (ej. Finanzas, Obras, Contabilidad).
-3. pantalla: La vista o contexto dentro del módulo.
-4. tipo_elemento: Tipo de elemento (Botón, Campo, Mensaje de error, Alerta, Opción desplegable, etc.).
-5. texto_es: El literal original en español.
-6. traduccion_en: Traducción profesional al inglés.
-7. traduccion_ca: Traducción profesional al catalán / valenciano / balear.
-8. traduccion_gl: Traducción profesional al gallego.
-9. traduccion_eu: Traducción profesional al euskera.
-
-IMPORTANTE: Debes responder EXCLUSIVAMENTE con una lista JSON válida de objetos.
+Estructura obligatoria de respuesta JSON:
+[
+  {
+    "id_hdu": "ID",
+    "modulo": "Módulo Funcional",
+    "pantalla": "Pantalla / Vista",
+    "tipo_elemento": "Tipo de Elemento",
+    "texto_es": "Literal (ES)",
+    "traduccion_en": "Inglés (EN)",
+    "traduccion_ca": "Catalán / Valenciano / Balear (CA)",
+    "traduccion_gl": "Gallego (GL)",
+    "traduccion_eu": "Euskera (EU)"
+  }
+]
 """
 
 # 4. Barra lateral (Sidebar)
@@ -198,7 +175,7 @@ with st.sidebar:
 
     st.markdown("**Idiomas de exportación:**")
     st.markdown("""
-    <div style="margin-top: 10px; font-size: 0.78rem;">
+    <div style="margin-top: 12px;">
         <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
         <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
         <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
@@ -208,10 +185,10 @@ with st.sidebar:
 
 # 5. Encabezado principal (Hero Editorial)
 st.markdown("""
-<div style="display: inline-block; background-color: #FFDE00; color: #000000; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
+<div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
     Extracción y traducción de literales
 </div>
-<div class="hero-title">LIMPIATEXT</div>
+<div class="hero-title">LimpiaText</div>
 <div class="hero-subtitle">
     Extracción inteligente de literales de interfaz desde exportaciones de <b>Azure DevOps</b>, 
     depuración de marcado HTML residual y catálogo de localización multilingüe inmediato.
@@ -224,8 +201,7 @@ tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario &
 with tab_app:
     archivo_subido = st.file_uploader(
         "Carga el CSV exportado de Azure DevOps (separador ';')",
-        type=["csv"],
-        help="Archivo CSV exportado desde Azure DevOps con codificación UTF-8."
+        type=["csv"]
     )
 
     if archivo_subido:
