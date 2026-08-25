@@ -221,88 +221,108 @@ st.markdown(
 
 st.write("---")
 
-# 6. Carga de archivo y ejecución
-archivo_subido = st.file_uploader(
-    "Carga el CSV exportado de Azure DevOps (separador ';')",
-    type=["csv"]
-)
+# 6. Pestañas de contenido
+tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
 
-if archivo_subido:
-    try:
-        df_devops = pd.read_csv(archivo_subido, sep=";")
-        st.success(f"Archivo cargado con éxito: **{len(df_devops)}** Historias de Usuario detectadas.")
-        
-        with st.expander("Vista previa del CSV original"):
-            st.dataframe(df_devops.head(3))
+with tab_app:
+    archivo_subido = st.file_uploader(
+        "Carga el CSV exportado de Azure DevOps (separador ';')",
+        type=["csv"]
+    )
+
+    if archivo_subido:
+        try:
+            df_devops = pd.read_csv(archivo_subido, sep=";")
+            st.success(f"Archivo cargado con éxito: **{len(df_devops)}** Historias de Usuario detectadas.")
             
-        if st.button("Limpiar y Traducir Literales"):
-            if not api_key:
-                st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
-            else:
-                with st.spinner("Limpiando HTML y normalizando campos..."):
-                    col_desc = "Description" if "Description" in df_devops.columns else df_devops.columns[1]
-                    col_ac = "Acceptance Criteria" if "Acceptance Criteria" in df_devops.columns else df_devops.columns[2]
-                    
-                    df_devops["Description_Clean"] = df_devops[col_desc].apply(limpiar_html_devops)
-                    df_devops["Acceptance_Criteria_Clean"] = df_devops[col_ac].apply(limpiar_html_devops)
-                    
-                    df_devops["Full_HDU_Text"] = (
-                        "HDU ID: " + df_devops["ID"].astype(str) + "\n" +
-                        "Título: " + df_devops["Title"].astype(str) + "\n" +
-                        "Descripción: " + df_devops["Description_Clean"] + "\n" +
-                        "Criterios de Aceptación: " + df_devops["Acceptance_Criteria_Clean"]
-                    )
-                    texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
-
-                with st.spinner("Extrayendo literales con Gemini 3.6 Flash y generando traducciones..."):
-                    client = genai.Client(api_key=api_key)
-                    prompt_usuario = (
-                        "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
-                        f"{texto_completo_hdus}\n\n"
-                        "Extrae todos los literales de UI, clasifícalos y tradúcelos según las directrices establecidas."
-                    )
-                    
-                    response = client.models.generate_content(
-                        model='gemini-3.6-flash',
-                        contents=prompt_usuario,
-                        config=types.GenerateContentConfig(
-                            system_instruction=SYSTEM_PROMPT,
-                            response_mime_type="application/json",
-                            temperature=0.1
-                        )
-                    )
-                    resultado_json = json.loads(response.text)
-
-                with st.spinner("Estructurando catálogo final..."):
-                    df_literales = pd.DataFrame(resultado_json)
-                    columnas_renombradas = {
-                        'id_hdu': 'ID HDU',
-                        'modulo': 'Módulo Funcional',
-                        'pantalla': 'Pantalla / Vista',
-                        'tipo_elemento': 'Tipo de Elemento',
-                        'texto_es': 'Literal (ES)',
-                        'traduccion_en': 'Inglés (EN)',
-                        'traduccion_ca': 'Catalán / Valenciano (CA)',
-                        'traduccion_gl': 'Gallego (GL)',
-                        'traduccion_eu': 'Euskera (EU)'
-                    }
-                    df_literales = df_literales.rename(columns=columnas_renombradas)
-                    
-                    output_excel = io.BytesIO()
-                    with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
-                        df_literales.to_excel(writer, index=False, sheet_name='Catálogo UI')
-                    excel_data = output_excel.getvalue()
-
-                st.write("---")
-                st.subheader("Catálogo de UI Generado")
-                st.dataframe(df_literales, use_container_width=True)
+            with st.expander("Vista previa del CSV original"):
+                st.dataframe(df_devops.head(3))
                 
-                st.download_button(
-                    label="Descargar Catálogo Excel (.xlsx)",
-                    data=excel_data,
-                    file_name="Catalogo_Literales_LimpiaText.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+            if st.button("Limpiar y Traducir Literales"):
+                if not api_key:
+                    st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
+                else:
+                    with st.spinner("Limpiando HTML y normalizando campos..."):
+                        col_desc = "Description" if "Description" in df_devops.columns else df_devops.columns[1]
+                        col_ac = "Acceptance Criteria" if "Acceptance Criteria" in df_devops.columns else df_devops.columns[2]
+                        
+                        df_devops["Description_Clean"] = df_devops[col_desc].apply(limpiar_html_devops)
+                        df_devops["Acceptance_Criteria_Clean"] = df_devops[col_ac].apply(limpiar_html_devops)
+                        
+                        df_devops["Full_HDU_Text"] = (
+                            "HDU ID: " + df_devops["ID"].astype(str) + "\n" +
+                            "Título: " + df_devops["Title"].astype(str) + "\n" +
+                            "Descripción: " + df_devops["Description_Clean"] + "\n" +
+                            "Criterios de Aceptación: " + df_devops["Acceptance_Criteria_Clean"]
+                        )
+                        texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
 
-    except Exception as e:
-        st.error(f"Ocurrió un error al procesar el archivo: {e}")
+                    with st.spinner("Extrayendo literales con Gemini 3.6 Flash y generando traducciones..."):
+                        client = genai.Client(api_key=api_key)
+                        prompt_usuario = (
+                            "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
+                            f"{texto_completo_hdus}\n\n"
+                            "Extrae todos los literales de UI, clasifícalos y tradúcelos según las directrices establecidas."
+                        )
+                        
+                        response = client.models.generate_content(
+                            model='gemini-3.6-flash',
+                            contents=prompt_usuario,
+                            config=types.GenerateContentConfig(
+                                system_instruction=SYSTEM_PROMPT,
+                                response_mime_type="application/json",
+                                temperature=0.1
+                            )
+                        )
+                        resultado_json = json.loads(response.text)
+
+                    with st.spinner("Estructurando catálogo final..."):
+                        df_literales = pd.DataFrame(resultado_json)
+                        columnas_renombradas = {
+                            'id_hdu': 'ID HDU',
+                            'modulo': 'Módulo Funcional',
+                            'pantalla': 'Pantalla / Vista',
+                            'tipo_elemento': 'Tipo de Elemento',
+                            'texto_es': 'Literal (ES)',
+                            'traduccion_en': 'Inglés (EN)',
+                            'traduccion_ca': 'Catalán / Valenciano (CA)',
+                            'traduccion_gl': 'Gallego (GL)',
+                            'traduccion_eu': 'Euskera (EU)'
+                        }
+                        df_literales = df_literales.rename(columns=columnas_renombradas)
+                        
+                        output_excel = io.BytesIO()
+                        with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
+                            df_literales.to_excel(writer, index=False, sheet_name='Catálogo UI')
+                        excel_data = output_excel.getvalue()
+
+                    st.write("---")
+                    st.subheader("Catálogo de UI Generado")
+                    st.dataframe(df_literales, use_container_width=True)
+                    
+                    st.download_button(
+                        label="Descargar Catálogo Excel (.xlsx)",
+                        data=excel_data,
+                        file_name="Catalogo_Literales_LimpiaText.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+
+        except Exception as e:
+            st.error(f"Ocurrió un error al procesar el archivo: {e}")
+
+with tab_guia:
+    st.markdown("### 📘 Manual de Uso")
+    st.markdown("""
+    1. **Exportar desde Azure DevOps:** Desde la consulta o backlog de tu iteración, exporta a CSV con las columnas `ID`, `Title`, `Description` y `Acceptance Criteria` (separador `;`).
+    2. **Cargar el archivo:** Sube el CSV en la pestaña principal.
+    3. **Procesar:** Pulsa el botón de extracción para depurar etiquetas HTML y generar el catálogo multilingüe.
+    4. **Descargar:** Obtén el archivo `.xlsx` listo para desarrollo y traductores.
+    """)
+    st.markdown("---")
+    st.markdown("### ❓ Preguntas Frecuentes (FAQ)")
+    st.markdown("""
+    * **¿Por qué se ignoran explicaciones largas?**  
+      LimpiaText detecta únicamente texto visible para el usuario final en la UI (botones, selectores, campos, errores, alertas) y descarta la narrativa técnica.
+    * **¿Qué idiomas se traducen?**  
+      Español original $\\rightarrow$ Inglés (EN), Catalán/Valenciano/Balear (CA), Gallego (GL) y Euskera (EU).
+    """)
