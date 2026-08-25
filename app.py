@@ -17,12 +17,6 @@ st.set_page_config(
 # 2. Estilo Editorial Minimalista (CSS personalizado)
 st.markdown("""
 <style>
-    /* Compacta la barra lateral para ver tu perfil sin scroll */
-    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
-        gap: 0.5rem !important;
-        padding-top: 1rem !important;
-        padding-bottom: 0.5rem !important;
-    }
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
     /* Oculta header y compacta la vista para evitar scroll */
@@ -32,33 +26,6 @@ st.markdown("""
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 0rem !important;
-  /* 1. Botón negro nítido */
-    div[data-testid="stFileUploader"] section button {
-        background-color: #111111 !important;
-        border: 1px solid #111111 !important;
-        border-radius: 4px !important;
-        padding: 0.4rem 1rem !important;
-    }
-
-    /* 2. Texto 'Examinar archivos' en blanco */
-    div[data-testid="stFileUploader"] section button span {
-        display: none !important; /* Oculta texto e icono original */
-    }
-    div[data-testid="stFileUploader"] section button::after {
-        content: "Examinar archivos" !important;
-        color: #FFFFFF !important;
-        font-family: 'Space Grotesk', sans-serif !important;
-        font-weight: 600 !important;
-        font-size: 0.85rem !important;
-    }
-
-    /* 3. Hover amarillo */
-    div[data-testid="stFileUploader"] section button:hover {
-        background-color: #FACC15 !important;
-        border-color: #FACC15 !important;
-    }
-    div[data-testid="stFileUploader"] section button:hover::after {
-        color: #111111 !important;
     }
 
     /* Fondo general estilo papel y tipografía base */
@@ -72,6 +39,11 @@ st.markdown("""
     section[data-testid="stSidebar"] {
         background-color: #E8E8E6;
         border-right: 1px solid #D5D5D0;
+    }
+    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
+        gap: 0.5rem !important;
+        padding-top: 1rem !important;
+        padding-bottom: 0.5rem !important;
     }
 
     /* Encabezado brutalista / editorial */
@@ -109,42 +81,8 @@ st.markdown("""
         margin-bottom: 0.4rem;
         line-height: 1;
     }
-/* Oculta el texto nativo original y el icono */
-    div[data-testid="stFileUploader"] button {
-        visibility: hidden !important;
-        position: relative !important;
-        background-color: #111111 !important;
-        border-radius: 4px !important;
-        border: 1px solid #111111 !important;
-        padding: 0.4rem 1.2rem !important;
-        transition: all 0.2s ease !important;
-    }
 
-    /* Inserta 'Examinar archivos' en blanco */
-    div[data-testid="stFileUploader"] button::after {
-        content: "Examinar archivos" !important;
-        visibility: visible !important;
-        position: absolute !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        font-size: 0.85rem !important;
-        font-family: 'Space Grotesk', sans-serif !important;
-        font-weight: 600 !important;
-        color: #FFFFFF !important;
-        white-space: nowrap !important;
-    }
-
-    /* Hover amarillo */
-    div[data-testid="stFileUploader"] button:hover {
-        background-color: #FACC15 !important;
-        border-color: #FACC15 !important;
-    }
-    div[data-testid="stFileUploader"] button:hover::after {
-        color: #111111 !important;
-    }
-
-    /* Caja estilizada con borde amarillo suave al foco */
+    /* Caja del File Uploader */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #D5D5D0 !important;
@@ -153,6 +91,21 @@ st.markdown("""
         transition: border-color 0.2s ease;
     }
     div[data-testid="stFileUploader"]:hover {
+        border-color: #FACC15 !important;
+    }
+
+    /* Botón nativo de Browse files */
+    div[data-testid="stFileUploader"] button {
+        background-color: #111111 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #111111 !important;
+        border-radius: 4px !important;
+        padding: 0.4rem 1.2rem !important;
+        transition: all 0.2s ease !important;
+    }
+    div[data-testid="stFileUploader"] button:hover {
+        background-color: #FACC15 !important;
+        color: #111111 !important;
         border-color: #FACC15 !important;
     }
 
