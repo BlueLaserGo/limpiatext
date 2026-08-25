@@ -65,7 +65,7 @@ with st.sidebar:
     st.markdown(
         "**Idiomas soportados:**\n"
         "* 🇬🇧 Inglés (EN)\n"
-        "* 🏴 Catalán / Valenciano (CA)\n"
+        "* 🏴 Catalán / Valenciano / Balear (CA)\n"
         "* 🏴 Gallego (GL)\n"
         "* 🏴 Euskera (EU)"
     )
