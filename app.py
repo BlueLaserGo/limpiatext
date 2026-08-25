@@ -15,6 +15,18 @@ st.set_page_config(
 )
 
 # 2. Estilo Editorial Minimalista (CSS personalizado)
+/* Elimina el espacio superior invisible de Streamlit */
+    header[data-testid="stHeader"] {
+        display: none;
+    }
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 0rem !important;
+    }
+    /* Compacta la caja de subir archivos */
+    div[data-testid="stFileUploader"] {
+        padding: 0.5rem !important;
+    }
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -61,16 +73,17 @@ st.markdown("""
     /* Badge minimalista de versión */
     .version-tag {
         display: inline-block;
-        background-color: #FACC15; /* Amarillo de acento */
-        color: #111111;
+        background-color: #FACC15 !important;
+        color: #111111 !important; /* Fuerza color negro */
         font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
         font-size: 0.75rem;
-        padding: 2px 8px;
-        border-radius: 2px;
+        padding: 4px 10px;
+        border-radius: 3px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0.4rem;
+        line-height: 1;
     }
 
     /* Píldoras de idiomas en barra lateral */
@@ -224,8 +237,6 @@ st.markdown(
     '</div>',
     unsafe_allow_html=True
 )
-
-st.write("---")
 
 # 6. Pestañas de contenido
 tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
