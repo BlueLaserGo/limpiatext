@@ -74,14 +74,15 @@ st.markdown("""
         line-height: 1;
     }
 
-    /* Caja del cargador */
+    /* Caja del cargador con borde amarillo discontinuo */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
-        border: 2px dashed #CCCCCC !important;
+        border: 2px dashed #FACC15 !important;
         border-radius: 6px !important;
         padding: 0.6rem !important;
     }
-    /* Estilo del botón Upload: negro con texto blanco */
+
+    /* Estilo del botón: negro con texto blanco */
     div[data-testid="stFileUploader"] section button {
         background-color: #111111 !important;
         border: 1px solid #111111 !important;
@@ -104,7 +105,7 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* Hover amarillo */
+    /* Hover amarillo en el botón */
     div[data-testid="stFileUploader"] section button:hover {
         background-color: #FACC15 !important;
         border-color: #FACC15 !important;
@@ -112,12 +113,13 @@ st.markdown("""
     div[data-testid="stFileUploader"] section button:hover::after {
         color: #111111 !important;
     }
-    /* Oculta el texto nativo '200MB per file • CSV' */
+
+    /* Oculta texto nativo '200MB per file • CSV' */
     div[data-testid="stFileUploaderInstructions"] * {
         display: none !important;
     }
 
-    /* Añade el texto en español */
+    /* Inserta texto en español */
     div[data-testid="stFileUploaderInstructions"]::after {
         content: "Máx. 200 MB por archivo • Archivo CSV";
         font-family: 'Inter', sans-serif !important;
@@ -126,7 +128,7 @@ st.markdown("""
         display: inline-block;
         margin-left: 0.75rem;
     }
-    
+
     /* Píldoras de idiomas */
     .lang-item {
         display: flex;
@@ -202,40 +204,34 @@ Para cada literal encontrado, debes proporcionar:
 IMPORTANTE: Debes responder EXCLUSIVAMENTE con una lista JSON válida de objetos.
 """
 
-# 4. Barra lateral
+# 4. Barra lateral (Sidebar)
 with st.sidebar:
-    st.markdown('<div class="hero-title" style="font-size: 1.6rem;">LimpiaText</div>', unsafe_allow_html=True)
-    st.caption("De DevOps al catálogo multilingüe sin dramas.")
-    st.write("---")
-    
-    api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") else ""
-    api_key = st.text_input(
-        "Gemini API Key:",
-        value=api_key_env,
-        type="password",
-        help="Clave de Google AI Studio (modelo: gemini-3.6-flash)."
-    )
-    
-    st.markdown("---")
-    st.markdown("**Idiomas de exportación:**")
+    # Perfil / Autoría
     st.markdown("""
-    <div style="margin-top: 10px;">
-        <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
-        <div class="lang-item" style="white-space: nowrap;"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>       
-        <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
-        <div class="lang-item"><span class="lang-badge">EU</span> Euskera</div>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid #D5D5D0;">
+        <img src="https://media.licdn.com/dms/image/v2/D4D03AQEa6ZkM-ZgYJw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1718274488219?e=1743638400&v=beta&t=example" 
+             style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC;">
+        <div>
+            <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
+            <a href="https://www.linkedin.com/in/tu-perfil/" target="_blank" style="font-size: 0.78rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("---")
+    # API Key
+    api_key = st.text_input("Gemini API Key:", type="password", help="Introduce tu clave de API de Google Gemini.")
+
+    st.write("---")
+
+    # Idiomas soportados
+    st.markdown("**Idiomas de exportación:**")
     st.markdown("""
-    <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px;">
-        <img src="https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg" 
-             style="width: 48px; height: 48px; min-width: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #111111;">
-        <div style="line-height: 1.25;">
-            <div style="font-weight: 700; color: #111111; font-size: 0.9rem;">Laura Serrano Gómez</div>
-            <a href="https://www.linkedin.com/in/lauserrano/?locale=es-ES" target="_blank" style="color: #555555; text-decoration: underline; font-size: 0.8rem;">Conectar en LinkedIn ↗</a>
-        </div>
+    <div style="margin-top: 10px; font-size: 0.78rem;">
+        <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
+        <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
+        <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
+        <div class="lang-item"><span class="lang-badge">EU</span> Euskera</div>
     </div>
     """, unsafe_allow_html=True)
 
