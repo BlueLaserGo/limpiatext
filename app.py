@@ -58,20 +58,20 @@ st.markdown("""
         margin-bottom: 0.8rem;
     }
 
-    /* Badge amarillo */
+    /* Badge amarillo sólido */
     .version-tag {
-        display: inline-block;
+        display: inline-block !important;
         background-color: #FACC15 !important;
         color: #111111 !important;
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700;
-        font-size: 0.72rem;
-        line-height: 1.4 !important;
-        padding: 3px 8px;
-        border-radius: 3px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.4rem;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 0.75rem !important;
+        line-height: 1.2 !important;
+        padding: 4px 10px !important;
+        border-radius: 3px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        margin-bottom: 0.5rem !important;
     }
 
     /* Caja del uploader con borde discontinuo amarillo */
@@ -225,7 +225,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 # 5. Encabezado principal (Hero Editorial)
-st.markdown('<span class="version-tag">Extracción y traducción de literales</span>', unsafe_allow_html=True)
+st.markdown('<div class="version-tag">Extracción y traducción de literales</div>', unsafe_allow_html=True)
 st.markdown('<div class="hero-title">LimpiaText</div>', unsafe_allow_html=True)
 st.markdown(
     '<div class="hero-subtitle">'
