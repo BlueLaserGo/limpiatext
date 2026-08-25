@@ -24,7 +24,7 @@ En los equipos de análisis funcional y localización de software, la gestión d
 
 1. **Limpieza con Regex y Pandas:** Elimina todo el ruido HTML y normaliza los textos de las Historias de Usuario (HDUs).
 2. **Extracción y traducción con Gemini 2.5 Flash:** Aplica un prompt especializado con *Structured Outputs* (JSON estricto) que detecta únicamente elementos de interfaz (botones, selectores, errores, modales) y los clasifica por módulo y pantalla.
-3. **Localización multilingüe:** Traduce los literales al **inglés** y a las **lenguas cooficiales españolas (catalán/valenciano, gallego y euskera)** manteniendo el contexto funcional.
+3. **Localización multilingüe:** Traduce los literales al **inglés** y a las **lenguas cooficiales españolas (catalán/valenciano/balear, gallego y euskera)** manteniendo el contexto funcional.
 4. **Exportación inmediata a Excel (.xlsx):** Genera el catálogo estructurado listo para desarrollo, QA y traducción.
 
 ---
@@ -42,9 +42,9 @@ En los equipos de análisis funcional y localización de software, la gestión d
 
 | Código | Idioma |
 | :--- | :--- |
-| **ES** | Español (Original) |
+| **ES** | Español ES (Original) |
 | **EN** | Inglés |
-| **CA** | Catalán / Valenciano |
+| **CA** | Catalán / Valenciano / Balear |
 | **GL** | Gallego |
 | **EU** | Euskera |
 
