@@ -216,6 +216,36 @@ def ver_ficha_proyecto():
             use_container_width=True
         )
 
+# Diálogo interactivo con la ficha del proyecto
+@st.dialog("👀 ¿De qué va este proyecto?")
+def ver_ficha_proyecto():
+    st.markdown("""
+    ### LimpiaText — Localización Inteligente de UI
+    **Autora:** Laura Serrano Gómez  
+    **Objetivo:** Automatizar la depuración de exportaciones de Azure DevOps y la extracción/traducción de textos de interfaz.
+
+    * **01. Entrada:** Carga de CSV de Azure DevOps o prueba con datos de ejemplo.
+    * **02. Depuración:** Filtro Regex de etiquetas HTML residuales (`<div>`, `<span>`, listas).
+    * **03. Extracción:** Identificación de literales de interfaz en español mediante Gemini 3.6 Flash.
+    * **04. Validación:** Edición de textos en directo con tabla interactiva.
+    * **05. Localización:** Traducción a **EN**, **CA**, **GL** y **EU**.
+    * **06. Exportación:** Descarga dual en formato **Excel (.xlsx)** o **CSV (.csv)**.
+    """)
+    st.write("---")
+
+    ruta_pdf = "Ficha_Proyecto_LimpiaText_LauraSerrano.pdf"
+    if os.path.exists(ruta_pdf):
+        with open(ruta_pdf, "rb") as f:
+            pdf_bytes = f.read()
+        st.download_button(
+            label="⬇ Descargar Ficha Técnica en PDF",
+            data=pdf_bytes,
+            file_name="LimpiaText_Ficha_Proyecto.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+
+# 4. Barra lateral
 with st.sidebar:
     default_api_key = st.secrets.get("GEMINI_API_KEY", "")
 
@@ -243,6 +273,13 @@ with st.sidebar:
     st.markdown("**Ficha técnica:**")
     if st.button("👀 ¿De qué va este proyecto?", use_container_width=True):
         ver_ficha_proyecto()
+
+    st.write("")
+    if st.button("🔄 Reiniciar / Limpiar sesión", use_container_width=True):
+        st.session_state.df_devops = None
+        st.session_state.df_literales = None
+        st.session_state.traducido = False
+        st.rerun()
 
     st.markdown("""
     <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #D5D5D0; display: flex; align-items: center; gap: 8px;">
