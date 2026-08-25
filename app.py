@@ -211,6 +211,44 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 # 5. Encabezado principal
+import os
+
+# Modal con la ficha técnica
+@st.dialog("📄 Ficha Técnica & Guía Rápida")
+def ver_ficha_proyecto():
+    st.markdown("""
+    ### LimpiaText — Localización Inteligente de UI
+    **Autora:** Laura Serrano Gómez  
+    **Objetivo:** Automatizar la depuración de exportaciones de Azure DevOps y la extracción/traducción de textos de interfaz.
+    
+    * **Paso 1:** Limpieza de marcado HTML y extracción en español.
+    * **Paso 2:** Validación mediante tabla editable en directo.
+    * **Paso 3:** Localización a EN, CA, GL y EU con Google Gemini (`gemini-3.6-flash`).
+    * **Exportación:** Formato `.xlsx` o `.csv`.
+    """)
+    st.write("---")
+    
+    # Botón para descargar el PDF original
+    ruta_pdf = "Ficha_Proyecto_LimpiaText_LauraSerrano.pdf"
+    if os.path.exists(ruta_pdf):
+        with open(ruta_pdf, "rb") as f:
+            pdf_bytes = f.read()
+        st.download_button(
+            label="⬇ Descargar PDF Completo",
+            data=pdf_bytes,
+            file_name="LimpiaText_Ficha_Proyecto.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+    else:
+        st.caption("Ficha en PDF lista para incluir en el repositorio.")
+
+# Botón disparador junto al título
+col_titulo, col_btn_ficha = st.columns([3.5, 1])
+with col_btn_ficha:
+    st.write("")
+    if st.button("👀 Léeme antes de probar", use_container_width=True):
+        ver_ficha_proyecto()
 st.markdown("""
 <div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
     Extracción y traducción de literales
