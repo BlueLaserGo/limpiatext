@@ -205,17 +205,28 @@ Para cada literal encontrado, debes proporcionar:
 IMPORTANTE: Debes responder EXCLUSIVAMENTE con una lista JSON válida de objetos.
 """
 
-# 4. Barra lateral (Sidebar)
+# Función para convertir imagen local a base64
+def get_image_base64(image_path):
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except Exception:
+        return ""
+
+# Detecta avatar.png o avatar.jpg en la raíz del repo
+avatar_b64 = get_image_base64("avatar.png") or get_image_base64("avatar.jpg")
+img_src = f"data:image/png;base64,{avatar_b64}" if avatar_b64 else ""
+
 with st.sidebar:
     # Perfil / Autoría
-    st.markdown("""
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid #D5D5D0;">
-        <img src="https://media.licdn.com/dms/image/v2/D4D03AQEa6ZkM-ZgYJw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1718274488219?e=1743638400&v=beta&t=example" 
-             style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC;">
-        <div>
-            <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
-            <div style="font-size: 0.95rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
-            <a href="https://www.linkedin.com/in/tu-perfil/" target="_blank" style="font-size: 0.78rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; padding-bottom: 0.6rem; border-bottom: 1px solid #D5D5D0;">
+        <img src="{img_src}" 
+             style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
+        <div style="line-height: 1.2;">
+            <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
+            <a href="https://www.linkedin.com/in/lauraserranogomez/" target="_blank" style="font-size: 0.75rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
         </div>
     </div>
     """, unsafe_allow_html=True)
