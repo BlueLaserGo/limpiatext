@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
 import json
-import re
-import html
 import io
 from google import genai
 from google.genai import types
+
+# Importamos la lógica desde utils.py
+from utils import SYSTEM_PROMPT, limpiar_html_devops, obtener_columna
 
 # 1. Configuración de página
 st.set_page_config(
@@ -15,31 +16,27 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Estilo Editorial Minimalista (CSS Completo y Blindado)
+# 2. Estilo Editorial Minimalista
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
-    /* Margen superior para no ser tapado por la barra de Streamlit */
     .block-container {
         padding-top: 4.5rem !important;
         padding-bottom: 2rem !important;
     }
 
-    /* Fondo general */
     .stApp {
         background-color: #EFEFEF;
         color: #111111;
         font-family: 'Inter', sans-serif;
     }
 
-    /* Barra lateral */
     section[data-testid="stSidebar"] {
         background-color: #E8E8E6;
         border-right: 1px solid #D5D5D0;
     }
 
-    /* Titular */
     .hero-title {
         font-family: 'Space Grotesk', sans-serif;
         font-size: 2.1rem;
@@ -60,7 +57,6 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* Pestañas */
     .stTabs [data-baseweb="tab-list"] {
         gap: 1.5rem;
         border-bottom: 1px solid #CCCCCC;
@@ -72,7 +68,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Caja del uploader con BORDE AMARILLO DISCONTINUO */
+    /* Caja del uploader con borde discontinuo amarillo */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #FACC15 !important;
@@ -80,7 +76,7 @@ st.markdown("""
         padding: 0.8rem !important;
     }
 
-    /* Botón Uploader: Negro con texto blanco */
+    /* Botón examinar archivos */
     div[data-testid="stFileUploader"] section button {
         background-color: #111111 !important;
         border: 1px solid #111111 !important;
@@ -98,8 +94,6 @@ st.markdown("""
         font-weight: 600 !important;
         color: #FFFFFF !important;
     }
-
-    /* Hover Amarillo en el botón del uploader */
     div[data-testid="stFileUploader"] section button:hover {
         background-color: #FACC15 !important;
         border-color: #FACC15 !important;
@@ -108,7 +102,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Ocultar texto 200MB nativo y ponerlo en español */
+    /* Ocultar texto nativo y poner en español */
     div[data-testid="stFileUploaderInstructions"] * {
         display: none !important;
     }
@@ -121,7 +115,7 @@ st.markdown("""
         margin-left: 0.75rem;
     }
 
-    /* Badges de idiomas (Negro con letras amarillas, en línea sin partirse) */
+    /* Badges de idiomas */
     .lang-item {
         display: flex;
         align-items: center;
@@ -144,7 +138,7 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* Botón principal Procesar */
+    /* Botón procesar */
     .stButton > button {
         background-color: #111111;
         color: #FFFFFF;
@@ -165,53 +159,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. Funciones de limpieza y soporte
-def limpiar_html_devops(texto: str) -> str:
-    if not isinstance(texto, str) or not texto.strip():
-        return ""
-    texto = html.unescape(texto)
-    texto = re.sub(r'<!--.*?-->', '', texto, flags=re.DOTALL)
-    texto = re.sub(r'<[^>]+>', '', texto)
-    return re.sub(r'\s+', ' ', texto).strip()
-
-def obtener_columna(df, opciones_nombres, indice_defecto=0):
-    for col in df.columns:
-        if col.strip().lower() in [op.lower() for op in opciones_nombres]:
-            return col
-    return df.columns[indice_defecto] if len(df.columns) > indice_defecto else None
-
-SYSTEM_PROMPT = """
-Eres una analista funcional senior y especialista en localización de software multilingüe para el ámbito autonómico e internacional.
-Tu tarea es analizar las Historias de Usuario (HDUs) de una iteración, una vez ya han sido refinadas, de una aplicación de software de gestión y extraer ÚNICAMENTE los literales que sean nuevos de interfaz (UI):
-- Nombres de campos, botones, pestañas, títulos de nuevos formularios y ventanas, y selectores.
-- Mensajes de validación, alertas, mensajes de error, modales o toasts.
-- Opciones de menús desplegables y títulos de sección.
-
-NO extraigas descripciones narrativas ni requisitos técnicos. Extrae solo textos visibles para el usuario final en la UI.
-
-Estructura obligatoria de respuesta JSON:
-[
-  {
-    "id_hdu": "ID",
-    "modulo": "Módulo Funcional",
-    "pantalla": "Pantalla / Vista",
-    "tipo_elemento": "Tipo de Elemento",
-    "texto_es": "Literal (ES)",
-    "traduccion_en": "Inglés (EN)",
-    "traduccion_ca": "Catalán / Valenciano / Balear (CA)",
-    "traduccion_gl": "Gallego (GL)",
-    "traduccion_eu": "Euskera (EU)"
-  }
-]
-"""
-# 4. Barra lateral (Sidebar)
+# 3. Barra lateral
 with st.sidebar:
-    # 1. API Key primero
     api_key = st.text_input("Gemini API Key:", type="password", help="Introduce tu clave de API de Google Gemini.")
 
     st.write("---")
 
-    # 2. Idiomas soportados
     st.markdown("**Idiomas de exportación:**")
     st.markdown("""
     <div style="margin-top: 10px;">
@@ -222,7 +175,6 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    # 3. Firma al final con "Desarrollado por"
     st.markdown("""
     <div style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #D5D5D0; display: flex; align-items: center; gap: 8px;">
         <img src="https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg" 
@@ -236,7 +188,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# 5. Encabezado principal (Hero Editorial)
+# 4. Encabezado principal
 st.markdown("""
 <div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
     Extracción y traducción de literales
@@ -248,7 +200,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 6. Pestañas de contenido
+# 5. Pestañas
 tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
 
 with tab_app:
