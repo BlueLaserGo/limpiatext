@@ -88,6 +88,28 @@ st.markdown("""
         margin-bottom: 0.4rem;
         line-height: 1;
     }
+/* Traducir botón Upload a Español */
+    div[data-testid="stFileUploader"] button {
+        font-size: 0px !important;
+    }
+    div[data-testid="stFileUploader"] button::after {
+        content: "Examinar archivos";
+        font-size: 0.85rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+    }
+
+    /* Caja estilizada con borde amarillo suave al foco */
+    div[data-testid="stFileUploader"] {
+        background-color: #FFFFFF !important;
+        border: 2px dashed #D5D5D0 !important;
+        border-radius: 6px !important;
+        padding: 0.8rem !important;
+        transition: border-color 0.2s ease;
+    }
+    div[data-testid="stFileUploader"]:hover {
+        border-color: #FACC15 !important;
+    }
 
     /* Píldoras de idiomas */
     .lang-item {
