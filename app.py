@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Estilo Editorial Minimalista (CSS personalizado)
+# 2. Estilo Editorial Minimalista (CSS limpio y sin escapar)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -25,20 +25,17 @@ st.markdown("""
         padding-bottom: 1rem !important;
     }
 
-    /* Fondo general */
     .stApp {
         background-color: #EFEFEF;
         color: #111111;
         font-family: 'Inter', sans-serif;
     }
 
-    /* Barra lateral */
     section[data-testid="stSidebar"] {
         background-color: #E8E8E6;
         border-right: 1px solid #D5D5D0;
     }
 
-    /* Titular */
     .hero-title {
         font-family: 'Space Grotesk', sans-serif;
         font-size: 2.1rem;
@@ -47,6 +44,7 @@ st.markdown("""
         text-transform: uppercase;
         line-height: 1.1;
         color: #111111;
+        margin-top: 0.4rem;
         margin-bottom: 0.2rem;
     }
 
@@ -56,42 +54,6 @@ st.markdown("""
         line-height: 1.4;
         max-width: 800px;
         margin-bottom: 0.8rem;
-    }
-
- /* Badge amarillo sólido con tamaño explícito */
-    .version-tag {
-        display: inline-block !important;
-        width: fit-content !important;
-        background-color: #FACC15 !important;
-        color: #111111 !important;
-        font-family: 'Space Grotesk', sans-serif !important;
-        font-weight: 700 !important;
-        font-size: 0.72rem !important;
-        line-height: 1 !important;
-        padding: 5px 10px !important;
-        border-radius: 3px !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-        margin-bottom: 0.6rem !important;
-    }
-
-    /* Oculta '200MB per file • CSV' sea cual sea el contenedor interno */
-    div[data-testid="stFileUploader"] section > span,
-    div[data-testid="stFileUploader"] section small,
-    div[data-testid="stFileUploader"] [data-testid="stFileUploaderInstructions"] {
-        font-size: 0px !important;
-        color: transparent !important;
-    }
-
-    /* Inserta el texto en español */
-    div[data-testid="stFileUploader"] section::after {
-        content: "Máx. 200 MB por archivo • Archivo CSV";
-        font-family: 'Inter', sans-serif !important;
-        font-size: 0.82rem !important;
-        color: #666666 !important;
-        display: inline-block;
-        margin-left: 0.75rem;
-        vertical-align: middle;
     }
 
     /* Caja del uploader con borde discontinuo amarillo */
@@ -193,6 +155,12 @@ def limpiar_html_devops(texto: str) -> str:
     texto = re.sub(r'\s+', ' ', texto).strip()
     return texto
 
+def obtener_columna(df, opciones_nombres, indice_defecto=0):
+    for col in df.columns:
+        if col.strip().lower() in [op.lower() for op in opciones_nombres]:
+            return col
+    return df.columns[indice_defecto] if len(df.columns) > indice_defecto else None
+
 SYSTEM_PROMPT = """
 Eres una analista funcional senior y especialista en localización de software multilingüe para el ámbito autonómico e internacional.
 Tu tarea es analizar las Historias de Usuario (HDUs) de una iteración, una vez ya han sido refinadas, de una aplicación de software de gestión y extraer ÚNICAMENTE los literales que sean nuevos de interfaz (UI):
@@ -244,16 +212,17 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# 5. Encabezado principal (Hero Editorial)
+# 5. Encabezado principal (Hero con estilos directos)
 st.markdown("""
-<div class="version-tag">Extracción y traducción de literales</div>
+<div style="display:inline-block; background-color:#FACC15; color:#111111; font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:0.75rem; padding:4px 10px; border-radius:3px; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">
+    Extracción y traducción de literales
+</div>
 <div class="hero-title">LimpiaText</div>
 <div class="hero-subtitle">
     Extracción inteligente de literales de interfaz desde exportaciones de <b>Azure DevOps</b>, 
     depuración de marcado HTML residual y catálogo de localización multilingüe inmediato.
 </div>
-""", unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # 6. Pestañas de contenido
 tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
@@ -277,21 +246,23 @@ with tab_app:
                     st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
                 else:
                     with st.spinner("Limpiando HTML y normalizando campos..."):
-                        col_desc = "Description" if "Description" in df_devops.columns else df_devops.columns[1]
-                        col_ac = "Acceptance Criteria" if "Acceptance Criteria" in df_devops.columns else df_devops.columns[2]
+                        col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id"], 0)
+                        col_title = obtener_columna(df_devops, ["Title", "Título"], 1)
+                        col_desc = obtener_columna(df_devops, ["Description", "Descripción"], 2)
+                        col_ac = obtener_columna(df_devops, ["Acceptance Criteria", "Criterios de Aceptación"], 3)
                         
-                        df_devops["Description_Clean"] = df_devops[col_desc].apply(limpiar_html_devops)
-                        df_devops["Acceptance_Criteria_Clean"] = df_devops[col_ac].apply(limpiar_html_devops)
+                        df_devops["Description_Clean"] = df_devops[col_desc].apply(limpiar_html_devops) if col_desc else ""
+                        df_devops["Acceptance_Criteria_Clean"] = df_devops[col_ac].apply(limpiar_html_devops) if col_ac else ""
                         
                         df_devops["Full_HDU_Text"] = (
-                            "HDU ID: " + df_devops["ID"].astype(str) + "\n" +
-                            "Título: " + df_devops["Title"].astype(str) + "\n" +
+                            "HDU ID: " + df_devops[col_id].astype(str) + "\n" +
+                            "Título: " + df_devops[col_title].astype(str) + "\n" +
                             "Descripción: " + df_devops["Description_Clean"] + "\n" +
                             "Criterios de Aceptación: " + df_devops["Acceptance_Criteria_Clean"]
                         )
                         texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
 
-                    with st.spinner("Extrayendo literales con Gemini 3.6 Flash y generando traducciones..."):
+                    with st.spinner("Extrayendo literales con Gemini y generando traducciones..."):
                         client = genai.Client(api_key=api_key)
                         prompt_usuario = (
                             "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
@@ -300,7 +271,7 @@ with tab_app:
                         )
                         
                         response = client.models.generate_content(
-                            model='gemini-3.6-flash',
+                            model='gemini-2.5-flash',
                             contents=prompt_usuario,
                             config=types.GenerateContentConfig(
                                 system_instruction=SYSTEM_PROMPT,
@@ -308,7 +279,13 @@ with tab_app:
                                 temperature=0.1
                             )
                         )
-                        resultado_json = json.loads(response.text)
+                        
+                        try:
+                            resultado_json = json.loads(response.text)
+                        except Exception:
+                            st.error("Gemini no devolvió un formato JSON válido.")
+                            st.code(response.text)
+                            st.stop()
 
                     with st.spinner("Estructurando catálogo final..."):
                         df_literales = pd.DataFrame(resultado_json)
