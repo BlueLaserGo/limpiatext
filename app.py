@@ -81,7 +81,37 @@ st.markdown("""
         border-radius: 6px !important;
         padding: 0.6rem !important;
     }
+    /* Estilo del botón Upload: negro con texto blanco */
+    div[data-testid="stFileUploader"] section button {
+        background-color: #111111 !important;
+        border: 1px solid #111111 !important;
+        border-radius: 4px !important;
+        padding: 0.35rem 1rem !important;
+        transition: all 0.2s ease !important;
+    }
 
+    /* Oculta el icono y el texto 'Upload' nativo */
+    div[data-testid="stFileUploader"] section button * {
+        display: none !important;
+    }
+
+    /* Inserta 'Examinar archivos' */
+    div[data-testid="stFileUploader"] section button::after {
+        content: "Examinar archivos";
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        color: #FFFFFF !important;
+    }
+
+    /* Hover amarillo */
+    div[data-testid="stFileUploader"] section button:hover {
+        background-color: #FACC15 !important;
+        border-color: #FACC15 !important;
+    }
+    div[data-testid="stFileUploader"] section button:hover::after {
+        color: #111111 !important;
+    }
     /* Píldoras de idiomas */
     .lang-item {
         display: flex;
