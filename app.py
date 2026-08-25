@@ -210,13 +210,13 @@ tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario &
 
 with tab_app:
     archivo_subido = st.file_uploader(
-        "Carga el CSV exportado de Azure DevOps (separador ';')",
+        "Carga el CSV exportado de Azure DevOps')",
         type=["csv"]
     )
 
     if archivo_subido:
         try:
-            df_devops = pd.read_csv(archivo_subido, sep=";")
+            df_devops = pd.read_csv(archivo_subido, sep=None, engine='python', encoding='utf-8-sig')
             st.success(f"Archivo cargado con éxito: **{len(df_devops)}** Historias de Usuario detectadas.")
             
             with st.expander("Vista previa del CSV original"):
@@ -378,7 +378,7 @@ with tab_guia:
     * Ve a **Boards > Queries** en tu proyecto de Azure DevOps.
     * Crea o abre una consulta con las HDUs de la iteración correspondiente.
     * Asegúrate de incluir en la vista las columnas mínimas: `ID`, `Title`, `Description` y `Acceptance Criteria`.
-    * Pulsa en **Export to CSV** (asegúrate de que el delimitador sea punto y coma `;` y codificación UTF-8).
+    * Pulsa en **Export to CSV** (detecta automáticamente delimitadores ,, ; o tabulador con codificación UTF-8).
     """)
 
     st.markdown("**2. Flujo de Trabajo en LimpiaText**")
@@ -405,5 +405,5 @@ with tab_guia:
 
     with st.expander("¿Qué hacer si el CSV da error al cargar?"):
         st.write("""
-        Verifica que el separador de campos sea `;` y que el archivo esté guardado con codificación **UTF-8** para evitar problemas con tildes, caracteres especiales o saltos de línea dentro de las descripciones.
+        LimpiaText detecta automáticamente delimitadores habituales (;, ,, tabulador). Si persiste el fallo comprueba que el archivo esté guardado con codificación **UTF-8** para evitar problemas con tildes, caracteres especiales o saltos de línea dentro de las descripciones.
         """)
