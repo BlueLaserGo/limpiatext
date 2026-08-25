@@ -9,58 +9,130 @@ from google.genai import types
 
 # 1. Configuración de página
 st.set_page_config(
-    page_title="LimpiaText - Extractor & Traductor de UI",
+    page_title="LimpiaText — UI Localization",
     page_icon="🧹",
     layout="wide"
 )
 
-# 2. Estilos visuales personalizados (CSS)
+# 2. Estilo Editorial Minimalista (CSS personalizado)
 st.markdown("""
 <style>
-    /* Fondo principal y tipografía */
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    /* Fondo general estilo papel y tipografía base */
     .stApp {
-        background-color: #F8FAFC;
-        color: #1E293B;
+        background-color: #EFEFEF;
+        color: #111111;
+        font-family: 'Inter', sans-serif;
     }
-    
-    /* Barra lateral estilizada */
+
+    /* Barra lateral */
     section[data-testid="stSidebar"] {
-        background-color: #FFFFFF;
-        border-right: 1px solid #E2E8F0;
+        background-color: #E8E8E6;
+        border-right: 1px solid #D5D5D0;
     }
-    
-    /* Cajas de entrada */
-    .stTextInput input, .stTextArea textarea {
-        border-radius: 8px;
-        border: 1px solid #CBD5E1;
-        background-color: #FFFFFF;
-        color: #0F172A;
+
+    /* Encabezado brutalista / editorial */
+    .hero-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3rem;
+        font-weight: 700;
+        letter-spacing: -1.5px;
+        text-transform: uppercase;
+        line-height: 1;
+        color: #111111;
+        margin-bottom: 0.4rem;
     }
-    
-    /* Botón principal */
-    .stButton > button {
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 0.5rem 1.8rem;
-        transition: all 0.2s ease;
+
+    .hero-subtitle {
+        font-size: 1.05rem;
+        color: #555555;
+        line-height: 1.5;
+        max-width: 800px;
+        margin-bottom: 1.5rem;
     }
-    
-    /* Píldoras de idiomas */
+
+    /* Badge minimalista de versión */
+    .version-tag {
+        display: inline-block;
+        background-color: #FACC15; /* Amarillo de acento */
+        color: #111111;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.8rem;
+    }
+
+    /* Píldoras de idiomas en barra lateral */
     .lang-item {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 6px;
-        font-size: 0.9rem;
+        gap: 10px;
+        margin-bottom: 8px;
+        font-size: 0.88rem;
+        color: #222222;
     }
     .lang-badge {
-        background: #E2E8F0;
-        color: #1E293B;
+        background: #111111;
+        color: #FFFFFF;
+        font-family: 'Space Grotesk', monospace;
         font-weight: 700;
         padding: 2px 7px;
+        border-radius: 2px;
+        font-size: 0.75rem;
+    }
+
+    /* Inputs y File Uploader con bordes nítidos */
+    .stTextInput input {
+        background-color: #FFFFFF !important;
+        border: 1px solid #CCCCCC !important;
+        border-radius: 4px !important;
+        color: #111111 !important;
+    }
+    div[data-testid="stFileUploader"] {
+        background-color: #FFFFFF;
+        border: 1px dashed #AAAAAA;
+        border-radius: 6px;
+        padding: 1.2rem;
+    }
+
+    /* Botón de acción principal: Sólido con hover amarillo */
+    .stButton > button {
+        background-color: #111111;
+        color: #FFFFFF;
         border-radius: 4px;
-        font-size: 0.78rem;
-        font-family: monospace;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        border: none;
+        padding: 0.6rem 2.2rem;
+        transition: all 0.2s ease;
+    }
+    .stButton > button:hover {
+        background-color: #FACC15;
+        color: #111111;
+        border: none;
+    }
+    
+    /* Botón de descarga */
+    .stDownloadButton > button {
+        background-color: #FACC15;
+        color: #111111;
+        border-radius: 4px;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        border: 1px solid #111111;
+        padding: 0.6rem 2rem;
+    }
+    .stDownloadButton > button:hover {
+        background-color: #111111;
+        color: #FFFFFF;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -99,56 +171,63 @@ Para cada literal encontrado, debes proporcionar:
 IMPORTANTE: Debes responder EXCLUSIVAMENTE con una lista JSON válida de objetos.
 """
 
-# 4. Barra lateral (Configuración)
+# 4. Barra lateral
 with st.sidebar:
-    st.title("🧹 LimpiaText")
+    st.markdown('<div class="hero-title" style="font-size: 1.6rem;">LimpiaText</div>', unsafe_allow_html=True)
     st.caption("De DevOps al catálogo multilingüe sin dramas.")
+    st.write("---")
     
     api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") else ""
     api_key = st.text_input(
-        "Introduce tu Gemini API Key:",
+        "Gemini API Key:",
         value=api_key_env,
         type="password",
-        help="Clave de Google AI Studio (modelo configurado: gemini-3.6-flash). Si está en los Secrets de Streamlit, se detecta sola."
+        help="Clave de Google AI Studio (modelo: gemini-3.6-flash)."
     )
     
     st.markdown("---")
-    st.markdown("**Idiomas soportados:**")
+    st.markdown("**Idiomas de exportación:**")
     st.markdown("""
-    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px;">
+    <div style="margin-top: 10px;">
         <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
-        <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
+        <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano</div>
         <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
         <div class="lang-item"><span class="lang-badge">EU</span> Euskera</div>
     </div>
     """, unsafe_allow_html=True)
 
-# 5. Encabezado principal
-st.title("🧹 LimpiaText")
-st.write(
-    "Automatiza la extracción de literales de interfaz desde exportaciones de Azure DevOps, "
-    "elimina el marcado HTML y genera el catálogo de traducción al **inglés y las lenguas cooficiales** en un clic."
+# 5. Encabezado principal (Hero Editorial)
+st.markdown('<span class="version-tag">DevOps → Catalog Pipeline</span>', unsafe_allow_html=True)
+st.markdown('<div class="hero-title">LimpiaText</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="hero-subtitle">'
+    'Extracción inteligente de literales de interfaz desde exportaciones de <b>Azure DevOps</b>, '
+    'depuración de marcado HTML residual y catálogo de localización multilingüe inmediato.'
+    '</div>',
+    unsafe_allow_html=True
 )
 
-# 6. Carga de archivo
+st.write("---")
+
+# 6. Carga de archivo y ejecución
 archivo_subido = st.file_uploader(
-    "Carga el CSV exportado de DevOps (separador ';')",
+    "Carga el CSV exportado de Azure DevOps (separador ';')",
     type=["csv"]
 )
 
 if archivo_subido:
     try:
         df_devops = pd.read_csv(archivo_subido, sep=";")
-        st.success(f"Archivo cargado con **{len(df_devops)}** Historias de Usuario detectadas.")
+        st.success(f"Archivo cargado con éxito: **{len(df_devops)}** Historias de Usuario detectadas.")
         
-        with st.expander("👀 Vista previa del CSV original"):
+        with st.expander("Vista previa del CSV original"):
             st.dataframe(df_devops.head(3))
             
-        if st.button("🚀 Limpiar y Traducir con IA", type="primary"):
+        if st.button("Limpiar y Traducir Literales"):
             if not api_key:
-                st.error("⚠️ Falta la Gemini API Key. Introdúcela en la barra lateral.")
+                st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
             else:
-                with st.spinner("🧹 Limpiando HTML y formateando texto plano..."):
+                with st.spinner("Limpiando HTML y normalizando campos..."):
                     col_desc = "Description" if "Description" in df_devops.columns else df_devops.columns[1]
                     col_ac = "Acceptance Criteria" if "Acceptance Criteria" in df_devops.columns else df_devops.columns[2]
                     
@@ -163,7 +242,7 @@ if archivo_subido:
                     )
                     texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
 
-                with st.spinner("🤖 Extrayendo literales y traduciendo a EN, CA, GL y EU..."):
+                with st.spinner("Extrayendo literales con Gemini 3.6 Flash y generando traducciones..."):
                     client = genai.Client(api_key=api_key)
                     prompt_usuario = (
                         "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
@@ -182,7 +261,7 @@ if archivo_subido:
                     )
                     resultado_json = json.loads(response.text)
 
-                with st.spinner("📊 Estructurando catálogo final..."):
+                with st.spinner("Estructurando catálogo final..."):
                     df_literales = pd.DataFrame(resultado_json)
                     columnas_renombradas = {
                         'id_hdu': 'ID HDU',
@@ -202,12 +281,12 @@ if archivo_subido:
                         df_literales.to_excel(writer, index=False, sheet_name='Catálogo UI')
                     excel_data = output_excel.getvalue()
 
-                st.balloons()
-                st.subheader("📋 Catálogo de UI Listo para Desarrollo")
+                st.write("---")
+                st.subheader("Catálogo de UI Generado")
                 st.dataframe(df_literales, use_container_width=True)
                 
                 st.download_button(
-                    label="📥 Descargar Catálogo Multilingüe en Excel (.xlsx)",
+                    label="Descargar Catálogo Excel (.xlsx)",
                     data=excel_data,
                     file_name="Catalogo_Literales_LimpiaText.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
