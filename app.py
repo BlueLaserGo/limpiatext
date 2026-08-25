@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 import io
+import os
 from google import genai
 from google.genai import types
 
@@ -15,14 +16,15 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Estilos CSS
+# 2. Estilos CSS Compactos y Editoriales
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
     .block-container {
-        padding-top: 4.5rem !important;
+        padding-top: 3.5rem !important;
         padding-bottom: 2rem !important;
+        max-width: 1200px;
     }
 
     .stApp {
@@ -36,56 +38,67 @@ st.markdown("""
         border-right: 1px solid #D5D5D0;
     }
 
-    .hero-title {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 2.1rem;
-        font-weight: 700;
-        letter-spacing: -1px;
-        text-transform: uppercase;
-        line-height: 1.1;
+    .hero-tag {
+        display: inline-block;
+        background-color: #FACC15;
         color: #111111;
-        margin-top: 0.4rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 0.72rem;
+        padding: 3px 8px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         margin-bottom: 0.2rem;
     }
 
-    .hero-subtitle {
-        font-size: 0.95rem;
-        color: #555555;
-        line-height: 1.4;
-        max-width: 800px;
-        margin-bottom: 1rem;
+    .hero-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -1px;
+        text-transform: uppercase;
+        line-height: 1.05;
+        color: #111111;
+        margin: 0.2rem 0;
     }
 
+    .hero-subtitle {
+        font-size: 0.92rem;
+        color: #555555;
+        line-height: 1.4;
+        margin-bottom: 1.2rem;
+    }
+
+    /* Pestañas */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 1.5rem;
+        gap: 1.2rem;
         border-bottom: 1px solid #CCCCCC;
+        margin-bottom: 1rem;
     }
     .stTabs [data-baseweb="tab"] {
         font-family: 'Space Grotesk', sans-serif !important;
         font-weight: 600 !important;
-        font-size: 0.9rem !important;
+        font-size: 0.88rem !important;
         color: #111111 !important;
+        padding: 0.4rem 0.2rem !important;
     }
 
-    /* Caja del uploader */
+    /* Uploader */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #FACC15 !important;
         border-radius: 6px !important;
-        padding: 0.8rem !important;
+        padding: 0.6rem 0.8rem !important;
     }
 
-    /* Botón examinar archivos principal */
     div[data-testid="stFileUploader"] section > button {
         background-color: #111111 !important;
         border: 1px solid #111111 !important;
         border-radius: 4px !important;
         padding: 0.35rem 1rem !important;
-        transition: all 0.2s ease !important;
     }
-    div[data-testid="stFileUploader"] section > button * {
-        display: none !important;
-    }
+    div[data-testid="stFileUploader"] section > button * { display: none !important; }
     div[data-testid="stFileUploader"] section > button::after {
         content: "Examinar archivos";
         font-family: 'Space Grotesk', sans-serif !important;
@@ -93,76 +106,76 @@ st.markdown("""
         font-weight: 600 !important;
         color: #FFFFFF !important;
     }
-    div[data-testid="stFileUploader"] section > button:hover {
-        background-color: #FACC15 !important;
-        border-color: #FACC15 !important;
-    }
-    div[data-testid="stFileUploader"] section > button:hover::after {
-        color: #111111 !important;
-    }
 
-    /* Ocultar texto nativo y evitar botones dobles */
-    div[data-testid="stFileUploaderInstructions"] > div:first-child {
-        display: none !important;
-    }
+    div[data-testid="stFileUploaderInstructions"] > div:first-child { display: none !important; }
     div[data-testid="stFileUploaderInstructions"]::after {
-        content: "Máx. 200 MB por archivo • Archivo CSV";
-        font-family: 'Inter', sans-serif !important;
-        font-size: 0.82rem !important;
+        content: "Máx. 200 MB • CSV (detecta delimitador auto)";
+        font-size: 0.8rem !important;
         color: #666666 !important;
-        display: inline-block;
         margin-left: 0.5rem;
     }
 
-    /* Botón de eliminar archivo cargado (icono papelera limpio) */
-    div[data-testid="stFileUploaderFileData"] button {
-        background: transparent !important;
-        border: none !important;
-    }
-    div[data-testid="stFileUploaderFileData"] button::after {
-        content: "" !important;
-    }
+    div[data-testid="stFileUploaderFileData"] button { background: transparent !important; border: none !important; }
+    div[data-testid="stFileUploaderFileData"] button::after { content: "" !important; }
 
     /* Badges de idiomas */
     .lang-item {
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin-bottom: 8px;
-        font-size: 0.85rem;
+        gap: 8px;
+        margin-bottom: 6px;
+        font-size: 0.82rem;
         color: #111111;
-        white-space: nowrap;
     }
     .lang-badge {
         background-color: #000000;
         color: #FFDE00;
         font-family: 'Space Grotesk', monospace;
         font-weight: 700;
-        padding: 3px 6px;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        min-width: 28px;
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-size: 0.72rem;
+        min-width: 26px;
         text-align: center;
-        flex-shrink: 0;
     }
 
-    /* Botones principales y de descarga */
+    /* Botones primarios */
     .stButton > button, div[data-testid="stDownloadButton"] > button {
         background-color: #111111 !important;
         color: #FFFFFF !important;
         border-radius: 4px !important;
         font-family: 'Space Grotesk', sans-serif !important;
         font-weight: 600 !important;
-        font-size: 0.95rem !important;
-        letter-spacing: 0.5px !important;
+        font-size: 0.9rem !important;
+        letter-spacing: 0.4px !important;
         text-transform: uppercase !important;
         border: none !important;
-        padding: 0.6rem 2.2rem !important;
-        transition: all 0.2s ease !important;
+        padding: 0.5rem 1.6rem !important;
+        transition: all 0.15s ease !important;
     }
     .stButton > button:hover, div[data-testid="stDownloadButton"] > button:hover {
         background-color: #FACC15 !important;
         color: #111111 !important;
+    }
+
+    /* Tarjetas del manual compactas */
+    .guide-card {
+        background-color: #FFFFFF;
+        border: 1px solid #D5D5D0;
+        border-radius: 6px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 0.8rem;
+    }
+    .guide-card h4 {
+        margin: 0 0 0.4rem 0;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+    .guide-card p, .guide-card li {
+        font-size: 0.86rem;
+        color: #444444;
+        line-height: 1.4;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -187,9 +200,9 @@ with st.sidebar:
 
     st.write("---")
 
-    st.markdown("**Idiomas de exportación:**")
+    st.markdown("**Idiomas de localización:**")
     st.markdown("""
-    <div style="margin-top: 10px;">
+    <div>
         <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
         <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
         <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
@@ -197,8 +210,23 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
+    st.write("---")
+
+    # Descarga directa del PDF
+    ruta_pdf = "Ficha_Proyecto_LimpiaText_LauraSerrano.pdf"
+    if os.path.exists(ruta_pdf):
+        with open(ruta_pdf, "rb") as f:
+            pdf_bytes = f.read()
+        st.download_button(
+            label="📄 Descargar Ficha PDF",
+            data=pdf_bytes,
+            file_name="LimpiaText_Ficha_Proyecto.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+
     st.markdown("""
-    <div style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #D5D5D0; display: flex; align-items: center; gap: 8px;">
+    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #D5D5D0; display: flex; align-items: center; gap: 8px;">
         <img src="https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg" 
              style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
         <div style="line-height: 1.15;">
@@ -210,49 +238,9 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# 5. Encabezado principal
-import os
-
-# Modal con la ficha técnica
-@st.dialog("📄 Ficha Técnica & Guía Rápida")
-def ver_ficha_proyecto():
-    st.markdown("""
-    ### LimpiaText — Localización Inteligente de UI
-    **Autora:** Laura Serrano Gómez  
-    **Objetivo:** Automatizar la depuración de exportaciones de Azure DevOps y la extracción/traducción de textos de interfaz.
-    
-    * **Paso 1:** Limpieza de marcado HTML y extracción en español.
-    * **Paso 2:** Validación mediante tabla editable en directo.
-    * **Paso 3:** Localización a EN, CA, GL y EU con Google Gemini (`gemini-3.6-flash`).
-    * **Exportación:** Formato `.xlsx` o `.csv`.
-    """)
-    st.write("---")
-    
-    # Botón para descargar el PDF original
-    ruta_pdf = "Ficha_Proyecto_LimpiaText_LauraSerrano.pdf"
-    if os.path.exists(ruta_pdf):
-        with open(ruta_pdf, "rb") as f:
-            pdf_bytes = f.read()
-        st.download_button(
-            label="⬇ Descargar PDF Completo",
-            data=pdf_bytes,
-            file_name="LimpiaText_Ficha_Proyecto.pdf",
-            mime="application/pdf",
-            use_container_width=True
-        )
-    else:
-        st.caption("Ficha en PDF lista para incluir en el repositorio.")
-
-# Botón disparador junto al título
-col_titulo, col_btn_ficha = st.columns([3.5, 1])
-with col_btn_ficha:
-    st.write("")
-    if st.button("👀 Léeme antes de probar", use_container_width=True):
-        ver_ficha_proyecto()
+# 5. Encabezado principal limpio
 st.markdown("""
-<div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
-    Extracción y traducción de literales
-</div>
+<div class="hero-tag">Extracción y traducción de literales</div>
 <div class="hero-title">LimpiaText</div>
 <div class="hero-subtitle">
     Extracción inteligente de literales de interfaz desde exportaciones de <b>Azure DevOps</b>, 
@@ -277,9 +265,9 @@ with tab_app:
         type=["csv"]
     )
 
-    col_demo1, col_demo2 = st.columns([1.8, 1])
+    col_demo1, col_demo2 = st.columns([1.5, 1])
     with col_demo1:
-        if st.button("📁 Cargar datos de prueba de ejemplo"):
+        if st.button("📁 Cargar datos de prueba de ejemplo", use_container_width=True):
             st.session_state.df_devops = pd.read_csv(io.StringIO(EJEMPLO_CSV), sep=";")
             st.session_state.df_literales = None
             st.session_state.traducido = False
@@ -288,7 +276,8 @@ with tab_app:
             label="⬇ Descargar CSV de ejemplo",
             data=EJEMPLO_CSV.encode("utf-8-sig"),
             file_name="Export_DevOps_Sprint42_Sample.csv",
-            mime="text/csv"
+            mime="text/csv",
+            use_container_width=True
         )
 
     if archivo_subido is not None:
@@ -447,44 +436,32 @@ with tab_app:
             )
 
 with tab_guia:
-    st.markdown("### 📘 Guía de Operación y Manual de Usuario")
-    st.markdown("""
-    **LimpiaText** automatiza la extracción de cadenas de texto de interfaz (UI) a partir de las Historias de Usuario refinadas en Azure DevOps, eliminando el marcado HTML residual y generando un catálogo estructurado multilingüe.
-    """)
+    col_g1, col_g2 = st.columns(2)
     
-    st.write("---")
-    
-    st.markdown("**1. Extracción desde Azure DevOps**")
-    st.markdown("""
-    * Ve a **Boards > Queries** en tu proyecto de Azure DevOps.
-    * Crea o abre una consulta con las HDUs de la iteración correspondiente.
-    * Asegúrate de incluir en la vista las columnas mínimas: `ID`, `Title`, `Description` y `Acceptance Criteria`.
-    * Pulsa en **Export to CSV** (detecta automáticamente delimitadores `,`, `;` o tabulador con codificación UTF-8).
-    """)
-
-    st.markdown("**2. Flujo de Trabajo en LimpiaText**")
-    st.markdown("""
-    * **Paso 1 (Extracción & Limpieza):** Sube tu archivo CSV (o usa los datos de prueba de ejemplo) y pulsa **1. Extraer y Limpiar Literales (Español)**.
-    * **Edición interactiva:** Corrige erratas o añade términos directamente en la tabla editable.
-    * **Paso 2 (Localización Multilingüe):** Pulsa **2. Traducir Catálogo** para generar las columnas en Inglés, Catalán/Valenciano/Balear, Gallego y Euskera.
-    * **Exportación:** Elige formato Excel (`.xlsx`) o CSV (`.csv`) y descarga el catálogo listo para tu equipo.
-    """)
-
-    st.write("---")
-
-    st.markdown("### ❓ Preguntas Frecuentes (FAQ)")
-    
-    with st.expander("¿Qué criterios sigue para ignorar texto técnico?"):
-        st.write("""
-        El motor analiza el contexto semántico de los Criterios de Aceptación y descarta descripciones de arquitectura, llamadas API o lógica interna de backend, capturando exclusivamente textos que el usuario final verá en la interfaz gráfica.
-        """)
-
-    with st.expander("¿Cómo importar el resultado en herramientas de traducción (CAT/TMS)?"):
-        st.write("""
-        Exporta el catálogo en formato **CSV**. La estructura generada es compatible con plataformas como Lokalise, Crowdin o Phrase, mapeando `Literal (ES)` como clave/fuente y las columnas `EN`, `CA`, `GL`, `EU` como valores destino.
-        """)
-
-    with st.expander("¿Qué hacer si el CSV da error al cargar?"):
-        st.write("""
-        LimpiaText detecta automáticamente delimitadores habituales (`;`, `,`, tabulador). Si persiste el fallo, comprueba que el archivo esté guardado con codificación **UTF-8** para evitar problemas con caracteres especiales.
-        """)
+    with col_g1:
+        st.markdown("""
+        <div class="guide-card">
+            <h4>1. Extracción desde Azure DevOps</h4>
+            <ul>
+                <li>Ve a <b>Boards > Queries</b> con las HDUs de la iteración.</li>
+                <li>Columnas requeridas: <code>ID</code>, <code>Title</code>, <code>Description</code> y <code>Acceptance Criteria</code>.</li>
+                <li>Exporta a CSV (delimitador <code>;</code> o <code>,</code> con UTF-8).</li>
+            </ul>
+        </div>
+        <div class="guide-card">
+            <h4>2. Limpieza & Extracción (Paso 1)</h4>
+            <p>El motor depura etiquetas HTML (<code>&lt;div&gt;</code>, <code>&lt;ul&gt;</code>) y aísla botones, campos, modales, alertas y menús en español.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col_g2:
+        st.markdown("""
+        <div class="guide-card">
+            <h4>3. Validación & Localización (Paso 2)</h4>
+            <p>Edita cualquier celda directamente en la tabla antes de traducir a <b>Inglés</b>, <b>Catalán/Valenciano</b>, <b>Gallego</b> y <b>Euskera</b>.</p>
+        </div>
+        <div class="guide-card">
+            <h4>4. Integración CAT / TMS</h4>
+            <p>Exporta en <b>CSV</b> o <b>Excel</b> compatible con herramientas de localización como Lokalise, Phrase o Crowdin.</p>
+        </div>
+        """, unsafe_allow_html=True)
