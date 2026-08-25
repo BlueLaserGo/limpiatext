@@ -214,7 +214,7 @@ with st.sidebar:
         <div style="line-height: 1.2;">
             <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
             <div style="font-size: 0.88rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
-            <a href="https://www.linkedin.com/in/lauraserranogomez/" target="_blank" style="font-size: 0.75rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
+            <a href="www.linkedin.com/in/lauserrano" target="_blank" style="font-size: 0.75rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
         </div>
     </div>
     """, unsafe_allow_html=True)
