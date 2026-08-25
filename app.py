@@ -15,7 +15,11 @@ st.set_page_config(
 )
 
 # 2. Estilo Editorial Minimalista (CSS personalizado)
-/* Elimina el espacio superior invisible de Streamlit */
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    /* Oculta header y compacta la vista para evitar scroll */
     header[data-testid="stHeader"] {
         display: none;
     }
@@ -23,25 +27,18 @@ st.set_page_config(
         padding-top: 1rem !important;
         padding-bottom: 0rem !important;
     }
-    /* Compacta la caja de subir archivos */
     div[data-testid="stFileUploader"] {
-        padding: 0.5rem !important;
+        padding: 0.8rem !important;
+        background-color: #FFFFFF;
+        border: 1px dashed #AAAAAA;
+        border-radius: 6px;
     }
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
     /* Fondo general estilo papel y tipografía base */
     .stApp {
         background-color: #EFEFEF;
         color: #111111;
         font-family: 'Inter', sans-serif;
-    }
-
-    /* Quita el hueco vacío superior de Streamlit */
-    .block-container {
-        padding-top: 1.5rem !important;
-        padding-bottom: 1.5rem !important;
     }
 
     /* Barra lateral */
@@ -53,7 +50,7 @@ st.markdown("""
     /* Encabezado brutalista / editorial */
     .hero-title {
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 2.1rem; /* Más compacto */
+        font-size: 2.1rem;
         font-weight: 700;
         letter-spacing: -1px;
         text-transform: uppercase;
@@ -63,18 +60,18 @@ st.markdown("""
     }
 
     .hero-subtitle {
-        font-size: 1.05rem;
+        font-size: 0.95rem;
         color: #555555;
-        line-height: 1.5;
+        line-height: 1.4;
         max-width: 800px;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.8rem;
     }
 
-    /* Badge minimalista de versión */
+    /* Badge minimalista */
     .version-tag {
         display: inline-block;
         background-color: #FACC15 !important;
-        color: #111111 !important; /* Fuerza color negro */
+        color: #111111 !important;
         font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
         font-size: 0.75rem;
@@ -86,7 +83,7 @@ st.markdown("""
         line-height: 1;
     }
 
-    /* Píldoras de idiomas en barra lateral */
+    /* Píldoras de idiomas */
     .lang-item {
         display: flex;
         align-items: center;
@@ -105,21 +102,15 @@ st.markdown("""
         font-size: 0.75rem;
     }
 
-    /* Inputs y File Uploader con bordes nítidos */
+    /* Inputs */
     .stTextInput input {
         background-color: #FFFFFF !important;
         border: 1px solid #CCCCCC !important;
         border-radius: 4px !important;
         color: #111111 !important;
     }
-    div[data-testid="stFileUploader"] {
-        background-color: #FFFFFF;
-        border: 1px dashed #AAAAAA;
-        border-radius: 6px;
-        padding: 1.2rem;
-    }
 
-    /* Botón de acción principal: Sólido con hover amarillo */
+    /* Botón de acción principal */
     .stButton > button {
         background-color: #111111;
         color: #FFFFFF;
