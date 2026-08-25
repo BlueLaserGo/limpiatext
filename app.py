@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import json
-import base64
 import re
 import html
 import io
@@ -15,12 +14,12 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
 # 2. Estilo Editorial Minimalista (CSS personalizado)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
-    /* Deja respirar la barra lateral y reduce margen superior */
     .block-container {
         padding-top: 1.5rem !important;
         padding-bottom: 1rem !important;
@@ -66,16 +65,16 @@ st.markdown("""
         color: #111111 !important;
         font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
-        font-size: 0.75rem;
-        padding: 4px 10px;
+        font-size: 0.72rem;
+        line-height: 1.4 !important;
+        padding: 3px 8px;
         border-radius: 3px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 0.4rem;
-        line-height: 1;
     }
 
-    /* Caja del cargador con borde amarillo discontinuo */
+    /* Caja del uploader con borde discontinuo amarillo */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #FACC15 !important;
@@ -83,7 +82,7 @@ st.markdown("""
         padding: 0.6rem !important;
     }
 
-    /* Estilo del botón: negro con texto blanco */
+    /* Botón examinar archivos: negro con hover amarillo */
     div[data-testid="stFileUploader"] section button {
         background-color: #111111 !important;
         border: 1px solid #111111 !important;
@@ -91,13 +90,9 @@ st.markdown("""
         padding: 0.35rem 1rem !important;
         transition: all 0.2s ease !important;
     }
-
-    /* Oculta el icono y el texto 'Upload' nativo */
     div[data-testid="stFileUploader"] section button * {
         display: none !important;
     }
-
-    /* Inserta 'Examinar archivos' */
     div[data-testid="stFileUploader"] section button::after {
         content: "Examinar archivos";
         font-family: 'Space Grotesk', sans-serif !important;
@@ -105,8 +100,6 @@ st.markdown("""
         font-weight: 600 !important;
         color: #FFFFFF !important;
     }
-
-    /* Hover amarillo en el botón */
     div[data-testid="stFileUploader"] section button:hover {
         background-color: #FACC15 !important;
         border-color: #FACC15 !important;
@@ -115,12 +108,10 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Oculta texto nativo '200MB per file • CSV' */
+    /* Instrucción en español */
     div[data-testid="stFileUploaderInstructions"] * {
         display: none !important;
     }
-
-    /* Inserta texto en español */
     div[data-testid="stFileUploaderInstructions"]::after {
         content: "Máx. 200 MB por archivo • Archivo CSV";
         font-family: 'Inter', sans-serif !important;
@@ -205,23 +196,11 @@ Para cada literal encontrado, debes proporcionar:
 IMPORTANTE: Debes responder EXCLUSIVAMENTE con una lista JSON válida de objetos.
 """
 
-# Función para convertir imagen local a base64
-def get_image_base64(image_path):
-    try:
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
-    except Exception:
-        return ""
-
-# Detecta avatar.png o avatar.jpg en la raíz del repo
-avatar_b64 = get_image_base64("avatar.png") or get_image_base64("avatar.jpg")
-img_src = f"data:image/png;base64,{avatar_b64}" if avatar_b64 else ""
-
+# 4. Barra lateral (Sidebar)
 with st.sidebar:
-    # Perfil / Autoría
-    st.markdown(f"""
+    st.markdown("""
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; padding-bottom: 0.6rem; border-bottom: 1px solid #D5D5D0;">
-        <img src="{img_src}" 
+        <img src="https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg" 
              style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
         <div style="line-height: 1.2;">
             <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
@@ -231,12 +210,10 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    # API Key
     api_key = st.text_input("Gemini API Key:", type="password", help="Introduce tu clave de API de Google Gemini.")
 
     st.write("---")
 
-    # Idiomas soportados
     st.markdown("**Idiomas de exportación:**")
     st.markdown("""
     <div style="margin-top: 10px; font-size: 0.78rem;">
