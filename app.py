@@ -14,7 +14,58 @@ st.set_page_config(
     layout="wide"
 )
 
-# 2. Funciones de limpieza y soporte
+# 2. Estilos visuales personalizados (CSS)
+st.markdown("""
+<style>
+    /* Fondo principal y tipografía */
+    .stApp {
+        background-color: #F8FAFC;
+        color: #1E293B;
+    }
+    
+    /* Barra lateral estilizada */
+    section[data-testid="stSidebar"] {
+        background-color: #FFFFFF;
+        border-right: 1px solid #E2E8F0;
+    }
+    
+    /* Cajas de entrada */
+    .stTextInput input, .stTextArea textarea {
+        border-radius: 8px;
+        border: 1px solid #CBD5E1;
+        background-color: #FFFFFF;
+        color: #0F172A;
+    }
+    
+    /* Botón principal */
+    .stButton > button {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.5rem 1.8rem;
+        transition: all 0.2s ease;
+    }
+    
+    /* Píldoras de idiomas */
+    .lang-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+    }
+    .lang-badge {
+        background: #E2E8F0;
+        color: #1E293B;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 0.78rem;
+        font-family: monospace;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# 3. Funciones de limpieza y soporte
 def limpiar_html_devops(texto: str) -> str:
     """Limpia etiquetas HTML, comentarios y entidades de DevOps."""
     if not isinstance(texto, str) or not texto.strip():
@@ -48,7 +99,7 @@ Para cada literal encontrado, debes proporcionar:
 IMPORTANTE: Debes responder EXCLUSIVAMENTE con una lista JSON válida de objetos.
 """
 
-# 3. Barra lateral (Configuración)
+# 4. Barra lateral (Configuración)
 with st.sidebar:
     st.title("🧹 LimpiaText")
     st.caption("De DevOps al catálogo multilingüe sin dramas.")
@@ -58,26 +109,28 @@ with st.sidebar:
         "Introduce tu Gemini API Key:",
         value=api_key_env,
         type="password",
-        help="Clave de Google AI Studio. Si está configurada en los Secrets de Streamlit, se detecta sola."
+        help="Clave de Google AI Studio (modelo configurado: gemini-3.6-flash). Si está en los Secrets de Streamlit, se detecta sola."
     )
     
     st.markdown("---")
-    st.markdown(
-        "**Idiomas soportados:**\n"
-        "* 🇬🇧 Inglés (EN)\n"
-        "* 🏴 Catalán / Valenciano / Balear (CA)\n"
-        "* 🏴 Gallego (GL)\n"
-        "* 🏴 Euskera (EU)"
-    )
+    st.markdown("**Idiomas soportados:**")
+    st.markdown("""
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px;">
+        <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
+        <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
+        <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
+        <div class="lang-item"><span class="lang-badge">EU</span> Euskera</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# 4. Encabezado principal
+# 5. Encabezado principal
 st.title("🧹 LimpiaText")
 st.write(
     "Automatiza la extracción de literales de interfaz desde exportaciones de Azure DevOps, "
     "elimina el marcado HTML y genera el catálogo de traducción al **inglés y las lenguas cooficiales** en un clic."
 )
 
-# 5. Carga de archivo
+# 6. Carga de archivo
 archivo_subido = st.file_uploader(
     "Carga el CSV exportado de DevOps (separador ';')",
     type=["csv"]
@@ -112,7 +165,11 @@ if archivo_subido:
 
                 with st.spinner("🤖 Extrayendo literales y traduciendo a EN, CA, GL y EU..."):
                     client = genai.Client(api_key=api_key)
-                    prompt_usuario = f"A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n{texto_completo_hdus}\n\nExtrae todos los literales de UI, clasifícalos y tradúcelos según las directrices establecidas."
+                    prompt_usuario = (
+                        "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
+                        f"{texto_completo_hdus}\n\n"
+                        "Extrae todos los literales de UI, clasifícalos y tradúcelos según las directrices establecidas."
+                    )
                     
                     response = client.models.generate_content(
                         model='gemini-3.6-flash',
