@@ -13,19 +13,23 @@ st.set_page_config(
     page_icon="🧹",
     layout="wide"
 )
-
 # 2. Estilo Editorial Minimalista (CSS personalizado)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
-    /* Oculta la barra superior pero mantiene visible el botón de la barra lateral */
+    /* 1. Mantiene el botón de la barra lateral visible y reduce espacio superior */
     header[data-testid="stHeader"] {
-        background-color: transparent !important;
-        height: 0px !important;
+        background: transparent !important;
+        height: 2.5rem !important;
+        z-index: 100 !important;
     }
     header[data-testid="stHeader"] [data-testid="stToolbar"] {
         display: none !important;
+    }
+    .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 1rem !important;
     }
 
     /* Fondo general estilo papel y tipografía base */
@@ -41,7 +45,7 @@ st.markdown("""
         border-right: 1px solid #D5D5D0;
     }
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
-        gap: 0.5rem !important;
+        gap: 0.4rem !important;
         padding-top: 1rem !important;
         padding-bottom: 0.5rem !important;
     }
@@ -82,7 +86,7 @@ st.markdown("""
         line-height: 1;
     }
 
-    /* Caja del File Uploader */
+    /* Caja de File Uploader */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #D5D5D0 !important;
@@ -94,19 +98,37 @@ st.markdown("""
         border-color: #FACC15 !important;
     }
 
-    /* Botón nativo de Browse files */
+    /* Botón Browse/Upload limpio */
     div[data-testid="stFileUploader"] button {
         background-color: #111111 !important;
         color: #FFFFFF !important;
         border: 1px solid #111111 !important;
         border-radius: 4px !important;
-        padding: 0.4rem 1.2rem !important;
+        padding: 0.35rem 1rem !important;
+        font-size: 0.85rem !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 600 !important;
         transition: all 0.2s ease !important;
     }
     div[data-testid="stFileUploader"] button:hover {
         background-color: #FACC15 !important;
         color: #111111 !important;
         border-color: #FACC15 !important;
+    }
+
+    /* Oculta texto en inglés de instrucciones (200MB per file...) */
+    div[data-testid="stFileUploaderInstructions"] > div,
+    div[data-testid="stFileUploaderInstructions"] small {
+        font-size: 0px !important;
+        color: transparent !important;
+    }
+    div[data-testid="stFileUploaderInstructions"]::after {
+        content: "Máx. 200 MB por archivo • Archivo CSV";
+        font-size: 0.8rem !important;
+        color: #666666 !important;
+        font-family: 'Inter', sans-serif !important;
+        display: inline-block;
+        margin-left: 8px;
     }
 
     /* Píldoras de idiomas */
@@ -154,15 +176,6 @@ st.markdown("""
         background-color: #FACC15;
         color: #111111;
         border: none;
-    }
-    /* Oculta '200MB per file • CSV' y pone texto en español */
-    div[data-testid="stFileUploader"] small {
-        font-size: 0px !important;
-    }
-    div[data-testid="stFileUploader"] small::after {
-        content: "Máx. 200 MB por archivo • Formato CSV";
-        font-size: 0.8rem !important;
-        color: #666666 !important;
     }
     
     /* Botón de descarga */
