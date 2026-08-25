@@ -32,12 +32,33 @@ st.markdown("""
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 0rem !important;
+  /* 1. Botón negro nítido */
+    div[data-testid="stFileUploader"] section button {
+        background-color: #111111 !important;
+        border: 1px solid #111111 !important;
+        border-radius: 4px !important;
+        padding: 0.4rem 1rem !important;
     }
-    div[data-testid="stFileUploader"] {
-        padding: 0.8rem !important;
-        background-color: #FFFFFF;
-        border: 1px dashed #AAAAAA;
-        border-radius: 6px;
+
+    /* 2. Texto 'Examinar archivos' en blanco */
+    div[data-testid="stFileUploader"] section button span {
+        display: none !important; /* Oculta texto e icono original */
+    }
+    div[data-testid="stFileUploader"] section button::after {
+        content: "Examinar archivos" !important;
+        color: #FFFFFF !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* 3. Hover amarillo */
+    div[data-testid="stFileUploader"] section button:hover {
+        background-color: #FACC15 !important;
+        border-color: #FACC15 !important;
+    }
+    div[data-testid="stFileUploader"] section button:hover::after {
+        color: #111111 !important;
     }
 
     /* Fondo general estilo papel y tipografía base */
