@@ -71,15 +71,24 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Badges de idiomas exactos a tu captura */
+    /* Badges de idiomas en barra lateral */
     .lang-item {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-bottom: 10px;
-        font-size: 0.9rem;
-        color: #111111;
-        font-family: 'Inter', sans-serif;
+        gap: 10px;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #000000;
+    }
+    .lang-badge {
+        background: #000000;
+        color: #FFDE00;
+        font-family: 'Space Grotesk', monospace;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 0px;
+        font-size: 0.75rem;
     }
     .lang-badge {
         background-color: #000000;
