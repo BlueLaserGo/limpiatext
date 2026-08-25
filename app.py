@@ -15,70 +15,88 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Estilo Editorial Minimalista
+# 2. Estilo Editorial Minimalista (CSS personalizado)
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap');
 
-    /* Espacio superior para que la barra de Streamlit no tape nada */
     .block-container {
         padding-top: 4.5rem !important;
         padding-bottom: 2rem !important;
     }
 
     .stApp {
-        background-color: #F4F4F2;
-        color: #111111;
+        background-color: #E6E6E4;
+        color: #000000;
         font-family: 'Inter', sans-serif;
     }
 
     section[data-testid="stSidebar"] {
-        background-color: #E8E8E5;
-        border-right: 1px solid #D5D5D0;
+        background-color: #DADAD7;
+        border-right: 1px solid #C5C5C0;
     }
 
-    /* Tipografía principal */
+    /* Titular estilo cartel */
     .hero-title {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 2.2rem;
-        font-weight: 700;
-        letter-spacing: -1px;
+        font-family: 'Anton', sans-serif;
+        font-size: 3.8rem;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
-        line-height: 1.1;
-        color: #111111;
-        margin-top: 0.5rem;
-        margin-bottom: 0.3rem;
+        line-height: 0.95;
+        color: #000000;
+        margin-top: 0.6rem;
+        margin-bottom: 0.4rem;
     }
 
     .hero-subtitle {
         font-size: 0.95rem;
-        color: #555555;
+        color: #333333;
         line-height: 1.4;
         max-width: 820px;
-        margin-bottom: 1.2rem;
+        margin-bottom: 1.5rem;
     }
 
-    /* Caja de subida con borde discontinuo amarillo */
+    /* Pestañas */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 1.5rem;
+        border-bottom: 2px solid #000000;
+    }
+    .stTabs [data-baseweb="tab"] {
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        font-size: 0.88rem !important;
+        color: #000000 !important;
+        border-radius: 0 !important;
+        padding: 0.5rem 0 !important;
+    }
+    .stTabs [aria-selected="true"] {
+        border-bottom: 3px solid #000000 !important;
+    }
+
+    /* Caja del uploader */
     div[data-testid="stFileUploaderDropzone"],
     div[data-testid="stFileUploader"] section {
         background-color: #FFFFFF !important;
-        border: 2px dashed #FACC15 !important;
-        border-radius: 6px !important;
+        border: 2px dashed #000000 !important;
+        border-radius: 4px !important;
         padding: 0.8rem !important;
     }
 
-    /* Botón de subida en negro con hover amarillo */
+    /* Botón nativo de subida */
     div[data-testid="stFileUploader"] button {
-        background-color: #111111 !important;
+        background-color: #000000 !important;
         color: #FFFFFF !important;
-        border: 1px solid #111111 !important;
-        border-radius: 4px !important;
+        border: 1px solid #000000 !important;
+        border-radius: 3px !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 700 !important;
         transition: all 0.2s ease !important;
     }
     div[data-testid="stFileUploader"] button:hover {
-        background-color: #FACC15 !important;
-        color: #111111 !important;
-        border-color: #FACC15 !important;
+        background-color: #FFDE00 !important;
+        color: #000000 !important;
+        border-color: #000000 !important;
     }
 
     /* Píldoras de idiomas */
@@ -88,12 +106,12 @@ st.markdown("""
         gap: 10px;
         margin-bottom: 8px;
         font-size: 0.85rem;
-        color: #222222;
+        color: #000000;
         white-space: nowrap;
     }
     .lang-badge {
-        background: #111111;
-        color: #FFFFFF;
+        background: #000000;
+        color: #FFDE00;
         font-family: 'Space Grotesk', monospace;
         font-weight: 700;
         padding: 2px 7px;
@@ -103,11 +121,11 @@ st.markdown("""
 
     /* Botón principal */
     .stButton > button {
-        background-color: #111111;
+        background-color: #000000;
         color: #FFFFFF;
-        border-radius: 4px;
+        border-radius: 3px;
         font-family: 'Space Grotesk', sans-serif;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 0.95rem;
         letter-spacing: 0.5px;
         text-transform: uppercase;
@@ -116,8 +134,8 @@ st.markdown("""
         transition: all 0.2s ease;
     }
     .stButton > button:hover {
-        background-color: #FACC15;
-        color: #111111;
+        background-color: #FFDE00;
+        color: #000000;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -190,10 +208,10 @@ with st.sidebar:
 
 # 5. Encabezado principal (Hero Editorial)
 st.markdown("""
-<div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
+<div style="display: inline-block; background-color: #FFDE00; color: #000000; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
     Extracción y traducción de literales
 </div>
-<div class="hero-title">LimpiaText</div>
+<div class="hero-title">LIMPIATEXT</div>
 <div class="hero-subtitle">
     Extracción inteligente de literales de interfaz desde exportaciones de <b>Azure DevOps</b>, 
     depuración de marcado HTML residual y catálogo de localización multilingüe inmediato.
