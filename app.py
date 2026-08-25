@@ -19,13 +19,13 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
-    /* Oculta header y compacta la vista para evitar scroll */
+    /* Oculta la barra superior pero mantiene visible el botón de la barra lateral */
     header[data-testid="stHeader"] {
-        display: none;
+        background-color: transparent !important;
+        height: 0px !important;
     }
-    .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 0rem !important;
+    header[data-testid="stHeader"] [data-testid="stToolbar"] {
+        display: none !important;
     }
 
     /* Fondo general estilo papel y tipografía base */
@@ -154,6 +154,15 @@ st.markdown("""
         background-color: #FACC15;
         color: #111111;
         border: none;
+    }
+    /* Oculta '200MB per file • CSV' y pone texto en español */
+    div[data-testid="stFileUploader"] small {
+        font-size: 0px !important;
+    }
+    div[data-testid="stFileUploader"] small::after {
+        content: "Máx. 200 MB por archivo • Formato CSV";
+        font-size: 0.8rem !important;
+        color: #666666 !important;
     }
     
     /* Botón de descarga */
