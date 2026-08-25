@@ -68,7 +68,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Caja del uploader con borde discontinuo amarillo */
+    /* Caja del uploader */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #FACC15 !important;
@@ -138,23 +138,23 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* Botón procesar */
-    .stButton > button {
-        background-color: #111111;
-        color: #FFFFFF;
-        border-radius: 4px;
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 600;
-        font-size: 0.95rem;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        border: none;
-        padding: 0.6rem 2.2rem;
-        transition: all 0.2s ease;
+    /* Botones principales y de descarga */
+    .stButton > button, div[data-testid="stDownloadButton"] > button {
+        background-color: #111111 !important;
+        color: #FFFFFF !important;
+        border-radius: 4px !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        letter-spacing: 0.5px !important;
+        text-transform: uppercase !important;
+        border: none !important;
+        padding: 0.6rem 2.2rem !important;
+        transition: all 0.2s ease !important;
     }
-    .stButton > button:hover {
-        background-color: #FACC15;
-        color: #111111;
+    .stButton > button:hover, div[data-testid="stDownloadButton"] > button:hover {
+        background-color: #FACC15 !important;
+        color: #111111 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -200,6 +200,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Inicializar sesión para la tabla editada
+if "df_literales" not in st.session_state:
+    st.session_state.df_literales = None
+
 # 5. Pestañas
 tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
 
@@ -222,10 +226,10 @@ with tab_app:
                     st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
                 else:
                     with st.spinner("Limpiando HTML y normalizando campos..."):
-                        col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id"], 0)
+                        col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id", "Id de elemento de trabajo"], 0)
                         col_title = obtener_columna(df_devops, ["Title", "Título"], 1)
                         col_desc = obtener_columna(df_devops, ["Description", "Descripción"], 2)
-                        col_ac = obtener_columna(df_devops, ["Acceptance Criteria", "Criterios de Aceptación"], 3)
+                        col_ac = obtener_columna(df_devops, ["Acceptance Criteria", "Criterios de Aceptación", "Criterios de aceptacion"], 3)
                         
                         df_devops["Description_Clean"] = df_devops[col_desc].apply(limpiar_html_devops) if col_desc else ""
                         df_devops["Acceptance_Criteria_Clean"] = df_devops[col_ac].apply(limpiar_html_devops) if col_ac else ""
@@ -264,7 +268,7 @@ with tab_app:
                             st.stop()
 
                     with st.spinner("Estructurando catálogo final..."):
-                        df_literales = pd.DataFrame(resultado_json)
+                        df_resultado = pd.DataFrame(resultado_json)
                         columnas_renombradas = {
                             'id_hdu': 'ID HDU',
                             'modulo': 'Módulo Funcional',
@@ -276,40 +280,71 @@ with tab_app:
                             'traduccion_gl': 'Gallego (GL)',
                             'traduccion_eu': 'Euskera (EU)'
                         }
-                        df_literales = df_literales.rename(columns=columnas_renombradas)
-                        
-                        output_excel = io.BytesIO()
-                        with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
-                            df_literales.to_excel(writer, index=False, sheet_name='Catálogo UI')
-                        excel_data = output_excel.getvalue()
-
-                    st.write("---")
-                    st.subheader("Catálogo de UI Generado")
-                    st.dataframe(df_literales, use_container_width=True)
-                    
-                    st.download_button(
-                        label="Descargar Catálogo Excel (.xlsx)",
-                        data=excel_data,
-                        file_name="Catalogo_Literales_LimpiaText.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
+                        st.session_state.df_literales = df_resultado.rename(columns=columnas_renombradas)
 
         except Exception as e:
             st.error(f"Ocurrió un error al procesar el archivo: {e}")
 
+    # Mostrar la tabla editable y el bloque de exportación
+    if st.session_state.df_literales is not None:
+        st.write("---")
+        st.subheader("Catálogo de UI Generado (Editable)")
+        st.caption("Puedes hacer doble clic en cualquier celda para corregir o ajustar textos antes de descargar.")
+        
+        # Editor interactivo
+        df_editado = st.data_editor(
+            st.session_state.df_literales,
+            use_container_width=True,
+            num_rows="dynamic"
+        )
+        
+        st.write("")
+        col_formato, col_boton = st.columns([1, 2])
+        
+        with col_formato:
+            formato_descarga = st.selectbox(
+                "Formato de exportación:",
+                ["Excel (.xlsx)", "CSV (.csv)"]
+            )
+            
+        with col_boton:
+            st.write("")
+            st.write("")
+            if formato_descarga == "Excel (.xlsx)":
+                output_excel = io.BytesIO()
+                with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
+                    df_editado.to_excel(writer, index=False, sheet_name='Catálogo UI')
+                data_file = output_excel.getvalue()
+                nombre_archivo = "Catalogo_Literales_LimpiaText.xlsx"
+                tipo_mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            else:
+                data_file = df_editado.to_csv(index=False, sep=";").encode("utf-8-sig")
+                nombre_archivo = "Catalogo_Literales_LimpiaText.csv"
+                tipo_mime = "text/csv"
+
+            st.download_button(
+                label=f"Descargar Catálogo ({formato_descarga})",
+                data=data_file,
+                file_name=nombre_archivo,
+                mime=tipo_mime
+            )
+
 with tab_guia:
     st.markdown("### 📘 Manual de Uso")
     st.markdown("""
-    1. **Exportar desde Azure DevOps:** Desde la consulta o backlog de tu iteración, exporta a CSV con las columnas `ID`, `Title`, `Description` y `Acceptance Criteria` (separador `;`).
+    1. **Exportar desde Azure DevOps:** Desde la consulta o backlog de tu iteración, exporta a CSV asegurando las columnas `ID`, `Title`, `Description` y `Acceptance Criteria` (separador `;`).
     2. **Cargar el archivo:** Sube el CSV en la pestaña principal.
-    3. **Procesar:** Pulsa el botón de extracción para depurar etiquetas HTML y generar el catálogo multilingüe.
-    4. **Descargar:** Obtén el archivo `.xlsx` listo para desarrollo y traductores.
+    3. **Procesar:** Pulsa **Limpiar y Traducir Literales** para depurar el HTML y extraer los textos de UI.
+    4. **Editar en vivo:** Revisa la tabla directamente en pantalla y modifica cualquier texto haciendo doble clic en la celda.
+    5. **Descargar:** Selecciona formato Excel o CSV y descarga tu catálogo listo.
     """)
     st.markdown("---")
     st.markdown("### ❓ Preguntas Frecuentes (FAQ)")
     st.markdown("""
-    * **¿Por qué se ignoran explicaciones largas?**  
-      LimpiaText detecta únicamente texto visible para el usuario final en la UI (botones, selectores, campos, errores, alertas) y descarta la narrativa técnica.
-    * **¿Qué idiomas se traducen?**  
+    * **¿Qué elementos de UI se extraen?**  
+      Botones, nombres de campo, selectores, opciones de menú, modales, alertas y mensajes de error.
+    * **¿Se ignoran requisitos técnicos?**  
+      Sí, el modelo omite la narrativa técnica interna y extrae únicamente literales destinados a la interfaz de usuario.
+    * **¿Qué idiomas cubre?**  
       Español original $\\rightarrow$ Inglés (EN), Catalán/Valenciano/Balear (CA), Gallego (GL) y Euskera (EU).
     """)
