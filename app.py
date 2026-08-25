@@ -10,7 +10,7 @@ from utils import PROMPT_EXTRACCION, PROMPT_TRADUCCION, limpiar_html_devops, obt
 
 # 1. Configuración de página
 st.set_page_config(
-    page_title="LimpiaText — UI Localization",
+    page_title="LimpiaText — Preparación y traducción de textos de UI",
     page_icon="🧹",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -49,7 +49,7 @@ st.markdown("""
         border-radius: 3px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.3rem;
     }
 
     .hero-title {
@@ -64,13 +64,45 @@ st.markdown("""
     }
 
     .hero-subtitle {
-        font-size: 0.92rem;
-        color: #555555;
-        line-height: 1.4;
-        margin-bottom: 1.2rem;
+        font-size: 0.95rem;
+        color: #444444;
+        line-height: 1.45;
+        margin-bottom: 1.4rem;
     }
 
-    /* Pestañas con acento amarillo */
+    .step-header {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #111111;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 1rem;
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .step-badge {
+        background-color: #111111;
+        color: #FACC15;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 3px;
+    }
+
+    .human-loop-banner {
+        background-color: #FFFFFF;
+        border-left: 4px solid #FACC15;
+        padding: 0.6rem 1rem;
+        border-radius: 0 4px 4px 0;
+        margin-bottom: 0.8rem;
+        font-size: 0.86rem;
+        color: #333333;
+    }
+
+    /* Pestañas */
     .stTabs [data-baseweb="tab-list"] {
         gap: 1.2rem;
         border-bottom: 1px solid #CCCCCC;
@@ -113,7 +145,7 @@ st.markdown("""
 
     div[data-testid="stFileUploaderInstructions"] > div:first-child { display: none !important; }
     div[data-testid="stFileUploaderInstructions"]::after {
-        content: "Máx. 200 MB • CSV (detecta delimitador auto)";
+        content: "Máx. 200 MB • CSV";
         font-size: 0.8rem !important;
         color: #666666 !important;
         margin-left: 0.5rem;
@@ -162,7 +194,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Tarjetas del manual interactivas con elevación */
+    /* Tarjetas del manual */
     .guide-card {
         background-color: #FFFFFF;
         border: 1px solid #D5D5D0;
@@ -202,16 +234,15 @@ EJEMPLO_CSV = """ID;Title;Description;Acceptance Criteria
 @st.dialog("👀 ¿De qué va este proyecto?")
 def ver_ficha_proyecto():
     st.markdown("""
-    ### LimpiaText — Localización Inteligente de UI
+    ### LimpiaText
     **Autora:** Laura Serrano Gómez  
-    **Objetivo:** Automatizar la depuración de exportaciones de Azure DevOps y la extracción/traducción de textos de interfaz.
+    **Propósito:** Ejercicio práctico para automatizar la extracción de textos de interfaz a partir de historias de usuario y prepararlos para traducción.
 
-    * **01. Entrada:** Carga de CSV de Azure DevOps o prueba con datos de ejemplo.
-    * **02. Depuración:** Filtro Regex de etiquetas HTML residuales (`<div>`, `<span>`, listas).
-    * **03. Extracción:** Identificación de literales de interfaz en español mediante Gemini 3.6 Flash.
-    * **04. Validación:** Edición de textos en directo con tabla interactiva.
-    * **05. Localización:** Traducción a **EN**, **CA**, **GL** y **EU**.
-    * **06. Exportación:** Descarga dual en formato **Excel (.xlsx)** o **CSV (.csv)**.
+    * **⚙️ 01. Limpieza con reglas:** Elimina etiquetas HTML y ruido residual de los datos.
+    * **🤖 02. Identificación con IA:** Detecta qué textos son botones, mensajes o campos mediante Gemini 3.6 Flash.
+    * **👩‍💻 03. Revisión humana:** Permite editar los textos directamente en pantalla antes de traducir.
+    * **🌍 04. Traducción multilingüe:** Genera versiones en **EN**, **CA**, **GL** y **EU**.
+    * **💾 05. Exportación:** Descarga en formato **Excel (.xlsx)** o **CSV (.csv)**.
     """)
     st.write("---")
 
@@ -229,17 +260,17 @@ def ver_ficha_proyecto():
 
 with st.sidebar:
     default_api_key = st.secrets.get("GEMINI_API_KEY", "")
-
-    api_key = st.text_input(
-        "Gemini API Key:",
-        value=default_api_key,
-        type="password",
-        help="Clave para procesar con Gemini."
-    )
+    
+    if default_api_key:
+        st.success("🟢 Motor de IA conectado")
+        with st.expander("⚙️ Configuración de API Key"):
+            api_key = st.text_input("Gemini API Key:", value=default_api_key, type="password")
+    else:
+        api_key = st.text_input("Gemini API Key:", value="", type="password", help="Introduce tu API Key de Google AI Studio.")
 
     st.write("---")
 
-    st.markdown("**Idiomas de localización:**")
+    st.markdown("**Idiomas disponibles:**")
     st.markdown("""
     <div>
         <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
@@ -251,7 +282,7 @@ with st.sidebar:
 
     st.write("---")
 
-    st.markdown("**Ficha técnica:**")
+    st.markdown("**Documentación:**")
     if st.button("👀 ¿De qué va este proyecto?", use_container_width=True):
         ver_ficha_proyecto()
 
@@ -268,13 +299,13 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# 5. Encabezado principal limpio
+# 5. Encabezado principal
 st.markdown("""
-<div class="hero-tag">Extracción y traducción de literales</div>
+<div class="hero-tag">Proyecto de Portfolio · Ejercicio Práctico</div>
 <div class="hero-title">LimpiaText</div>
 <div class="hero-subtitle">
-    Extracción inteligente de literales de interfaz desde exportaciones de <b>Azure DevOps</b>, 
-    depuración de marcado HTML residual y catálogo de localización multilingüe inmediato.
+    Encuentra y prepara los textos que aparecen en tu aplicación.<br>
+    Limpia el código residual, identifica botones y mensajes visibles, permite revisarlos y genera versiones en varios idiomas.
 </div>
 """, unsafe_allow_html=True)
 
@@ -287,18 +318,14 @@ if "traducido" not in st.session_state:
     st.session_state.traducido = False
 
 # 6. Pestañas
-tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
+tab_app, tab_guia = st.tabs(["🚀 Preparar Textos", "📖 Cómo Funciona el Proyecto"])
 
 with tab_app:
-    archivo_subido = st.file_uploader(
-        "Carga el CSV exportado de Azure DevOps",
-        type=["csv"]
-    )
-
-    # 3 columnas de acción alineadas
-    col_demo1, col_demo2, col_reset = st.columns([1.4, 1.3, 1])
+    st.markdown('<div class="step-header"><span class="step-badge">01</span> Añade tus historias de usuario</div>', unsafe_allow_html=True)
+    
+    col_demo1, col_demo2, col_reset = st.columns([1.5, 1.3, 1])
     with col_demo1:
-        if st.button("📁 Cargar demo de prueba", use_container_width=True):
+        if st.button("📁 Probar con datos de ejemplo", use_container_width=True):
             st.session_state.df_devops = pd.read_csv(io.StringIO(EJEMPLO_CSV), sep=";")
             st.session_state.df_literales = None
             st.session_state.traducido = False
@@ -320,6 +347,11 @@ with tab_app:
             st.session_state.traducido = False
             st.rerun()
 
+    archivo_subido = st.file_uploader(
+        "O sube tu propio archivo CSV exportado de Azure DevOps:",
+        type=["csv"]
+    )
+
     if archivo_subido is not None:
         try:
             st.session_state.df_devops = pd.read_csv(archivo_subido, sep=None, engine='python', encoding='utf-8-sig')
@@ -331,18 +363,17 @@ with tab_app:
     # Si hay datos cargados
     if st.session_state.df_devops is not None:
         df_act = st.session_state.df_devops
-        st.success(f"Archivo listo: **{len(df_act)}** Historias de Usuario cargadas.")
+        st.success(f"Datos cargados: **{len(df_act)}** Historias de Usuario listas.")
         
-        with st.expander("Vista previa del CSV original"):
+        with st.expander("Ver contenido original"):
             st.dataframe(df_act.head(3), use_container_width=True)
             
-        # PASO 1: EXTRAER Y LIMPIAR
-        if st.button("1. Extraer y Limpiar Literales (Español)"):
+        if st.button("▶ Identificar y aislar textos de pantalla"):
             if not api_key:
                 st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
             else:
-                with st.status("Procesando Historias de Usuario...", expanded=True) as estado:
-                    st.write("🧹 Limpiando marcado HTML residual y normalizando textos...")
+                with st.status("Procesando historias de usuario...", expanded=True) as estado:
+                    st.write("🧹 Limpiando código HTML residual con reglas de expresiones regulares...")
                     
                     col_id = obtener_columna(df_act, ["ID", "Id", "Work Item Id", "Id de elemento de trabajo"], 0)
                     col_title = obtener_columna(df_act, ["Title", "Título"], 1)
@@ -360,7 +391,7 @@ with tab_app:
                     )
                     texto_completo_hdus = "\n\n---\n\n".join(df_act["Full_HDU_Text"].tolist())
 
-                    st.write("🤖 Extrayendo literales de interfaz con Gemini 3.6 Flash...")
+                    st.write("🤖 Identificando botones, campos y mensajes con Gemini...")
                     
                     client = genai.Client(api_key=api_key)
                     prompt_usuario = f"Historias de Usuario:\n\n{texto_completo_hdus}\n\nExtrae únicamente los literales de interfaz en español."
@@ -380,24 +411,28 @@ with tab_app:
                         df_res = pd.DataFrame(resultado_json)
                         columnas_renombradas = {
                             'id_hdu': 'ID HDU',
-                            'modulo': 'Módulo Funcional',
+                            'modulo': 'Módulo / Área',
                             'pantalla': 'Pantalla / Vista',
                             'tipo_elemento': 'Tipo de Elemento',
-                            'texto_es': 'Literal (ES)'
+                            'texto_es': 'Texto en pantalla (ES)'
                         }
                         st.session_state.df_literales = df_res.rename(columns=columnas_renombradas)
                         st.session_state.traducido = False
-                        estado.update(label="¡Extracción completada con éxito!", state="complete", expanded=False)
+                        estado.update(label="¡Textos identificados correctamente!", state="complete", expanded=False)
                     except Exception:
                         estado.update(label="Error en la extracción", state="error", expanded=False)
-                        st.error("Gemini no devolvió un formato JSON válido.")
+                        st.error("No se pudo estructurar el resultado.")
                         st.code(response.text)
 
-    # Si ya se extrajeron literales
+    # Si ya se encontraron textos
     if st.session_state.df_literales is not None:
         st.write("---")
-        st.subheader("Catálogo de UI (Editable)")
-        st.caption("Revisa o edita la tabla antes de descargar o traducir.")
+        st.markdown('<div class="step-header"><span class="step-badge">02</span> Revisa los textos encontrados</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="human-loop-banner">
+            <b>La IA propone. Tú decides.</b> Revisa o corrige cualquier texto directamente en la tabla antes de generar las versiones en otros idiomas.
+        </div>
+        """, unsafe_allow_html=True)
         
         df_editado = st.data_editor(
             st.session_state.df_literales,
@@ -406,15 +441,14 @@ with tab_app:
         )
         st.session_state.df_literales = df_editado
 
-        # PASO 2: TRADUCIR (OPCIONAL)
         if not st.session_state.traducido:
             st.write("")
-            if st.button("2. Traducir Catálogo a Multilingüe (EN, CA, GL, EU)"):
+            if st.button("🌐 Generar versiones en EN, CA, GL y EU"):
                 if not api_key:
                     st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
                 else:
-                    with st.status("Localizando literales...", expanded=True) as estado_trad:
-                        st.write("🌐 Traduciendo a Inglés, Catalán/Valenciano, Gallego y Euskera...")
+                    with st.status("Traduciendo textos...", expanded=True) as estado_trad:
+                        st.write("🌍 Adaptando términos a las cuatro lenguas...")
                         datos_a_traducir = df_editado.to_dict(orient="records")
                         client = genai.Client(api_key=api_key)
                         prompt_traduccion = f"Literales a traducir:\n\n{json.dumps(datos_a_traducir, ensure_ascii=False)}"
@@ -434,10 +468,10 @@ with tab_app:
                             df_trad = pd.DataFrame(resultado_traducciones)
                             columnas_renombradas = {
                                 'id_hdu': 'ID HDU',
-                                'modulo': 'Módulo Funcional',
+                                'modulo': 'Módulo / Área',
                                 'pantalla': 'Pantalla / Vista',
                                 'tipo_elemento': 'Tipo de Elemento',
-                                'texto_es': 'Literal (ES)',
+                                'texto_es': 'Texto en pantalla (ES)',
                                 'traduccion_en': 'Inglés (EN)',
                                 'traduccion_ca': 'Catalán / Valenciano (CA)',
                                 'traduccion_gl': 'Gallego (GL)',
@@ -445,7 +479,7 @@ with tab_app:
                             }
                             st.session_state.df_literales = df_trad.rename(columns=columnas_renombradas)
                             st.session_state.traducido = True
-                            estado_trad.update(label="¡Traducción completada con éxito!", state="complete", expanded=False)
+                            estado_trad.update(label="¡Traducciones completadas!", state="complete", expanded=False)
                             st.rerun()
                         except Exception:
                             estado_trad.update(label="Error en la traducción", state="error", expanded=False)
@@ -454,8 +488,9 @@ with tab_app:
 
         # BLOQUE DE DESCARGA
         st.write("---")
-        col_formato, col_boton = st.columns([1, 2])
+        st.markdown('<div class="step-header"><span class="step-badge">03</span> Exporta tus resultados</div>', unsafe_allow_html=True)
         
+        col_formato, col_boton = st.columns([1, 2])
         with col_formato:
             formato_descarga = st.selectbox(
                 "Formato de exportación:",
@@ -468,17 +503,17 @@ with tab_app:
             if formato_descarga == "Excel (.xlsx)":
                 output_excel = io.BytesIO()
                 with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
-                    df_editado.to_excel(writer, index=False, sheet_name='Catálogo UI')
+                    df_editado.to_excel(writer, index=False, sheet_name='Textos UI')
                 data_file = output_excel.getvalue()
-                nombre_archivo = "Catalogo_Literales_LimpiaText.xlsx"
+                nombre_archivo = "Textos_Interfaz_LimpiaText.xlsx"
                 tipo_mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             else:
                 data_file = df_editado.to_csv(index=False, sep=";").encode("utf-8-sig")
-                nombre_archivo = "Catalogo_Literales_LimpiaText.csv"
+                nombre_archivo = "Textos_Interfaz_LimpiaText.csv"
                 tipo_mime = "text/csv"
 
             st.download_button(
-                label=f"Descargar Catálogo ({formato_descarga})",
+                label=f"⬇ Descargar ({formato_descarga})",
                 data=data_file,
                 file_name=nombre_archivo,
                 mime=tipo_mime
@@ -490,27 +525,23 @@ with tab_guia:
     with col_g1:
         st.markdown("""
         <div class="guide-card">
-            <h4>1. Extracción desde Azure DevOps</h4>
-            <ul>
-                <li>Ve a <b>Boards > Queries</b> con las HDUs de la iteración.</li>
-                <li>Columnas requeridas: <code>ID</code>, <code>Title</code>, <code>Description</code> y <code>Acceptance Criteria</code>.</li>
-                <li>Exporta a CSV (delimitador <code>;</code> o <code>,</code> con UTF-8).</li>
-            </ul>
+            <h4>⚙️ 1. Reglas y patrones (Regex)</h4>
+            <p>Las exportaciones de Azure DevOps suelen contener marcado HTML residual (<code>&lt;div&gt;</code>, <code>&lt;ul&gt;</code>, <code>&lt;b&gt;</code>). El motor aplica filtros deterministas para limpiar ese ruido antes de pasarlo a la IA.</p>
         </div>
         <div class="guide-card">
-            <h4>2. Limpieza & Extracción (Paso 1)</h4>
-            <p>El motor depura etiquetas HTML (<code>&lt;div&gt;</code>, <code>&lt;ul&gt;</code>) y aísla botones, campos, modales, alertas y menús en español.</p>
+            <h4>🤖 2. IA para identificar y estructurar</h4>
+            <p>Gemini analiza la descripción funcional para distinguir qué partes son explicaciones internas y qué partes corresponden a <b>botones, etiquetas, campos y alertas visibles</b>.</p>
         </div>
         """, unsafe_allow_html=True)
         
     with col_g2:
         st.markdown("""
         <div class="guide-card">
-            <h4>3. Validación & Localización (Paso 2)</h4>
-            <p>Edita cualquier celda directamente en la tabla antes de traducir a <b>Inglés</b>, <b>Catalán/Valenciano</b>, <b>Gallego</b> y <b>Euskera</b>.</p>
+            <h4>👩‍💻 3. Revisión humana (Human-in-the-loop)</h4>
+            <p>La IA propone una primera versión estructurada, pero el analista o lingüista mantiene el control total para editar, añadir o borrar textos antes de traducir.</p>
         </div>
         <div class="guide-card">
-            <h4>4. Integración CAT / TMS</h4>
-            <p>Exporta en <b>CSV</b> o <b>Excel</b> compatible con herramientas de localización como Lokalise, Phrase o Crowdin.</p>
+            <h4>🌍 4. Traducción y exportación</h4>
+            <p>Genera versiones en cuatro lenguas y descarga el resultado en Excel o CSV listo para incorporar al desarrollo o a herramientas de traducción.</p>
         </div>
         """, unsafe_allow_html=True)
