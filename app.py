@@ -26,6 +26,12 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
 
+    /* Quita el hueco vacío superior de Streamlit */
+    .block-container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+
     /* Barra lateral */
     section[data-testid="stSidebar"] {
         background-color: #E8E8E6;
@@ -35,13 +41,13 @@ st.markdown("""
     /* Encabezado brutalista / editorial */
     .hero-title {
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 3rem;
+        font-size: 2.1rem; /* Más compacto */
         font-weight: 700;
-        letter-spacing: -1.5px;
+        letter-spacing: -1px;
         text-transform: uppercase;
-        line-height: 1;
+        line-height: 1.1;
         color: #111111;
-        margin-bottom: 0.4rem;
+        margin-bottom: 0.2rem;
     }
 
     .hero-subtitle {
@@ -190,7 +196,7 @@ with st.sidebar:
     st.markdown("""
     <div style="margin-top: 10px;">
         <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
-        <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano</div>
+        <div class="lang-item" style="white-space: nowrap;"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>       
         <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
         <div class="lang-item"><span class="lang-badge">EU</span> Euskera</div>
     </div>
@@ -209,7 +215,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 # 5. Encabezado principal (Hero Editorial)
-st.markdown('<span class="version-tag">DevOps → Catalog Pipeline</span>', unsafe_allow_html=True)
+st.markdown('<span class="version-tag">Extracción y traducción de literales</span>', unsafe_allow_html=True)
 st.markdown('<div class="hero-title">LimpiaText</div>', unsafe_allow_html=True)
 st.markdown(
     '<div class="hero-subtitle">'
