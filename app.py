@@ -58,20 +58,40 @@ st.markdown("""
         margin-bottom: 0.8rem;
     }
 
-    /* Badge amarillo sólido */
+ /* Badge amarillo sólido con tamaño explícito */
     .version-tag {
         display: inline-block !important;
+        width: fit-content !important;
         background-color: #FACC15 !important;
         color: #111111 !important;
         font-family: 'Space Grotesk', sans-serif !important;
         font-weight: 700 !important;
-        font-size: 0.75rem !important;
-        line-height: 1.2 !important;
-        padding: 4px 10px !important;
+        font-size: 0.72rem !important;
+        line-height: 1 !important;
+        padding: 5px 10px !important;
         border-radius: 3px !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
-        margin-bottom: 0.5rem !important;
+        margin-bottom: 0.6rem !important;
+    }
+
+    /* Oculta '200MB per file • CSV' sea cual sea el contenedor interno */
+    div[data-testid="stFileUploader"] section > span,
+    div[data-testid="stFileUploader"] section small,
+    div[data-testid="stFileUploader"] [data-testid="stFileUploaderInstructions"] {
+        font-size: 0px !important;
+        color: transparent !important;
+    }
+
+    /* Inserta el texto en español */
+    div[data-testid="stFileUploader"] section::after {
+        content: "Máx. 200 MB por archivo • Archivo CSV";
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.82rem !important;
+        color: #666666 !important;
+        display: inline-block;
+        margin-left: 0.75rem;
+        vertical-align: middle;
     }
 
     /* Caja del uploader con borde discontinuo amarillo */
@@ -225,14 +245,14 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 # 5. Encabezado principal (Hero Editorial)
-st.markdown('<div class="version-tag">Extracción y traducción de literales</div>', unsafe_allow_html=True)
-st.markdown('<div class="hero-title">LimpiaText</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="hero-subtitle">'
-    'Extracción inteligente de literales de interfaz desde exportaciones de <b>Azure DevOps</b>, '
-    'depuración de marcado HTML residual y catálogo de localización multilingüe inmediato.'
-    '</div>',
-    unsafe_allow_html=True
+st.markdown("""
+<div class="version-tag">Extracción y traducción de literales</div>
+<div class="hero-title">LimpiaText</div>
+<div class="hero-subtitle">
+    Extracción inteligente de literales de interfaz desde exportaciones de <b>Azure DevOps</b>, 
+    depuración de marcado HTML residual y catálogo de localización multilingüe inmediato.
+</div>
+""", unsafe_allow_html=True
 )
 
 # 6. Pestañas de contenido
