@@ -112,6 +112,21 @@ st.markdown("""
     div[data-testid="stFileUploader"] section button:hover::after {
         color: #111111 !important;
     }
+    /* Oculta el texto nativo '200MB per file • CSV' */
+    div[data-testid="stFileUploaderInstructions"] * {
+        display: none !important;
+    }
+
+    /* Añade el texto en español */
+    div[data-testid="stFileUploaderInstructions"]::after {
+        content: "Máx. 200 MB por archivo • Archivo CSV";
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.82rem !important;
+        color: #666666 !important;
+        display: inline-block;
+        margin-left: 0.75rem;
+    }
+    
     /* Píldoras de idiomas */
     .lang-item {
         display: flex;
