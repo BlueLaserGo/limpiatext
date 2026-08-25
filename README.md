@@ -23,7 +23,7 @@ En los equipos de análisis funcional y localización de software, la gestión d
 **LimpiaText** transforma este proceso manual en un flujo automatizado de 3 pasos:
 
 1. **Limpieza con Regex y Pandas:** Elimina todo el ruido HTML y normaliza los textos de las Historias de Usuario (HDUs).
-2. **Extracción y traducción con Gemini 2.5 Flash:** Aplica un prompt especializado con *Structured Outputs* (JSON estricto) que detecta únicamente elementos de interfaz (botones, selectores, errores, modales) y los clasifica por módulo y pantalla.
+2. **Extracción y traducción con Gemini 3.6 Flash:** Aplica un prompt especializado con *Structured Outputs* (JSON estricto) que detecta únicamente elementos de interfaz (botones, selectores, errores, modales) y los clasifica por módulo y pantalla.
 3. **Localización multilingüe:** Traduce los literales al **inglés** y a las **lenguas cooficiales españolas (catalán/valenciano/balear, gallego y euskera)** manteniendo el contexto funcional.
 4. **Exportación inmediata a Excel (.xlsx):** Genera el catálogo estructurado listo para desarrollo, QA y traducción.
 
@@ -32,7 +32,7 @@ En los equipos de análisis funcional y localización de software, la gestión d
 ## 🛠️ Stack tecnológico
 
 * **Frontend interactivo:** [Streamlit Community Cloud](https://streamlit.io/)
-* **Orquestación LLM:** `google-genai` (Google Gemini 2.5 Flash)
+* **Orquestación LLM:** `google-genai` (Google Gemini 3.6 Flash)
 * **Procesamiento de datos:** `pandas`, `re` (Regex), `html`
 * **Generación de hojas de cálculo:** `openpyxl`
 
