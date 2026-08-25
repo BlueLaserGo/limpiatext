@@ -11,28 +11,21 @@ from google.genai import types
 st.set_page_config(
     page_title="LimpiaText — UI Localization",
     page_icon="🧹",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 # 2. Estilo Editorial Minimalista (CSS personalizado)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
-    /* 1. Mantiene el botón de la barra lateral visible y reduce espacio superior */
-    header[data-testid="stHeader"] {
-        background: transparent !important;
-        height: 2.5rem !important;
-        z-index: 100 !important;
-    }
-    header[data-testid="stHeader"] [data-testid="stToolbar"] {
-        display: none !important;
-    }
+    /* Deja respirar la barra lateral y reduce margen superior */
     .block-container {
-        padding-top: 2rem !important;
+        padding-top: 1.5rem !important;
         padding-bottom: 1rem !important;
     }
 
-    /* Fondo general estilo papel y tipografía base */
+    /* Fondo general */
     .stApp {
         background-color: #EFEFEF;
         color: #111111;
@@ -44,13 +37,8 @@ st.markdown("""
         background-color: #E8E8E6;
         border-right: 1px solid #D5D5D0;
     }
-    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
-        gap: 0.4rem !important;
-        padding-top: 1rem !important;
-        padding-bottom: 0.5rem !important;
-    }
 
-    /* Encabezado brutalista / editorial */
+    /* Titular */
     .hero-title {
         font-family: 'Space Grotesk', sans-serif;
         font-size: 2.1rem;
@@ -70,7 +58,7 @@ st.markdown("""
         margin-bottom: 0.8rem;
     }
 
-    /* Badge minimalista */
+    /* Badge amarillo */
     .version-tag {
         display: inline-block;
         background-color: #FACC15 !important;
@@ -86,49 +74,12 @@ st.markdown("""
         line-height: 1;
     }
 
-    /* Caja de File Uploader */
+    /* Caja del cargador */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
-        border: 2px dashed #D5D5D0 !important;
+        border: 2px dashed #CCCCCC !important;
         border-radius: 6px !important;
-        padding: 0.8rem !important;
-        transition: border-color 0.2s ease;
-    }
-    div[data-testid="stFileUploader"]:hover {
-        border-color: #FACC15 !important;
-    }
-
-    /* Botón Browse/Upload limpio */
-    div[data-testid="stFileUploader"] button {
-        background-color: #111111 !important;
-        color: #FFFFFF !important;
-        border: 1px solid #111111 !important;
-        border-radius: 4px !important;
-        padding: 0.35rem 1rem !important;
-        font-size: 0.85rem !important;
-        font-family: 'Space Grotesk', sans-serif !important;
-        font-weight: 600 !important;
-        transition: all 0.2s ease !important;
-    }
-    div[data-testid="stFileUploader"] button:hover {
-        background-color: #FACC15 !important;
-        color: #111111 !important;
-        border-color: #FACC15 !important;
-    }
-
-    /* Oculta texto en inglés de instrucciones (200MB per file...) */
-    div[data-testid="stFileUploaderInstructions"] > div,
-    div[data-testid="stFileUploaderInstructions"] small {
-        font-size: 0px !important;
-        color: transparent !important;
-    }
-    div[data-testid="stFileUploaderInstructions"]::after {
-        content: "Máx. 200 MB por archivo • Archivo CSV";
-        font-size: 0.8rem !important;
-        color: #666666 !important;
-        font-family: 'Inter', sans-serif !important;
-        display: inline-block;
-        margin-left: 8px;
+        padding: 0.6rem !important;
     }
 
     /* Píldoras de idiomas */
@@ -137,8 +88,9 @@ st.markdown("""
         align-items: center;
         gap: 10px;
         margin-bottom: 8px;
-        font-size: 0.88rem;
+        font-size: 0.85rem;
         color: #222222;
+        white-space: nowrap;
     }
     .lang-badge {
         background: #111111;
@@ -150,15 +102,7 @@ st.markdown("""
         font-size: 0.75rem;
     }
 
-    /* Inputs */
-    .stTextInput input {
-        background-color: #FFFFFF !important;
-        border: 1px solid #CCCCCC !important;
-        border-radius: 4px !important;
-        color: #111111 !important;
-    }
-
-    /* Botón de acción principal */
+    /* Botón procesar */
     .stButton > button {
         background-color: #111111;
         color: #FFFFFF;
@@ -175,22 +119,6 @@ st.markdown("""
     .stButton > button:hover {
         background-color: #FACC15;
         color: #111111;
-        border: none;
-    }
-    
-    /* Botón de descarga */
-    .stDownloadButton > button {
-        background-color: #FACC15;
-        color: #111111;
-        border-radius: 4px;
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700;
-        border: 1px solid #111111;
-        padding: 0.6rem 2rem;
-    }
-    .stDownloadButton > button:hover {
-        background-color: #111111;
-        color: #FFFFFF;
     }
 </style>
 """, unsafe_allow_html=True)
