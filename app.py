@@ -88,15 +88,39 @@ st.markdown("""
         margin-bottom: 0.4rem;
         line-height: 1;
     }
-/* Traducir botón Upload a Español */
+/* Oculta el texto nativo original y el icono */
     div[data-testid="stFileUploader"] button {
-        font-size: 0px !important;
+        visibility: hidden !important;
+        position: relative !important;
+        background-color: #111111 !important;
+        border-radius: 4px !important;
+        border: 1px solid #111111 !important;
+        padding: 0.4rem 1.2rem !important;
+        transition: all 0.2s ease !important;
     }
+
+    /* Inserta 'Examinar archivos' en blanco */
     div[data-testid="stFileUploader"] button::after {
-        content: "Examinar archivos";
-        font-size: 0.85rem;
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 600;
+        content: "Examinar archivos" !important;
+        visibility: visible !important;
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        font-size: 0.85rem !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 600 !important;
+        color: #FFFFFF !important;
+        white-space: nowrap !important;
+    }
+
+    /* Hover amarillo */
+    div[data-testid="stFileUploader"] button:hover {
+        background-color: #FACC15 !important;
+        border-color: #FACC15 !important;
+    }
+    div[data-testid="stFileUploader"] button:hover::after {
+        color: #111111 !important;
     }
 
     /* Caja estilizada con borde amarillo suave al foco */
