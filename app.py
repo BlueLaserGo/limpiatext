@@ -216,36 +216,6 @@ def ver_ficha_proyecto():
             use_container_width=True
         )
 
-# Diálogo interactivo con la ficha del proyecto
-@st.dialog("👀 ¿De qué va este proyecto?")
-def ver_ficha_proyecto():
-    st.markdown("""
-    ### LimpiaText — Localización Inteligente de UI
-    **Autora:** Laura Serrano Gómez  
-    **Objetivo:** Automatizar la depuración de exportaciones de Azure DevOps y la extracción/traducción de textos de interfaz.
-
-    * **01. Entrada:** Carga de CSV de Azure DevOps o prueba con datos de ejemplo.
-    * **02. Depuración:** Filtro Regex de etiquetas HTML residuales (`<div>`, `<span>`, listas).
-    * **03. Extracción:** Identificación de literales de interfaz en español mediante Gemini 3.6 Flash.
-    * **04. Validación:** Edición de textos en directo con tabla interactiva.
-    * **05. Localización:** Traducción a **EN**, **CA**, **GL** y **EU**.
-    * **06. Exportación:** Descarga dual en formato **Excel (.xlsx)** o **CSV (.csv)**.
-    """)
-    st.write("---")
-
-    ruta_pdf = "Ficha_Proyecto_LimpiaText_LauraSerrano.pdf"
-    if os.path.exists(ruta_pdf):
-        with open(ruta_pdf, "rb") as f:
-            pdf_bytes = f.read()
-        st.download_button(
-            label="⬇ Descargar Ficha Técnica en PDF",
-            data=pdf_bytes,
-            file_name="LimpiaText_Ficha_Proyecto.pdf",
-            mime="application/pdf",
-            use_container_width=True
-        )
-
-# 4. Barra lateral
 with st.sidebar:
     default_api_key = st.secrets.get("GEMINI_API_KEY", "")
 
@@ -273,13 +243,6 @@ with st.sidebar:
     st.markdown("**Ficha técnica:**")
     if st.button("👀 ¿De qué va este proyecto?", use_container_width=True):
         ver_ficha_proyecto()
-
-    st.write("")
-    if st.button("🔄 Reiniciar / Limpiar sesión", use_container_width=True):
-        st.session_state.df_devops = None
-        st.session_state.df_literales = None
-        st.session_state.traducido = False
-        st.rerun()
 
     st.markdown("""
     <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #D5D5D0; display: flex; align-items: center; gap: 8px;">
@@ -321,20 +284,30 @@ with tab_app:
         type=["csv"]
     )
 
-    col_demo1, col_demo2 = st.columns([1.5, 1])
+    # 3 columnas de acción alineadas
+    col_demo1, col_demo2, col_reset = st.columns([1.4, 1.3, 1])
     with col_demo1:
-        if st.button("📁 Cargar datos de prueba de ejemplo", use_container_width=True):
+        if st.button("📁 Cargar demo de prueba", use_container_width=True):
             st.session_state.df_devops = pd.read_csv(io.StringIO(EJEMPLO_CSV), sep=";")
             st.session_state.df_literales = None
             st.session_state.traducido = False
+            st.rerun()
+
     with col_demo2:
         st.download_button(
-            label="⬇ Descargar CSV de ejemplo",
+            label="⬇ Descargar CSV muestra",
             data=EJEMPLO_CSV.encode("utf-8-sig"),
             file_name="Export_DevOps_Sprint42_Sample.csv",
             mime="text/csv",
             use_container_width=True
         )
+
+    with col_reset:
+        if st.button("🔄 Limpiar datos", use_container_width=True):
+            st.session_state.df_devops = None
+            st.session_state.df_literales = None
+            st.session_state.traducido = False
+            st.rerun()
 
     if archivo_subido is not None:
         try:
@@ -357,7 +330,9 @@ with tab_app:
             if not api_key:
                 st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
             else:
-                with st.spinner("Limpiando marcado HTML y procesando HDUs con Gemini..."):
+                with st.status("Procesando Historias de Usuario...", expanded=True) as estado:
+                    st.write("🧹 Limpiando marcado HTML residual y normalizando textos...")
+                    
                     col_id = obtener_columna(df_act, ["ID", "Id", "Work Item Id", "Id de elemento de trabajo"], 0)
                     col_title = obtener_columna(df_act, ["Title", "Título"], 1)
                     col_desc = obtener_columna(df_act, ["Description", "Descripción"], 2)
@@ -374,6 +349,8 @@ with tab_app:
                     )
                     texto_completo_hdus = "\n\n---\n\n".join(df_act["Full_HDU_Text"].tolist())
 
+                    st.write("🤖 Extrayendo literales de interfaz con Gemini 3.6 Flash...")
+                    
                     client = genai.Client(api_key=api_key)
                     prompt_usuario = f"Historias de Usuario:\n\n{texto_completo_hdus}\n\nExtrae únicamente los literales de interfaz en español."
                     
@@ -399,7 +376,9 @@ with tab_app:
                         }
                         st.session_state.df_literales = df_res.rename(columns=columnas_renombradas)
                         st.session_state.traducido = False
+                        estado.update(label="¡Extracción completada con éxito!", state="complete", expanded=False)
                     except Exception:
+                        estado.update(label="Error en la extracción", state="error", expanded=False)
                         st.error("Gemini no devolvió un formato JSON válido.")
                         st.code(response.text)
 
@@ -423,7 +402,8 @@ with tab_app:
                 if not api_key:
                     st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
                 else:
-                    with st.spinner("Generando traducciones multilingües con Gemini..."):
+                    with st.status("Localizando literales...", expanded=True) as estado_trad:
+                        st.write("🌐 Traduciendo a Inglés, Catalán/Valenciano, Gallego y Euskera...")
                         datos_a_traducir = df_editado.to_dict(orient="records")
                         client = genai.Client(api_key=api_key)
                         prompt_traduccion = f"Literales a traducir:\n\n{json.dumps(datos_a_traducir, ensure_ascii=False)}"
@@ -454,8 +434,10 @@ with tab_app:
                             }
                             st.session_state.df_literales = df_trad.rename(columns=columnas_renombradas)
                             st.session_state.traducido = True
+                            estado_trad.update(label="¡Traducción completada con éxito!", state="complete", expanded=False)
                             st.rerun()
                         except Exception:
+                            estado_trad.update(label="Error en la traducción", state="error", expanded=False)
                             st.error("Error al procesar las traducciones.")
                             st.code(response.text)
 
