@@ -366,11 +366,44 @@ with tab_app:
             )
 
 with tab_guia:
-    st.markdown("### 📘 Manual de Uso")
+    st.markdown("### 📘 Guía de Operación y Manual de Usuario")
     st.markdown("""
-    1. **Cargar archivo:** Sube el CSV exportado de Azure DevOps.
-    2. **Paso 1 (Extracción):** Pulsa **1. Extraer y Limpiar Literales (Español)** para depurar HTML y aislar la lista inicial.
-    3. **Revisión en vivo:** Modifica, añade o borra filas en el editor de tabla.
-    4. **Paso 2 (Opcional - Traducción):** Pulsa **2. Traducir Catálogo** para obtener las columnas en Inglés, Catalán/Valenciano, Gallego y Euskera.
-    5. **Exportación:** Elige formato Excel o CSV y descarga.
+    **LimpiaText** automatiza la extracción de cadenas de texto de interfaz (UI) a partir de las Historias de Usuario refinadas en Azure DevOps, eliminando el marcado HTML residual y generando un catálogo estructurado multilingüe.
     """)
+    
+    st.write("---")
+    
+    st.markdown("**1. Extracción desde Azure DevOps**")
+    st.markdown("""
+    * Ve a **Boards > Queries** en tu proyecto de Azure DevOps.
+    * Crea o abre una consulta con las HDUs de la iteración correspondiente.
+    * Asegúrate de incluir en la vista las columnas mínimas: `ID`, `Title`, `Description` y `Acceptance Criteria`.
+    * Pulsa en **Export to CSV** (asegúrate de que el delimitador sea punto y coma `;` y codificación UTF-8).
+    """)
+
+    st.markdown("**2. Flujo de Trabajo en LimpiaText**")
+    st.markdown("""
+    * **Paso 1 (Extracción & Limpieza):** Sube el CSV y pulsa **1. Extraer y Limpiar Literales (Español)**. El sistema depura etiquetas HTML/comentarios y aísla botones, campos, mensajes de error, modales y opciones desplegables.
+    * **Edición interactiva:** Corrige erratas, añade términos o elimina filas sobrantes haciendo doble clic directamente sobre la tabla.
+    * **Paso 2 (Localización Multilingüe):** Si requieres el catálogo en varios idiomas, pulsa **2. Traducir Catálogo** para generar las variantes en Inglés, Catalán/Valenciano/Balear, Gallego y Euskera.
+    * **Exportación:** Selecciona formato Excel (`.xlsx`) o CSV (`.csv`) y descarga el archivo final.
+    """)
+
+    st.write("---")
+
+    st.markdown("### ❓ Preguntas Frecuentes (FAQ)")
+    
+    with st.expander("¿Qué criterios sigue para ignorar texto técnico?"):
+        st.write("""
+        El motor analiza el contexto semántico de los Criterios de Aceptación y descarta descripciones de arquitectura, llamadas API o lógica interna de backend, capturando exclusivamente textos que el usuario final verá en la interfaz gráfica.
+        """)
+
+    with st.expander("¿Cómo importar el resultado en herramientas de traducción (CAT/TMS)?"):
+        st.write("""
+        Exporta el catálogo en formato **CSV**. La estructura generada es compatible con plataformas como Lokalise, Crowdin o Phrase, mapeando `Literal (ES)` como clave/fuente y las columnas `EN`, `CA`, `GL`, `EU` como valores destino.
+        """)
+
+    with st.expander("¿Qué hacer si el CSV da error al cargar?"):
+        st.write("""
+        Verifica que el separador de campos sea `;` y que el archivo esté guardado con codificación **UTF-8** para evitar problemas con tildes, caracteres especiales o saltos de línea dentro de las descripciones.
+        """)
