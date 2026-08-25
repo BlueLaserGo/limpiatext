@@ -196,6 +196,18 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
+    st.markdown("---")
+    st.markdown("""
+    <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px;">
+        <img src="https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg" 
+             style="width: 48px; height: 48px; min-width: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #111111;">
+        <div style="line-height: 1.25;">
+            <div style="font-weight: 700; color: #111111; font-size: 0.9rem;">Laura Serrano Gómez</div>
+            <a href="https://www.linkedin.com/in/lauserrano/?locale=es-ES" target="_blank" style="color: #555555; text-decoration: underline; font-size: 0.8rem;">Conectar en LinkedIn ↗</a>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 # 5. Encabezado principal (Hero Editorial)
 st.markdown('<span class="version-tag">DevOps → Catalog Pipeline</span>', unsafe_allow_html=True)
 st.markdown('<div class="hero-title">LimpiaText</div>', unsafe_allow_html=True)
