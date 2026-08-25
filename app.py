@@ -70,7 +70,7 @@ st.markdown("""
         margin-bottom: 1.2rem;
     }
 
-    /* Pestañas */
+    /* Pestañas con acento amarillo */
     .stTabs [data-baseweb="tab-list"] {
         gap: 1.2rem;
         border-bottom: 1px solid #CCCCCC;
@@ -82,6 +82,10 @@ st.markdown("""
         font-size: 0.88rem !important;
         color: #111111 !important;
         padding: 0.4rem 0.2rem !important;
+    }
+    .stTabs [aria-selected="true"] {
+        border-bottom: 3px solid #FACC15 !important;
+        color: #000000 !important;
     }
 
     /* Uploader */
@@ -158,13 +162,20 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Tarjetas del manual compactas */
+    /* Tarjetas del manual interactivas con elevación */
     .guide-card {
         background-color: #FFFFFF;
         border: 1px solid #D5D5D0;
         border-radius: 6px;
-        padding: 1rem 1.2rem;
+        padding: 1.1rem 1.3rem;
         margin-bottom: 0.8rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .guide-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        border-color: #CCCCCC;
     }
     .guide-card h4 {
         margin: 0 0 0.4rem 0;
@@ -175,7 +186,7 @@ st.markdown("""
     .guide-card p, .guide-card li {
         font-size: 0.86rem;
         color: #444444;
-        line-height: 1.4;
+        line-height: 1.45;
     }
 </style>
 """, unsafe_allow_html=True)
