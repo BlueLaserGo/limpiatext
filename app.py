@@ -5,8 +5,7 @@ import io
 from google import genai
 from google.genai import types
 
-# Importamos la lógica desde utils.py
-from utils import SYSTEM_PROMPT, limpiar_html_devops, obtener_columna
+from utils import PROMPT_EXTRACCION, PROMPT_TRADUCCION, limpiar_html_devops, obtener_columna
 
 # 1. Configuración de página
 st.set_page_config(
@@ -16,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Estilo Editorial Minimalista
+# 2. Estilos CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -102,7 +101,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Ocultar texto nativo y poner en español */
+    /* Texto de ayuda en español */
     div[data-testid="stFileUploaderInstructions"] * {
         display: none !important;
     }
@@ -138,7 +137,7 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* Botones principales y de descarga */
+    /* Botones principales */
     .stButton > button, div[data-testid="stDownloadButton"] > button {
         background-color: #111111 !important;
         color: #FFFFFF !important;
@@ -200,9 +199,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Inicializar sesión para la tabla editada
+# Inicializar sesión
 if "df_literales" not in st.session_state:
     st.session_state.df_literales = None
+if "traducido" not in st.session_state:
+    st.session_state.traducido = False
 
 # 5. Pestañas
 tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
@@ -221,11 +222,12 @@ with tab_app:
             with st.expander("Vista previa del CSV original"):
                 st.dataframe(df_devops.head(3), use_container_width=True)
                 
-            if st.button("Limpiar y Traducir Literales"):
+            # PASO 1: EXTRAER Y LIMPIAR (SOLO ESPAÑOL)
+            if st.button("1. Extraer y Limpiar Literales (Español)"):
                 if not api_key:
                     st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
                 else:
-                    with st.spinner("Limpiando HTML y normalizando campos..."):
+                    with st.spinner("Limpiando HTML y procesando HDUs con Gemini..."):
                         col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id", "Id de elemento de trabajo"], 0)
                         col_title = obtener_columna(df_devops, ["Title", "Título"], 1)
                         col_desc = obtener_columna(df_devops, ["Description", "Descripción"], 2)
@@ -242,19 +244,14 @@ with tab_app:
                         )
                         texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
 
-                    with st.spinner("Extrayendo literales con Gemini y generando traducciones..."):
                         client = genai.Client(api_key=api_key)
-                        prompt_usuario = (
-                            "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
-                            f"{texto_completo_hdus}\n\n"
-                            "Extrae todos los literales de UI, clasifícalos y tradúcelos según las directrices establecidas."
-                        )
+                        prompt_usuario = f"Historias de Usuario:\n\n{texto_completo_hdus}\n\nExtrae únicamente los literales de interfaz en español."
                         
                         response = client.models.generate_content(
                             model='gemini-3.6-flash',
                             contents=prompt_usuario,
                             config=types.GenerateContentConfig(
-                                system_instruction=SYSTEM_PROMPT,
+                                system_instruction=PROMPT_EXTRACCION,
                                 response_mime_type="application/json",
                                 temperature=0.1
                             )
@@ -262,34 +259,28 @@ with tab_app:
                         
                         try:
                             resultado_json = json.loads(response.text)
+                            df_res = pd.DataFrame(resultado_json)
+                            columnas_renombradas = {
+                                'id_hdu': 'ID HDU',
+                                'modulo': 'Módulo Funcional',
+                                'pantalla': 'Pantalla / Vista',
+                                'tipo_elemento': 'Tipo de Elemento',
+                                'texto_es': 'Literal (ES)'
+                            }
+                            st.session_state.df_literales = df_res.rename(columns=columnas_renombradas)
+                            st.session_state.traducido = False
                         except Exception:
                             st.error("Gemini no devolvió un formato JSON válido.")
                             st.code(response.text)
-                            st.stop()
-
-                    with st.spinner("Estructurando catálogo final..."):
-                        df_resultado = pd.DataFrame(resultado_json)
-                        columnas_renombradas = {
-                            'id_hdu': 'ID HDU',
-                            'modulo': 'Módulo Funcional',
-                            'pantalla': 'Pantalla / Vista',
-                            'tipo_elemento': 'Tipo de Elemento',
-                            'texto_es': 'Literal (ES)',
-                            'traduccion_en': 'Inglés (EN)',
-                            'traduccion_ca': 'Catalán / Valenciano (CA)',
-                            'traduccion_gl': 'Gallego (GL)',
-                            'traduccion_eu': 'Euskera (EU)'
-                        }
-                        st.session_state.df_literales = df_resultado.rename(columns=columnas_renombradas)
 
         except Exception as e:
             st.error(f"Ocurrió un error al procesar el archivo: {e}")
 
-    # Mostrar la tabla editable y el bloque de exportación
+    # Si ya se extrajeron literales, mostrar editor y opción de traducir
     if st.session_state.df_literales is not None:
         st.write("---")
-        st.subheader("Catálogo de UI Generado (Editable)")
-        st.caption("Puedes hacer doble clic en cualquier celda para corregir o ajustar textos antes de descargar.")
+        st.subheader("Catálogo de UI (Editable)")
+        st.caption("Revisa o edita la tabla antes de descargar o traducir.")
         
         # Editor interactivo
         df_editado = st.data_editor(
@@ -297,8 +288,53 @@ with tab_app:
             use_container_width=True,
             num_rows="dynamic"
         )
-        
-        st.write("")
+        st.session_state.df_literales = df_editado
+
+        # PASO 2: TRADUCIR (OPCIONAL)
+        if not st.session_state.traducido:
+            st.write("")
+            if st.button("2. Traducir Catálogo a Multilingüe (EN, CA, GL, EU)"):
+                if not api_key:
+                    st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
+                else:
+                    with st.spinner("Generando traducciones multilingües con Gemini..."):
+                        datos_a_traducir = df_editado.to_dict(orient="records")
+                        client = genai.Client(api_key=api_key)
+                        prompt_traduccion = f"Literales a traducir:\n\n{json.dumps(datos_a_traducir, ensure_ascii=False)}"
+                        
+                        response = client.models.generate_content(
+                            model='gemini-3.6-flash',
+                            contents=prompt_traduccion,
+                            config=types.GenerateContentConfig(
+                                system_instruction=PROMPT_TRADUCCION,
+                                response_mime_type="application/json",
+                                temperature=0.1
+                            )
+                        )
+                        
+                        try:
+                            resultado_traducciones = json.loads(response.text)
+                            df_trad = pd.DataFrame(resultado_traducciones)
+                            columnas_renombradas = {
+                                'id_hdu': 'ID HDU',
+                                'modulo': 'Módulo Funcional',
+                                'pantalla': 'Pantalla / Vista',
+                                'tipo_elemento': 'Tipo de Elemento',
+                                'texto_es': 'Literal (ES)',
+                                'traduccion_en': 'Inglés (EN)',
+                                'traduccion_ca': 'Catalán / Valenciano (CA)',
+                                'traduccion_gl': 'Gallego (GL)',
+                                'traduccion_eu': 'Euskera (EU)'
+                            }
+                            st.session_state.df_literales = df_trad.rename(columns=columnas_renombradas)
+                            st.session_state.traducido = True
+                            st.rerun()
+                        except Exception:
+                            st.error("Error al procesar las traducciones.")
+                            st.code(response.text)
+
+        # BLOQUE DE DESCARGA (Excel o CSV)
+        st.write("---")
         col_formato, col_boton = st.columns([1, 2])
         
         with col_formato:
@@ -332,19 +368,9 @@ with tab_app:
 with tab_guia:
     st.markdown("### 📘 Manual de Uso")
     st.markdown("""
-    1. **Exportar desde Azure DevOps:** Desde la consulta o backlog de tu iteración, exporta a CSV asegurando las columnas `ID`, `Title`, `Description` y `Acceptance Criteria` (separador `;`).
-    2. **Cargar el archivo:** Sube el CSV en la pestaña principal.
-    3. **Procesar:** Pulsa **Limpiar y Traducir Literales** para depurar el HTML y extraer los textos de UI.
-    4. **Editar en vivo:** Revisa la tabla directamente en pantalla y modifica cualquier texto haciendo doble clic en la celda.
-    5. **Descargar:** Selecciona formato Excel o CSV y descarga tu catálogo listo.
-    """)
-    st.markdown("---")
-    st.markdown("### ❓ Preguntas Frecuentes (FAQ)")
-    st.markdown("""
-    * **¿Qué elementos de UI se extraen?**  
-      Botones, nombres de campo, selectores, opciones de menú, modales, alertas y mensajes de error.
-    * **¿Se ignoran requisitos técnicos?**  
-      Sí, el modelo omite la narrativa técnica interna y extrae únicamente literales destinados a la interfaz de usuario.
-    * **¿Qué idiomas cubre?**  
-      Español original $\\rightarrow$ Inglés (EN), Catalán/Valenciano/Balear (CA), Gallego (GL) y Euskera (EU).
+    1. **Cargar archivo:** Sube el CSV exportado de Azure DevOps.
+    2. **Paso 1 (Extracción):** Pulsa **1. Extraer y Limpiar Literales (Español)** para depurar HTML y aislar la lista inicial.
+    3. **Revisión en vivo:** Modifica, añade o borra filas en el editor de tabla.
+    4. **Paso 2 (Opcional - Traducción):** Pulsa **2. Traducir Catálogo** para obtener las columnas en Inglés, Catalán/Valenciano, Gallego y Euskera.
+    5. **Exportación:** Elige formato Excel o CSV y descarga.
     """)
