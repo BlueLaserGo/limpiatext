@@ -175,25 +175,26 @@ st.markdown("""
         text-align: center;
     }
 
-    /* Botones primarios */
+    /* Botones compactos y equilibrados */
     .stButton > button, div[data-testid="stDownloadButton"] > button {
         background-color: #111111 !important;
         color: #FFFFFF !important;
         border-radius: 4px !important;
         font-family: 'Space Grotesk', sans-serif !important;
         font-weight: 600 !important;
-        font-size: 0.9rem !important;
-        letter-spacing: 0.4px !important;
-        text-transform: uppercase !important;
+        font-size: 0.82rem !important;
+        letter-spacing: 0.3px !important;
+        text-transform: none !important;      /* Evita mayúsculas forzadas que ensanchan el botón */
         border: none !important;
-        padding: 0.5rem 1.6rem !important;
+        padding: 0.35rem 0.9rem !important;   /* Reduce altura y márgenes laterales */
+        min-height: 2.2rem !important;        /* Altura estándar y compacta */
+        line-height: 1.2 !important;
         transition: all 0.15s ease !important;
     }
     .stButton > button:hover, div[data-testid="stDownloadButton"] > button:hover {
         background-color: #FACC15 !important;
         color: #111111 !important;
     }
-
     /* Tarjetas del manual */
     .guide-card {
         background-color: #FFFFFF;
