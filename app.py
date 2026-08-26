@@ -278,10 +278,11 @@ with tab_app:
                     df_literales = pd.DataFrame(resultado_json)
                     
                     if 'confianza' in df_literales.columns:
+                        df_literales['confianza'] = df_literales['confianza'].fillna(50)
                         df_literales['estado'] = df_literales['confianza'].apply(clasificar_confianza)
                     else:
-                        df_literales['confianza'] = 90
-                        df_literales['estado'] = "🟢 Alta"
+                        df_literales['confianza'] = 50
+                        df_literales['estado'] = "🟡 Media"
                     
                     columnas_renombradas = {
                         'id_hdu': 'ID Historia',
