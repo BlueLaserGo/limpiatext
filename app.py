@@ -278,16 +278,28 @@ def ver_ficha_proyecto():
             mime="application/pdf",
             use_container_width=True
         )
-
 with st.sidebar:
-    default_api_key = st.secrets.get("GEMINI_API_KEY", "")
-    
-    if default_api_key:
+    # 1. Obtenemos la clave de los secretos del servidor (nunca se envía al navegador)
+    secret_key = st.secrets.get("GEMINI_API_KEY", "")
+
+    # 2. Si existe la clave interna, dejamos el campo visual vacío
+    if secret_key:
         st.caption("⚡ Motor de IA activo")
-        with st.expander("⚙️ Ajustes de API Key"):
-            api_key = st.text_input("Gemini API Key:", value=default_api_key, type="password")
+        with st.expander("⚙️ Usar clave API propia (opcional)"):
+            user_key = st.text_input(
+                "Tu Gemini API Key:",
+                value="",
+                type="password",
+                help="Opcional. Deja este campo vacío para usar el motor predeterminado de la app."
+            )
+        api_key = user_key.strip() if user_key.strip() else secret_key
     else:
-        api_key = st.text_input("Gemini API Key:", value="", type="password", help="Introduce tu API Key de Google AI Studio.")
+        api_key = st.text_input(
+            "Gemini API Key:",
+            value="",
+            type="password",
+            help="Introduce tu API Key de Google AI Studio."
+        )
 
     st.write("---")
 
@@ -319,6 +331,7 @@ with st.sidebar:
         </div>
     </div>
     """, unsafe_allow_html=True)
+
 
 # 5. Encabezado principal
 st.markdown("""
