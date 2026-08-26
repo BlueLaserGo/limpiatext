@@ -54,6 +54,8 @@ css_styles = (
     ".card-heading { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; color: #111111; margin-bottom: 0.6rem; }\n"
     ".stButton > button { background-color: #111111; color: #FFFFFF; border-radius: 4px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.5px; text-transform: uppercase; border: none; padding: 0.6rem 2.2rem; transition: all 0.2s ease; }\n"
     ".stButton > button:hover { background-color: #FACC15; color: #111111; }\n"
+    "section[data-testid='stSidebar'] .stButton > button { padding: 0.35rem 0.8rem !important; font-size: 0.78rem !important; font-weight: 600 !important; text-transform: none !important; letter-spacing: 0 !important; background-color: #FFFFFF !important; color: #222222 !important; border: 1px solid #CCCCCC !important; box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important; }\n"
+    "section[data-testid='stSidebar'] .stButton > button:hover { background-color: #FACC15 !important; border-color: #EAB308 !important; color: #111111 !important; }\n"
     "</style>"
 )
 st.markdown(css_styles, unsafe_allow_html=True)
