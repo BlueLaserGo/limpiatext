@@ -124,7 +124,7 @@ with st.sidebar:
     )
     st.markdown(sidebar_header_html, unsafe_allow_html=True)
 
-    with st.expander("👀 ¿De qué va esto? (Ficha de proyecto)", expanded=False):
+with st.expander("👀 ¿De qué va esto? (Ficha de proyecto)", expanded=False):
     st.markdown(
         "**LimpiaText** es una herramienta pensada para equipos de producto y analistas funcionales.\n\n"
         "• **El problema:** Al exportar Historias de Usuario desde Azure DevOps, los textos de botones, campos y mensajes vienen mezclados con código HTML y explicaciones técnicas largas.\n\n"
