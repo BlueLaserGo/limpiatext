@@ -67,7 +67,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Caja del uploader con borde discontinuo amarillo */
+    /* Caja del uploader */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #FACC15 !important;
@@ -75,7 +75,6 @@ st.markdown("""
         padding: 0.8rem !important;
     }
 
-    /* Botón Uploader */
     div[data-testid="stFileUploader"] section button {
         background-color: #111111 !important;
         border: 1px solid #111111 !important;
@@ -228,13 +227,30 @@ IMPORTANTE: Responde EXCLUSIVAMENTE con una lista JSON válida de objetos.
 # 4. Barra lateral (Sidebar)
 with st.sidebar:
     st.markdown("### ⚙️ Configuración")
-    api_key = st.text_input("Gemini API Key:", type="password", help="Introduce tu clave de API de Google Gemini.")
+    
+    # Credenciales de entorno o input manual
+    api_key_default = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") else ""
+    api_key = st.text_input(
+        "Gemini API Key:",
+        value=api_key_default,
+        type="password",
+        help="Introduce tu propia clave de Google Gemini o usa las credenciales seguras del entorno."
+    )
+
+    st.write("---")
+    
+    st.markdown("**Fuente de Datos:**")
+    modo_entrada = st.radio(
+        "Selecciona el origen:",
+        ["Cargar archivo CSV", "Usar datos de Demo (Azure DevOps)"],
+        label_visibility="collapsed"
+    )
 
     st.write("---")
 
     st.markdown("**Idiomas de exportación:**")
     st.markdown("""
-    <div style="margin-top: 10px;">
+    <div style="margin-top: 8px;">
         <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
         <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
         <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
@@ -244,13 +260,15 @@ with st.sidebar:
 
     st.write("---")
     
+    # Autoría con imagen de perfil
     st.markdown("""
-    <div style="display: flex; align-items: center; gap: 8px; margin-top: 1.5rem;">
-        <img src="[https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg](https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg)" 
-             style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-top: 1rem;">
+        <img src="[https://avatars.githubusercontent.com/u/169123869?v=4](https://avatars.githubusercontent.com/u/169123869?v=4)" 
+             style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;"
+             onerror="this.onerror=null; this.src='[https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg](https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg)';">
         <div style="line-height: 1.15;">
-            <div style="font-size: 0.76rem; font-weight: 600; color: #222222;">Laura Serrano Gómez</div>
-            <a href="[https://www.linkedin.com/in/lauraserranogomez/](https://www.linkedin.com/in/lauraserranogomez/)" target="_blank" style="font-size: 0.68rem; color: #666666; text-decoration: none;">LinkedIn ↗</a>
+            <div style="font-size: 0.78rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
+            <a href="[https://www.linkedin.com/in/lauraserranogomez/](https://www.linkedin.com/in/lauraserranogomez/)" target="_blank" style="font-size: 0.70rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -271,159 +289,112 @@ st.markdown("""
 tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
 
 with tab_app:
-    archivo_subido = st.file_uploader(
-        "Carga el CSV exportado de Azure DevOps (separador ';')",
-        type=["csv"]
-    )
+    df_devops = None
 
-    if archivo_subido:
-        try:
-            df_devops = pd.read_csv(archivo_subido, sep=";")
-            st.success(f"Archivo cargado con éxito: **{len(df_devops)}** Historias de Usuario detectadas.")
+    if modo_entrada == "Cargar archivo CSV":
+        archivo_subido = st.file_uploader(
+            "Carga el CSV exportado de Azure DevOps (separador ';')",
+            type=["csv"]
+        )
+        if archivo_subido:
+            try:
+                df_devops = pd.read_csv(archivo_subido, sep=";")
+                st.success(f"Archivo cargado con éxito: **{len(df_devops)}** Historias de Usuario detectadas.")
+            except Exception as e:
+                st.error(f"Error al leer el archivo CSV: {e}")
+    else:
+        st.info("📦 **Modo Demo activado:** Utilizando conjunto de datos representativo de Azure DevOps con marcado HTML residual.")
+        # Dataset de prueba de muestra
+        datos_demo = {
+            "ID": [1042, 1043, 1045],
+            "Title": [
+                "Gestión de Facturas Proforma",
+                "Alta de Nuevo Proveedor Comunitario",
+                "Modificación de Estado de Expediente"
+            ],
+            "Description": [
+                "<div>El usuario accederá a la pestaña <b>Facturación Emitida</b> y pulsará el botón <i>Guardar Borrador</i>.</div>",
+                "<p>Formulario con selectores de tipo de IVA: <span>Exento</span>, <span>General 21%</span> y campo <b>NIF Intracomunitario</b>.</p>",
+                "<!-- Comentario interno: revisar permisos --><div>Si el expediente está bloqueado se mostrará el mensaje modal: <b>El expediente no admite modificaciones en estado Liquidado</b>.</div>"
+            ],
+            "Acceptance Criteria": [
+                "<div>Criterio 1: El botón <b>Emitir Factura Definitiva</b> solo se habilitará tras validar el NIF. Toast de éxito: <i>Factura registrada correctamente</i>.</div>",
+                "<p>Criterio 2: Al pulsar <b>Cancelar Registro</b> se solicita confirmación con la alerta: <i>¿Desea descartar los cambios no guardados?</i>.</p>",
+                "<div>Criterio 3: Mensaje de error de validación: <b>Debe adjuntar al menos un justificante de pago</b>.</div>"
+            ]
+        }
+        df_devops = pd.DataFrame(datos_demo)
+
+    if df_devops is not None:
+        with st.expander("Vista previa de Historias de Usuario a procesar", expanded=(modo_entrada != "Cargar archivo CSV")):
+            st.dataframe(df_devops.head(5), use_container_width=True)
             
-            with st.expander("Vista previa del CSV original"):
-                st.dataframe(df_devops.head(3), use_container_width=True)
-                
-            if st.button("Limpiar y Traducir Literales"):
-                if not api_key:
-                    st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
-                else:
-                    with st.spinner("Limpiando HTML y normalizando campos..."):
-                        col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id"], 0)
-                        col_title = obtener_columna(df_devops, ["Title", "Título"], 1)
-                        col_desc = obtener_columna(df_devops, ["Description", "Descripción"], 2)
-                        col_ac = obtener_columna(df_devops, ["Acceptance Criteria", "Criterios de Aceptación"], 3)
-                        
-                        df_devops["Description_Clean"] = df_devops[col_desc].apply(limpiar_html_devops) if col_desc else ""
-                        df_devops["Acceptance_Criteria_Clean"] = df_devops[col_ac].apply(limpiar_html_devops) if col_ac else ""
-                        
-                        df_devops["Full_HDU_Text"] = (
-                            "HDU ID: " + df_devops[col_id].astype(str) + "\n" +
-                            "Título: " + df_devops[col_title].astype(str) + "\n" +
-                            "Descripción: " + df_devops["Description_Clean"] + "\n" +
-                            "Criterios de Aceptación: " + df_devops["Acceptance_Criteria_Clean"]
-                        )
-                        texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
-
-                    with st.spinner("Extrayendo literales con Gemini y analizando confianza..."):
-                        client = genai.Client(api_key=api_key)
-                        prompt_usuario = (
-                            "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
-                            f"{texto_completo_hdus}\n\n"
-                            "Extrae todos los literales de UI, calcula el índice de confianza (0-100), clasifícalos y tradúcelos según las directrices."
-                        )
-                        
-                        response = client.models.generate_content(
-                            model='gemini-2.5-flash',
-                            contents=prompt_usuario,
-                            config=types.GenerateContentConfig(
-                                system_instruction=SYSTEM_PROMPT,
-                                response_mime_type="application/json",
-                                temperature=0.1
-                            )
-                        )
-                        
-                        try:
-                            resultado_json = parsear_json_robusto(response.text)
-                        except Exception:
-                            st.error("Gemini no devolvió un formato JSON válido.")
-                            st.code(response.text)
-                            st.stop()
-
-                    with st.spinner("Estructurando catálogo final con métricas de confianza..."):
-                        df_literales = pd.DataFrame(resultado_json)
-                        
-                        if 'confianza' in df_literales.columns:
-                            df_literales['estado'] = df_literales['confianza'].apply(clasificar_confianza)
-                        else:
-                            df_literales['confianza'] = 90
-                            df_literales['estado'] = "🟢 Alta"
-                        
-                        columnas_renombradas = {
-                            'id_hdu': 'ID HDU',
-                            'modulo': 'Módulo Funcional',
-                            'pantalla': 'Pantalla / Vista',
-                            'tipo_elemento': 'Tipo de Elemento',
-                            'texto_es': 'Literal (ES)',
-                            'confianza': 'Confianza IA',
-                            'estado': 'Estado',
-                            'traduccion_en': 'Inglés (EN)',
-                            'traduccion_ca': 'Catalán / Valenciano (CA)',
-                            'traduccion_gl': 'Gallego (GL)',
-                            'traduccion_eu': 'Euskera (EU)'
-                        }
-                        df_literales = df_literales.rename(columns=columnas_renombradas)
-                        
-                        orden_cols = [
-                            'ID HDU', 'Módulo Funcional', 'Pantalla / Vista', 'Tipo de Elemento',
-                            'Literal (ES)', 'Confianza IA', 'Estado',
-                            'Inglés (EN)', 'Catalán / Valenciano (CA)', 'Gallego (GL)', 'Euskera (EU)'
-                        ]
-                        cols_existentes = [c for c in orden_cols if c in df_literales.columns]
-                        df_literales = df_literales[cols_existentes]
-
-                        output_excel = io.BytesIO()
-                        with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
-                            df_literales.to_excel(writer, index=False, sheet_name='Catálogo UI')
-                        excel_data = output_excel.getvalue()
-
-                        csv_data = df_literales.to_csv(index=False, sep=";").encode('utf-8-sig')
-
-                    st.write("---")
-                    st.subheader("Catálogo de UI con Métricas de Confianza")
-                    st.dataframe(df_literales, use_container_width=True)
+        if st.button("Limpiar y Traducir Literales"):
+            if not api_key:
+                st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
+            else:
+                with st.spinner("Limpiando HTML y normalizando campos..."):
+                    col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id"], 0)
+                    col_title = obtener_columna(df_devops, ["Title", "Título"], 1)
+                    col_desc = obtener_columna(df_devops, ["Description", "Descripción"], 2)
+                    col_ac = obtener_columna(df_devops, ["Acceptance Criteria", "Criterios de Aceptación"], 3)
                     
-                    col_dl1, col_dl2 = st.columns(2)
-                    with col_dl1:
-                        st.download_button(
-                            label="Descargar Catálogo Excel (.xlsx)",
-                            data=excel_data,
-                            file_name="Catalogo_Literales_LimpiaText.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    df_devops["Description_Clean"] = df_devops[col_desc].apply(limpiar_html_devops) if col_desc else ""
+                    df_devops["Acceptance_Criteria_Clean"] = df_devops[col_ac].apply(limpiar_html_devops) if col_ac else ""
+                    
+                    df_devops["Full_HDU_Text"] = (
+                        "HDU ID: " + df_devops[col_id].astype(str) + "\n" +
+                        "Título: " + df_devops[col_title].astype(str) + "\n" +
+                        "Descripción: " + df_devops["Description_Clean"] + "\n" +
+                        "Criterios de Aceptación: " + df_devops["Acceptance_Criteria_Clean"]
+                    )
+                    texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
+
+                with st.spinner("Extrayendo literales con Gemini y analizando confianza..."):
+                    client = genai.Client(api_key=api_key)
+                    prompt_usuario = (
+                        "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
+                        f"{texto_completo_hdus}\n\n"
+                        "Extrae todos los literales de UI, calcula el índice de confianza (0-100), clasifícalos y tradúcelos según las directrices."
+                    )
+                    
+                    response = client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=prompt_usuario,
+                        config=types.GenerateContentConfig(
+                            system_instruction=SYSTEM_PROMPT,
+                            response_mime_type="application/json",
+                            temperature=0.1
                         )
-                    with col_dl2:
-                        st.download_button(
-                            label="Descargar Catálogo CSV (.csv)",
-                            data=csv_data,
-                            file_name="Catalogo_Literales_LimpiaText.csv",
-                            mime="text/csv"
-                        )
+                    )
+                    
+                    try:
+                        resultado_json = parsear_json_robusto(response.text)
+                    except Exception:
+                        st.error("Gemini no devolvió un formato JSON válido.")
+                        st.code(response.text)
+                        st.stop()
 
-        except Exception as e:
-            st.error(f"Ocurrió un error al procesar el archivo: {e}")
-
-with tab_guia:
-    st.write("")
-    
-    col_g1, col_g2 = st.columns(2, gap="medium")
-    
-    with col_g1:
-        with st.container(border=True):
-            st.caption("FLUJO FUNCIONAL")
-            st.markdown("#### 🚀 Proceso en 4 Pasos")
-            st.markdown("""
-            1. **Exportar:** Descarga el CSV desde Azure DevOps con separador punto y coma (`;`).
-            2. **Cargar:** Sube el archivo en el panel principal.
-            3. **Procesar:** Depuración de HTML y extracción de literales con IA.
-            4. **Descargar:** Obtén el catálogo final en **Excel (.xlsx)** o **CSV**.
-            """)
-
-    with col_g2:
-        with st.container(border=True):
-            st.caption("CONTROL DE CALIDAD")
-            st.markdown("#### 🎯 Métricas de Confianza IA")
-            st.markdown("""
-            * **🟢 Alta (≥ 85%):** Botones, modales y etiquetas visibles confirmadas.
-            * **🟡 Media (65% – 84%):** Literales inferidos a partir del contexto funcional.
-            * **🔴 Revisar (< 65%):** Posibles reglas de negocio o textos técnicos a validar.
-            """)
-
-    with st.container(border=True):
-        st.markdown("#### ❓ Preguntas Frecuentes (FAQ)")
-        st.markdown("""
-        **¿Por qué se ignoran las descripciones largas?**  
-        LimpiaText actúa como filtro de calidad funcional: extrae exclusivamente los literales de pantalla (UI) y descarta la prosa técnica interna.
-
-        **¿Qué idiomas traduce?**  
-        Español (ES) original $\\rightarrow$ **Inglés (EN)**, **Catalán / Valenciano / Balear (CA)**, **Gallego (GL)** y **Euskera (EU)**.
-        """)
+                with st.spinner("Estructurando catálogo final con métricas de confianza..."):
+                    df_literales = pd.DataFrame(resultado_json)
+                    
+                    if 'confianza' in df_literales.columns:
+                        df_literales['estado'] = df_literales['confianza'].apply(clasificar_confianza)
+                    else:
+                        df_literales['confianza'] = 90
+                        df_literales['estado'] = "🟢 Alta"
+                    
+                    columnas_renombradas = {
+                        'id_hdu': 'ID HDU',
+                        'modulo': 'Módulo Funcional',
+                        'pantalla': 'Pantalla / Vista',
+                        'tipo_elemento': 'Tipo de Elemento',
+                        'texto_es': 'Literal (ES)',
+                        'confianza': 'Confianza IA',
+                        'estado': 'Estado',
+                        'traduccion_en': 'Inglés (EN)',
+                        'traduccion_ca': 'Catalán / Valenciano (CA)',
+                        'traduccion_gl': 'Gallego (GL)',
+                        'traduccion_eu': 'Euskera (EU)'
+                    }
+                    df
