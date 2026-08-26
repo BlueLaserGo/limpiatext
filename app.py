@@ -316,3 +316,48 @@ with tab_app:
                         file_name="Textos_Pantalla_LimpiaText.csv",
                         mime="text/csv"
                     )
+                    with tab_guia:
+    st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
+    col_g1, col_g2 = st.columns(2, gap="large")
+    
+    with col_g1:
+        card_pasos_html = (
+            "<div class='floating-card'>"
+            "<div class='card-pill-yellow'>Paso a paso</div>"
+            "<div class='card-heading'>🚀 Cómo funciona</div>"
+            "<div style='font-size: 0.88rem; line-height: 1.6; color: #333333;'>"
+            "<b>1. Elige el origen:</b> Sube el CSV de Azure DevOps o prueba el modo demo con un clic.<br>"
+            "<b>2. Limpieza de código:</b> Se eliminan automáticamente etiquetas HTML (<code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>) y notas internas.<br>"
+            "<b>3. Detección inteligente:</b> La IA extrae solo botones, campos y mensajes visibles, calculando un porcentaje de fiabilidad.<br>"
+            "<b>4. Descarga directa:</b> Exporta los textos traducidos a 4 idiomas en <b>Excel (.xlsx)</b> o <b>CSV</b>."
+            "</div>"
+            "</div>"
+        )
+        st.markdown(card_pasos_html, unsafe_allow_html=True)
+
+    with col_g2:
+        card_calidad_html = (
+            "<div class='floating-card'>"
+            "<div class='card-pill-dark'>Fiabilidad</div>"
+            "<div class='card-heading'>🎯 Niveles de confianza de la IA</div>"
+            "<div style='font-size: 0.88rem; line-height: 1.6; color: #333333;'>"
+            "<div style='margin-bottom: 5px;'><b>🟢 Alta (≥ 85%):</b> Botones, modales, alertas y nombres de campo confirmados.</div>"
+            "<div style='margin-bottom: 5px;'><b>🟡 Media (65% – 84%):</b> Textos deducidos a partir del contexto funcional.</div>"
+            "<div><b>🔴 Revisar (&lt; 65%):</b> Posibles notas técnicas o reglas internas que conviene revisar manualmente.</div>"
+            "</div>"
+            "</div>"
+        )
+        st.markdown(card_calidad_html, unsafe_allow_html=True)
+
+    card_faq_html = (
+        "<div class='floating-card'>"
+        "<div class='card-heading'>❓ Preguntas frecuentes</div>"
+        "<div style='font-size: 0.88rem; line-height: 1.6; color: #333333;'>"
+        "<p style='margin-bottom: 8px;'><b>¿Por qué no se extraen las explicaciones largas de las historias?</b><br>"
+        "LimpiaText descarta la narrativa técnica y los comentarios de desarrollo para quedarse únicamente con los textos que el usuario final verá en la pantalla.</p>"
+        "<p style='margin-bottom: 0;'><b>¿A qué idiomas traduce la aplicación?</b><br>"
+        "Desde el español original &rarr; <b>Inglés (EN)</b>, <b>Catalán / Valenciano / Balear (CA)</b>, <b>Gallego (GL)</b> y <b>Euskera (EU)</b>.</p>"
+        "</div>"
+        "</div>"
+    )
+    st.markdown(card_faq_html, unsafe_allow_html=True)
