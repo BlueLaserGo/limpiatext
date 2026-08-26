@@ -16,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Estilos CSS Compactos y Editoriales
+# 2. Estilos CSS Compactos, Redondeados y Editoriales
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -45,8 +45,8 @@ st.markdown("""
         font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
         font-size: 0.72rem;
-        padding: 3px 8px;
-        border-radius: 3px;
+        padding: 4px 10px;
+        border-radius: 6px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 0.3rem;
@@ -88,21 +88,21 @@ st.markdown("""
         background-color: #111111;
         color: #FACC15;
         font-size: 0.75rem;
-        padding: 2px 6px;
-        border-radius: 3px;
+        padding: 2px 7px;
+        border-radius: 5px;
     }
 
     .human-loop-banner {
         background-color: #FFFFFF;
         border-left: 4px solid #FACC15;
-        padding: 0.6rem 1rem;
-        border-radius: 0 4px 4px 0;
+        padding: 0.7rem 1.1rem;
+        border-radius: 0 8px 8px 0;
         margin-bottom: 0.8rem;
         font-size: 0.86rem;
         color: #333333;
     }
 
-    /* Pestañas con acento amarillo */
+    /* Pestañas */
     .stTabs [data-baseweb="tab-list"] {
         gap: 1.2rem;
         border-bottom: 1px solid #CCCCCC;
@@ -120,18 +120,18 @@ st.markdown("""
         color: #000000 !important;
     }
 
-    /* Uploader */
+    /* Uploader redondeado */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #FACC15 !important;
-        border-radius: 6px !important;
+        border-radius: 10px !important;
         padding: 0.6rem 0.8rem !important;
     }
 
     div[data-testid="stFileUploader"] section > button {
         background-color: #111111 !important;
         border: 1px solid #111111 !important;
-        border-radius: 4px !important;
+        border-radius: 7px !important;
         padding: 0.35rem 1rem !important;
     }
     div[data-testid="stFileUploader"] section > button * { display: none !important; }
@@ -154,7 +154,7 @@ st.markdown("""
     div[data-testid="stFileUploaderFileData"] button { background: transparent !important; border: none !important; }
     div[data-testid="stFileUploaderFileData"] button::after { content: "" !important; }
 
-    /* Badges de idiomas */
+    /* Badges de idiomas redondeados */
     .lang-item {
         display: flex;
         align-items: center;
@@ -168,27 +168,27 @@ st.markdown("""
         color: #FFDE00;
         font-family: 'Space Grotesk', monospace;
         font-weight: 700;
-        padding: 2px 5px;
-        border-radius: 3px;
+        padding: 2px 6px;
+        border-radius: 5px;
         font-size: 0.72rem;
         min-width: 26px;
         text-align: center;
     }
 
-    /* CONTROL ESTRICTO DE TAMAÑO EN BOTONES */
+    /* BOTONES REDONDEADOS Y COMPACTOS */
     div[data-testid="stButton"] button,
     div[data-testid="stDownloadButton"] button,
     button[data-testid="baseButton-secondary"],
     button[data-testid="baseButton-primary"] {
         background-color: #111111 !important;
         color: #FFFFFF !important;
-        border-radius: 4px !important;
+        border-radius: 8px !important;
         font-family: 'Space Grotesk', sans-serif !important;
         font-weight: 600 !important;
         font-size: 0.78rem !important;
         text-transform: none !important;
         border: 1px solid #111111 !important;
-        padding: 4px 12px !important;
+        padding: 4px 14px !important;
         height: 32px !important;
         min-height: 32px !important;
         max-height: 32px !important;
@@ -215,11 +215,11 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Tarjetas del manual */
+    /* Tarjetas redondeadas */
     .guide-card {
         background-color: #FFFFFF;
         border: 1px solid #D5D5D0;
-        border-radius: 6px;
+        border-radius: 10px;
         padding: 1.1rem 1.3rem;
         margin-bottom: 0.8rem;
         box-shadow: 0 1px 3px rgba(0,0,0,0.04);
@@ -283,8 +283,8 @@ with st.sidebar:
     default_api_key = st.secrets.get("GEMINI_API_KEY", "")
     
     if default_api_key:
-        st.success("🟢 Motor de IA conectado")
-        with st.expander("⚙️ Configuración de API Key"):
+        st.caption("⚡ Motor de IA activo")
+        with st.expander("⚙️ Ajustes de API Key"):
             api_key = st.text_input("Gemini API Key:", value=default_api_key, type="password")
     else:
         api_key = st.text_input("Gemini API Key:", value="", type="password", help="Introduce tu API Key de Google AI Studio.")
