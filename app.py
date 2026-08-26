@@ -17,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Carga infalible de avatar en Base64
+# 2. Carga de avatar en Base64 con fallback
 def obtener_imagen_base64(ruta_imagen):
     if os.path.exists(ruta_imagen):
         with open(ruta_imagen, "rb") as img_file:
@@ -78,7 +78,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Caja del uploader con borde discontinuo amarillo */
+    /* Caja del uploader */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #FACC15 !important;
@@ -218,7 +218,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 4. Funciones de limpieza y soporte
+# 4. Funciones de depuración y soporte
 def limpiar_html_devops(texto: str) -> str:
     if not isinstance(texto, str) or not texto.strip():
         return ""
@@ -280,80 +280,4 @@ Para cada texto encontrado, devuelve:
 5. texto_es: El texto visible original en español.
 6. confianza: Número entero entre 0 y 100 según los criterios.
 7. traduccion_en: Traducción al inglés.
-8. traduccion_ca: Traducción al catalán / valenciano / balear.
-9. traduccion_gl: Traducción al gallego.
-10. traduccion_eu: Traducción al euskera.
-
-Responde EXCLUSIVAMENTE con una lista JSON válida de objetos.
-"""
-
-# 5. Barra lateral (Sidebar)
-with st.sidebar:
-    st.markdown(f"""
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; padding-bottom: 0.6rem; border-bottom: 1px solid #D5D5D0;">
-        <img src="{avatar_src}" 
-             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
-        <div style="line-height: 1.2;">
-            <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
-            <div style="font-size: 0.88rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
-            <a href="[https://www.linkedin.com/in/lauserrano](https://www.linkedin.com/in/lauserrano)" target="_blank" style="font-size: 0.72rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
-    
-    with st.expander("🔑 Configuración de API key", expanded=False):
-        api_key_input = st.text_input(
-            "Clave Gemini API:",
-            value="",
-            type="password",
-            help="Opcional. Si se deja en blanco, la aplicación usará la clave preconfigurada del entorno."
-        )
-    
-    api_key_activa = api_key_input.strip() if api_key_input.strip() else api_key_env
-
-    st.markdown("**Fuente de datos:**")
-    modo_entrada = st.radio(
-        "Selecciona el origen:",
-        ["Cargar archivo CSV", "Usar datos de demo (Azure DevOps)"],
-        label_visibility="collapsed"
-    )
-
-    st.write("---")
-
-    st.markdown("**Idiomas de exportación:**")
-    st.markdown("""
-    <div style="margin-top: 6px;">
-        <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
-        <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
-        <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
-        <div class="lang-item"><span class="lang-badge">EU</span> Euskera</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-# 6. Encabezado principal
-st.markdown("""
-<div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
-    Extracción y traducción de textos de pantalla
-</div>
-<div class="hero-title">LimpiaText</div>
-<div class="hero-subtitle">
-    Detección automática de botones, campos y mensajes desde historias de <b>Azure DevOps</b>, 
-    limpieza de código HTML y traducción directa a 4 idiomas.
-</div>
-""", unsafe_allow_html=True)
-
-# 7. Pestañas de contenido
-tab_app, tab_guia = st.tabs(["🚀 Extraer y traducir textos", "📖 Guía de uso y preguntas frecuentes"])
-
-with tab_app:
-    df_devops = None
-
-    if modo_entrada == "Cargar archivo CSV":
-        archivo_subido = st.file_uploader(
-            "Carga el CSV exportado de Azure DevOps",
-            type=["csv"]
-        )
-        if archivo_subido:
-            try
+8. traduccion_ca: Traducción
