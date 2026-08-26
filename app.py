@@ -61,6 +61,45 @@ css_styles = (
     "</style>"
 )
 st.markdown(css_styles, unsafe_allow_html=True)
+st.markdown("""
+<style>
+.sidebar-tab {
+    position: fixed;
+    left: 0;
+    top: 140px;
+    z-index: 9999;
+
+    background: #FACC15;
+    color: #111111;
+
+    padding: 10px 8px;
+    border-radius: 0 6px 6px 0;
+
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+
+    box-shadow: 0 3px 8px rgba(0,0,0,.15);
+
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+
+    opacity: 0.85;
+    transition: all .2s ease;
+}
+
+.sidebar-tab:hover {
+    opacity: 1;
+    padding-right: 12px;
+}
+</style>
+
+<div class="sidebar-tab">
+OPCIONES
+</div>
+""", unsafe_allow_html=True)
 
 # 4. Funciones de depuracion y soporte
 def limpiar_html_devops(texto: str) -> str:
