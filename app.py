@@ -22,9 +22,9 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 
     .block-container {
-        padding-top: 3.5rem !important;
+        padding-top: 3rem !important;
         padding-bottom: 2rem !important;
-        max-width: 1200px;
+        max-width: 1100px;
     }
 
     .stApp {
@@ -72,7 +72,7 @@ st.markdown("""
 
     .step-header {
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.05rem;
+        font-size: 1rem;
         font-weight: 700;
         color: #111111;
         text-transform: uppercase;
@@ -102,7 +102,7 @@ st.markdown("""
         color: #333333;
     }
 
-    /* Pestañas */
+    /* Pestañas con acento amarillo */
     .stTabs [data-baseweb="tab-list"] {
         gap: 1.2rem;
         border-bottom: 1px solid #CCCCCC;
@@ -175,26 +175,46 @@ st.markdown("""
         text-align: center;
     }
 
-    /* Botones compactos y equilibrados */
-    .stButton > button, div[data-testid="stDownloadButton"] > button {
+    /* CONTROL ESTRICTO DE TAMAÑO EN BOTONES */
+    div[data-testid="stButton"] button,
+    div[data-testid="stDownloadButton"] button,
+    button[data-testid="baseButton-secondary"],
+    button[data-testid="baseButton-primary"] {
         background-color: #111111 !important;
         color: #FFFFFF !important;
         border-radius: 4px !important;
         font-family: 'Space Grotesk', sans-serif !important;
         font-weight: 600 !important;
-        font-size: 0.82rem !important;
-        letter-spacing: 0.3px !important;
-        text-transform: none !important;      /* Evita mayúsculas forzadas que ensanchan el botón */
-        border: none !important;
-        padding: 0.35rem 0.9rem !important;   /* Reduce altura y márgenes laterales */
-        min-height: 2.2rem !important;        /* Altura estándar y compacta */
-        line-height: 1.2 !important;
+        font-size: 0.78rem !important;
+        text-transform: none !important;
+        border: 1px solid #111111 !important;
+        padding: 4px 12px !important;
+        height: 32px !important;
+        min-height: 32px !important;
+        max-height: 32px !important;
+        line-height: 1 !important;
         transition: all 0.15s ease !important;
     }
-    .stButton > button:hover, div[data-testid="stDownloadButton"] > button:hover {
+
+    div[data-testid="stButton"] button p,
+    div[data-testid="stDownloadButton"] button p,
+    button[data-testid="baseButton-secondary"] p,
+    button[data-testid="baseButton-primary"] p {
+        font-size: 0.78rem !important;
+        line-height: 1 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    div[data-testid="stButton"] button:hover,
+    div[data-testid="stDownloadButton"] button:hover,
+    button[data-testid="baseButton-secondary"]:hover,
+    button[data-testid="baseButton-primary"]:hover {
         background-color: #FACC15 !important;
+        border-color: #FACC15 !important;
         color: #111111 !important;
     }
+
     /* Tarjetas del manual */
     .guide-card {
         background-color: #FFFFFF;
@@ -324,10 +344,10 @@ tab_app, tab_guia = st.tabs(["🚀 Preparar Textos", "📖 Cómo Funciona el Pro
 with tab_app:
     st.markdown('<div class="step-header"><span class="step-badge">01</span> Añade tus historias de usuario</div>', unsafe_allow_html=True)
     
-    # Proporciones equilibradas para los botones de acción
-    col_demo1, col_demo2, col_reset = st.columns([1.6, 1.4, 1.1])
+    # 3 botones compactos agrupados a la izquierda
+    col_demo1, col_demo2, col_reset, _ = st.columns([1.6, 1.4, 1.1, 2.5])
     with col_demo1:
-        if st.button("📁 Probar con datos de ejemplo", use_container_width=True):
+        if st.button("📁 Probar demo", use_container_width=True):
             st.session_state.df_devops = pd.read_csv(io.StringIO(EJEMPLO_CSV), sep=";")
             st.session_state.df_literales = None
             st.session_state.traducido = False
@@ -335,7 +355,7 @@ with tab_app:
 
     with col_demo2:
         st.download_button(
-            label="⬇ Descargar muestra",
+            label="⬇ Muestra CSV",
             data=EJEMPLO_CSV.encode("utf-8-sig"),
             file_name="Export_DevOps_Sprint42_Sample.csv",
             mime="text/csv",
@@ -343,7 +363,7 @@ with tab_app:
         )
 
     with col_reset:
-        if st.button("🔄 Limpiar datos", use_container_width=True):
+        if st.button("🔄 Limpiar", use_container_width=True):
             st.session_state.df_devops = None
             st.session_state.df_literales = None
             st.session_state.traducido = False
@@ -353,6 +373,182 @@ with tab_app:
         "O sube tu propio archivo CSV exportado de Azure DevOps:",
         type=["csv"]
     )
+
+    if archivo_subido is not None:
+        try:
+            st.session_state.df_devops = pd.read_csv(archivo_subido, sep=None, engine='python', encoding='utf-8-sig')
+            st.session_state.df_literales = None
+            st.session_state.traducido = False
+        except Exception as e:
+            st.error(f"Error al leer el archivo subido: {e}")
+
+    # Si hay datos cargados
+    if st.session_state.df_devops is not None:
+        df_act = st.session_state.df_devops
+        st.success(f"Datos cargados: **{len(df_act)}** Historias de Usuario listas.")
+        
+        with st.expander("Ver contenido original"):
+            st.dataframe(df_act.head(3), use_container_width=True)
+            
+        col_btn1, _ = st.columns([2.0, 3.0])
+        with col_btn1:
+            btn_extraer = st.button("▶ Identificar textos de pantalla", use_container_width=True)
+            
+        if btn_extraer:
+            if not api_key:
+                st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
+            else:
+                with st.status("Procesando historias de usuario...", expanded=True) as estado:
+                    st.write("🧹 Limpiando código HTML residual con reglas de expresiones regulares...")
+                    
+                    col_id = obtener_columna(df_act, ["ID", "Id", "Work Item Id", "Id de elemento de trabajo"], 0)
+                    col_title = obtener_columna(df_act, ["Title", "Título"], 1)
+                    col_desc = obtener_columna(df_act, ["Description", "Descripción"], 2)
+                    col_ac = obtener_columna(df_act, ["Acceptance Criteria", "Criterios de Aceptación", "Criterios de aceptacion"], 3)
+                    
+                    df_act["Description_Clean"] = df_act[col_desc].apply(limpiar_html_devops) if col_desc else ""
+                    df_act["Acceptance_Criteria_Clean"] = df_act[col_ac].apply(limpiar_html_devops) if col_ac else ""
+                    
+                    df_act["Full_HDU_Text"] = (
+                        "HDU ID: " + df_act[col_id].astype(str) + "\n" +
+                        "Título: " + df_act[col_title].astype(str) + "\n" +
+                        "Descripción: " + df_act["Description_Clean"] + "\n" +
+                        "Criterios de Aceptación: " + df_act["Acceptance_Criteria_Clean"]
+                    )
+                    texto_completo_hdus = "\n\n---\n\n".join(df_act["Full_HDU_Text"].tolist())
+
+                    st.write("🤖 Identificando botones, campos y mensajes con Gemini...")
+                    
+                    client = genai.Client(api_key=api_key)
+                    prompt_usuario = f"Historias de Usuario:\n\n{texto_completo_hdus}\n\nExtrae únicamente los literales de interfaz en español."
+                    
+                    response = client.models.generate_content(
+                        model='gemini-3.6-flash',
+                        contents=prompt_usuario,
+                        config=types.GenerateContentConfig(
+                            system_instruction=PROMPT_EXTRACCION,
+                            response_mime_type="application/json",
+                            temperature=0.1
+                        )
+                    )
+                    
+                    try:
+                        resultado_json = json.loads(response.text)
+                        df_res = pd.DataFrame(resultado_json)
+                        columnas_renombradas = {
+                            'id_hdu': 'ID HDU',
+                            'modulo': 'Módulo / Área',
+                            'pantalla': 'Pantalla / Vista',
+                            'tipo_elemento': 'Tipo de Elemento',
+                            'texto_es': 'Texto en pantalla (ES)'
+                        }
+                        st.session_state.df_literales = df_res.rename(columns=columnas_renombradas)
+                        st.session_state.traducido = False
+                        estado.update(label="¡Textos identificados correctamente!", state="complete", expanded=False)
+                    except Exception:
+                        estado.update(label="Error en la extracción", state="error", expanded=False)
+                        st.error("No se pudo estructurar el resultado.")
+                        st.code(response.text)
+
+    # Si ya se encontraron textos
+    if st.session_state.df_literales is not None:
+        st.write("---")
+        st.markdown('<div class="step-header"><span class="step-badge">02</span> Revisa los textos encontrados</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="human-loop-banner">
+            <b>La IA propone. Tú decides.</b> Revisa o corrige cualquier texto directamente en la tabla antes de generar las versiones en otros idiomas.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        df_editado = st.data_editor(
+            st.session_state.df_literales,
+            use_container_width=True,
+            num_rows="dynamic"
+        )
+        st.session_state.df_literales = df_editado
+
+        if not st.session_state.traducido:
+            st.write("")
+            col_btn2, _ = st.columns([2.0, 3.0])
+            with col_btn2:
+                btn_traducir = st.button("🌐 Generar versiones (EN, CA, GL, EU)", use_container_width=True)
+                
+            if btn_traducir:
+                if not api_key:
+                    st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
+                else:
+                    with st.status("Traduciendo textos...", expanded=True) as estado_trad:
+                        st.write("🌍 Adaptando términos a las cuatro lenguas...")
+                        datos_a_traducir = df_editado.to_dict(orient="records")
+                        client = genai.Client(api_key=api_key)
+                        prompt_traduccion = f"Literales a traducir:\n\n{json.dumps(datos_a_traducir, ensure_ascii=False)}"
+                        
+                        response = client.models.generate_content(
+                            model='gemini-3.6-flash',
+                            contents=prompt_traduccion,
+                            config=types.GenerateContentConfig(
+                                system_instruction=PROMPT_TRADUCCION,
+                                response_mime_type="application/json",
+                                temperature=0.1
+                            )
+                        )
+                        
+                        try:
+                            resultado_traducciones = json.loads(response.text)
+                            df_trad = pd.DataFrame(resultado_traducciones)
+                            columnas_renombradas = {
+                                'id_hdu': 'ID HDU',
+                                'modulo': 'Módulo / Área',
+                                'pantalla': 'Pantalla / Vista',
+                                'tipo_elemento': 'Tipo de Elemento',
+                                'texto_es': 'Texto en pantalla (ES)',
+                                'traduccion_en': 'Inglés (EN)',
+                                'traduccion_ca': 'Catalán / Valenciano (CA)',
+                                'traduccion_gl': 'Gallego (GL)',
+                                'traduccion_eu': 'Euskera (EU)'
+                            }
+                            st.session_state.df_literales = df_trad.rename(columns=columnas_renombradas)
+                            st.session_state.traducido = True
+                            estado_trad.update(label="¡Traducciones completadas!", state="complete", expanded=False)
+                            st.rerun()
+                        except Exception:
+                            estado_trad.update(label="Error en la traducción", state="error", expanded=False)
+                            st.error("Error al procesar las traducciones.")
+                            st.code(response.text)
+
+        # BLOQUE DE DESCARGA
+        st.write("---")
+        st.markdown('<div class="step-header"><span class="step-badge">03</span> Exporta tus resultados</div>', unsafe_allow_html=True)
+        
+        col_formato, col_boton = st.columns([1, 2])
+        with col_formato:
+            formato_descarga = st.selectbox(
+                "Formato de exportación:",
+                ["Excel (.xlsx)", "CSV (.csv)"]
+            )
+            
+        with col_boton:
+            st.write("")
+            st.write("")
+            if formato_descarga == "Excel (.xlsx)":
+                output_excel = io.BytesIO()
+                with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
+                    df_editado.to_excel(writer, index=False, sheet_name='Textos UI')
+                data_file = output_excel.getvalue()
+                nombre_archivo = "Textos_Interfaz_LimpiaText.xlsx"
+                tipo_mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            else:
+                data_file = df_editado.to_csv(index=False, sep=";").encode("utf-8-sig")
+                nombre_archivo = "Textos_Interfaz_LimpiaText.csv"
+                tipo_mime = "text/csv"
+
+            st.download_button(
+                label=f"⬇ Descargar ({formato_descarga})",
+                data=data_file,
+                file_name=nombre_archivo,
+                mime=tipo_mime
+            )
+
 with tab_guia:
     col_g1, col_g2 = st.columns(2)
     
