@@ -10,13 +10,13 @@ from google.genai import types
 
 # 1. Configuración de página
 st.set_page_config(
-    page_title="LimpiaText — UI Localization",
+    page_title="LimpiaText — Localización de UI",
     page_icon="🧹",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# 2. Estilo Editorial Minimalista (CSS)
+# 2. Estilo editorial minimalista (CSS)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -35,6 +35,11 @@ st.markdown("""
     section[data-testid="stSidebar"] {
         background-color: #E8E8E6;
         border-right: 1px solid #D5D5D0;
+    }
+    
+    section[data-testid="stSidebar"] .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 1rem !important;
     }
 
     .hero-title {
@@ -76,7 +81,7 @@ st.markdown("""
         padding: 0.8rem !important;
     }
 
-    /* Botón Uploader */
+    /* Botón uploader */
     div[data-testid="stFileUploader"] section button {
         background-color: #111111 !important;
         border: 1px solid #111111 !important;
@@ -114,13 +119,13 @@ st.markdown("""
         margin-left: 0.75rem;
     }
 
-    /* Badges de idiomas */
+    /* Píldoras de idiomas */
     .lang-item {
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 8px;
-        font-size: 0.85rem;
+        margin-bottom: 6px;
+        font-size: 0.84rem;
         color: #111111;
         white-space: nowrap;
     }
@@ -228,14 +233,25 @@ IMPORTANTE: Responde EXCLUSIVAMENTE con una lista JSON válida de objetos.
 
 # 4. Barra lateral (Sidebar)
 with st.sidebar:
-    st.markdown("### ⚙️ Configuración")
+    # Perfil en cabecera compacto
+    st.markdown("""
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; padding-bottom: 0.6rem; border-bottom: 1px solid #D5D5D0;">
+        <img src="[https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg](https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg)" 
+             style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
+        <div style="line-height: 1.2;">
+            <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
+            <a href="[https://www.linkedin.com/in/lauraserranogomez/](https://www.linkedin.com/in/lauraserranogomez/)" target="_blank" style="font-size: 0.72rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Gestión de API Key: Automática por entorno con opción a meter una propia
+    # API Key con carga segura
     api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
     
-    with st.expander("🔑 Configuración de API Key", expanded=False):
+    with st.expander("🔑 Configuración de API key", expanded=False):
         api_key_input = st.text_input(
-            "Gemini API Key:",
+            "Clave Gemini API:",
             value="",
             type="password",
             help="Opcional. Si se deja en blanco, la aplicación usará la clave preconfigurada del entorno."
@@ -243,12 +259,10 @@ with st.sidebar:
     
     api_key_activa = api_key_input.strip() if api_key_input.strip() else api_key_env
 
-    st.write("---")
-
-    st.markdown("**Fuente de Datos:**")
+    st.markdown("**Fuente de datos:**")
     modo_entrada = st.radio(
         "Selecciona el origen:",
-        ["Cargar archivo CSV", "Usar datos de Demo (Azure DevOps)"],
+        ["Cargar archivo CSV", "Usar datos de demo (Azure DevOps)"],
         label_visibility="collapsed"
     )
 
@@ -256,7 +270,7 @@ with st.sidebar:
 
     st.markdown("**Idiomas de exportación:**")
     st.markdown("""
-    <div style="margin-top: 8px;">
+    <div style="margin-top: 6px;">
         <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
         <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
         <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
@@ -264,24 +278,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    st.write("---")
-    
-    # Autoría en el pie del sidebar
-    col_perfil_img, col_perfil_text = st.columns([1, 3], gap="small")
-    with col_perfil_img:
-        if os.path.exists("avatar_lasergo.jpeg"):
-            st.image("avatar_lasergo.jpeg", width=42)
-        else:
-            st.markdown("👤")
-    with col_perfil_text:
-        st.markdown("""
-        <div style="line-height: 1.15; margin-top: 4px;">
-            <div style="font-size: 0.80rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
-            <a href="[https://www.linkedin.com/in/lauraserranogomez/](https://www.linkedin.com/in/lauraserranogomez/)" target="_blank" style="font-size: 0.70rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
-        </div>
-        """, unsafe_allow_html=True)
-
-# 5. Encabezado principal (Hero Editorial)
+# 5. Encabezado principal (Hero editorial)
 st.markdown("""
 <div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
     Extracción y traducción de literales
@@ -294,51 +291,52 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 6. Pestañas de contenido
-tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
+tab_app, tab_guia = st.tabs(["🚀 Procesar literales", "📖 Guía de usuario y FAQ"])
 
 with tab_app:
     df_devops = None
 
     if modo_entrada == "Cargar archivo CSV":
         archivo_subido = st.file_uploader(
-            "Carga el CSV exportado de Azure DevOps (separador ';')",
+            "Carga el CSV exportado de Azure DevOps",
             type=["csv"]
         )
         if archivo_subido:
             try:
-                df_devops = pd.read_csv(archivo_subido, sep=";")
-                st.success(f"Archivo cargado con éxito: **{len(df_devops)}** Historias de Usuario detectadas.")
+                # Detección automática de separador (; , \t)
+                df_devops = pd.read_csv(archivo_subido, sep=None, engine='python')
+                st.success(f"Archivo cargado con éxito: **{len(df_devops)}** historias de usuario detectadas.")
             except Exception as e:
                 st.error(f"Error al leer el archivo CSV: {e}")
     else:
-        st.info("📦 **Modo Demo activado:** Utilizando conjunto de datos representativo de Azure DevOps con marcado HTML residual.")
+        st.info("📦 **Modo demo activado:** utilizando conjunto de datos representativo de Azure DevOps con marcado HTML residual.")
         datos_demo = {
             "ID": [1042, 1043, 1045],
             "Title": [
-                "Gestión de Facturas Proforma",
-                "Alta de Nuevo Proveedor Comunitario",
-                "Modificación de Estado de Expediente"
+                "Gestión de facturas proforma",
+                "Alta de nuevo proveedor comunitario",
+                "Modificación de estado de expediente"
             ],
             "Description": [
-                "<div>El usuario accederá a la pestaña <b>Facturación Emitida</b> y pulsará el botón <i>Guardar Borrador</i>.</div>",
-                "<p>Formulario con selectores de tipo de IVA: <span>Exento</span>, <span>General 21%</span> y campo <b>NIF Intracomunitario</b>.</p>",
+                "<div>El usuario accederá a la pestaña <b>Facturación emitida</b> y pulsará el botón <i>Guardar borrador</i>.</div>",
+                "<p>Formulario con selectores de tipo de IVA: <span>Exento</span>, <span>General 21%</span> y campo <b>NIF intracomunitario</b>.</p>",
                 "<!-- Comentario interno: revisar permisos --><div>Si el expediente está bloqueado se mostrará el mensaje modal: <b>El expediente no admite modificaciones en estado Liquidado</b>.</div>"
             ],
             "Acceptance Criteria": [
-                "<div>Criterio 1: El botón <b>Emitir Factura Definitiva</b> solo se habilitará tras validar el NIF. Toast de éxito: <i>Factura registrada correctamente</i>.</div>",
-                "<p>Criterio 2: Al pulsar <b>Cancelar Registro</b> se solicita confirmación con la alerta: <i>¿Desea descartar los cambios no guardados?</i>.</p>",
+                "<div>Criterio 1: El botón <b>Emitir factura definitiva</b> solo se habilitará tras validar el NIF. Toast de éxito: <i>Factura registrada correctamente</i>.</div>",
+                "<p>Criterio 2: Al pulsar <b>Cancelar registro</b> se solicita confirmación con la alerta: <i>¿Desea descartar los cambios no guardados?</i>.</p>",
                 "<div>Criterio 3: Mensaje de error de validación: <b>Debe adjuntar al menos un justificante de pago</b>.</div>"
             ]
         }
         df_devops = pd.DataFrame(datos_demo)
 
     if df_devops is not None:
-        with st.expander("Vista previa de Historias de Usuario a procesar", expanded=(modo_entrada != "Cargar archivo CSV")):
+        with st.expander("Vista previa de historias de usuario a procesar", expanded=(modo_entrada != "Cargar archivo CSV")):
             st.dataframe(df_devops.head(5), use_container_width=True)
             
-        if st.button("Limpiar y Traducir Literales"):
+        if st.button("Limpiar y traducir literales"):
             if not api_key_activa:
-                st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
+                st.error("Introduce tu clave Gemini API en la barra lateral para continuar.")
             else:
                 with st.spinner("Limpiando HTML y normalizando campos..."):
                     col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id"], 0)
@@ -393,9 +391,9 @@ with tab_app:
                     
                     columnas_renombradas = {
                         'id_hdu': 'ID HDU',
-                        'modulo': 'Módulo Funcional',
+                        'modulo': 'Módulo funcional',
                         'pantalla': 'Pantalla / Vista',
-                        'tipo_elemento': 'Tipo de Elemento',
+                        'tipo_elemento': 'Tipo de elemento',
                         'texto_es': 'Literal (ES)',
                         'confianza': 'Confianza IA',
                         'estado': 'Estado',
@@ -407,13 +405,14 @@ with tab_app:
                     df_literales = df_literales.rename(columns=columnas_renombradas)
                     
                     orden_cols = [
-                        'ID HDU', 'Módulo Funcional', 'Pantalla / Vista', 'Tipo de Elemento',
+                        'ID HDU', 'Módulo funcional', 'Pantalla / Vista', 'Tipo de elemento',
                         'Literal (ES)', 'Confianza IA', 'Estado',
                         'Inglés (EN)', 'Catalán / Valenciano (CA)', 'Gallego (GL)', 'Euskera (EU)'
                     ]
                     cols_existentes = [c for c in orden_cols if c in df_literales.columns]
                     df_literales = df_literales[cols_existentes]
 
+                    # Preparar exportaciones
                     output_excel = io.BytesIO()
                     with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
                         df_literales.to_excel(writer, index=False, sheet_name='Catálogo UI')
@@ -422,20 +421,20 @@ with tab_app:
                     csv_data = df_literales.to_csv(index=False, sep=";").encode('utf-8-sig')
 
                 st.write("---")
-                st.subheader("Catálogo de UI con Métricas de Confianza")
+                st.subheader("Catálogo de UI con métricas de confianza")
                 st.dataframe(df_literales, use_container_width=True)
                 
                 col_dl1, col_dl2 = st.columns(2)
                 with col_dl1:
                     st.download_button(
-                        label="Descargar Catálogo Excel (.xlsx)",
+                        label="Descargar catálogo Excel (.xlsx)",
                         data=excel_data,
                         file_name="Catalogo_Literales_LimpiaText.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
                 with col_dl2:
                     st.download_button(
-                        label="Descargar Catálogo CSV (.csv)",
+                        label="Descargar catálogo CSV (.csv)",
                         data=csv_data,
                         file_name="Catalogo_Literales_LimpiaText.csv",
                         mime="text/csv"
@@ -447,18 +446,18 @@ with tab_guia:
     with col_g1:
         with st.container(border=True):
             st.markdown("**:orange[FLUJO FUNCIONAL]**")
-            st.markdown("#### 🚀 Proceso en 4 Pasos")
+            st.markdown("#### 🚀 Proceso en 4 pasos")
             st.markdown("""
-            1. **Origen de Datos:** Sube el CSV de Azure DevOps o activa el modo demo preconfigurado.
+            1. **Origen de datos:** Sube el CSV de Azure DevOps o activa el modo demo preconfigurado.
             2. **Depuración:** El algoritmo elimina marcado HTML (`<div>`, `<p>`) y comentarios.
-            3. **Extracción & Scoring:** Aísla literales de UI y asigna el índice de fiabilidad (0–100).
+            3. **Extracción y fiabilidad:** Aísla literales de UI y asigna el índice de fiabilidad (0–100).
             4. **Exportación:** Descarga el catálogo multilingüe en **Excel (.xlsx)** o **CSV**.
             """)
 
     with col_g2:
         with st.container(border=True):
             st.markdown("**:orange[CONTROL DE CALIDAD]**")
-            st.markdown("#### 🎯 Métricas de Confianza IA")
+            st.markdown("#### 🎯 Métricas de confianza IA")
             st.markdown("""
             * **🟢 Alta (≥ 85%):** Botones, modales, alertas y etiquetas visibles explícitas.
             * **🟡 Media (65% – 84%):** Literales inferidos a partir del contexto funcional.
@@ -466,7 +465,7 @@ with tab_guia:
             """)
 
     with st.container(border=True):
-        st.markdown("#### ❓ Preguntas Frecuentes (FAQ)")
+        st.markdown("#### ❓ Preguntas frecuentes (FAQ)")
         st.markdown("""
         **¿Por qué se descarta la prosa técnica larga?**  
         LimpiaText extrae exclusivamente los literales destinados a los archivos de localización de interfaz (UI), eliminando descripciones internas de arquitectura y reglas de negocio.
