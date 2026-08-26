@@ -5,6 +5,7 @@ import re
 import html
 import io
 import os
+import base64
 from google import genai
 from google.genai import types
 
@@ -16,7 +17,16 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Estilo editorial minimalista (CSS)
+# 2. Función para cargar imagen en Base64 (Carga infalible)
+def obtener_imagen_base64(ruta_imagen):
+    if os.path.exists(ruta_imagen):
+        with open(ruta_imagen, "rb") as img_file:
+            return f"data:image/jpeg;base64,{base64.b64encode(img_file.read()).decode()}"
+    return "https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg"
+
+avatar_src = obtener_imagen_base64("avatar_lasergo.jpeg")
+
+# 3. Estilo editorial minimalista (CSS)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -35,11 +45,6 @@ st.markdown("""
     section[data-testid="stSidebar"] {
         background-color: #E8E8E6;
         border-right: 1px solid #D5D5D0;
-    }
-    
-    section[data-testid="stSidebar"] .block-container {
-        padding-top: 2rem !important;
-        padding-bottom: 1rem !important;
     }
 
     .hero-title {
@@ -73,7 +78,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Caja del uploader con borde discontinuo amarillo */
+    /* Caja del uploader */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #FACC15 !important;
@@ -142,6 +147,49 @@ st.markdown("""
         flex-shrink: 0;
     }
 
+    /* Tarjetas de ayuda */
+    .help-card {
+        background-color: #FFFFFF;
+        border: 1px solid #D5D5D0;
+        border-radius: 8px;
+        padding: 1.4rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        margin-bottom: 1rem;
+    }
+    .help-pill {
+        display: inline-block;
+        background-color: #FACC15;
+        color: #111111;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 0.70rem;
+        padding: 3px 8px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.6rem;
+    }
+    .help-pill-dark {
+        display: inline-block;
+        background-color: #111111;
+        color: #FFDE00;
+        font-family: 'Space Grotesk', monospace;
+        font-weight: 700;
+        font-size: 0.70rem;
+        padding: 3px 8px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.6rem;
+    }
+    .help-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: #111111;
+        margin-bottom: 0.6rem;
+    }
+
     .stButton > button {
         background-color: #111111;
         color: #FFFFFF;
@@ -162,7 +210,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. Funciones de limpieza, soporte y robustez
+# 4. Funciones de depuración y soporte
 def limpiar_html_devops(texto: str) -> str:
     if not isinstance(texto, str) or not texto.strip():
         return ""
@@ -231,13 +279,12 @@ Para cada literal encontrado, debes proporcionar obligatoriamente:
 IMPORTANTE: Responde EXCLUSIVAMENTE con una lista JSON válida de objetos.
 """
 
-# 4. Barra lateral (Sidebar)
+# 5. Barra lateral (Sidebar)
 with st.sidebar:
-    # Perfil en cabecera compacto
-    st.markdown("""
+    st.markdown(f"""
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; padding-bottom: 0.6rem; border-bottom: 1px solid #D5D5D0;">
-        <img src="[https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg](https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg)" 
-             style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
+        <img src="{avatar_src}" 
+             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
         <div style="line-height: 1.2;">
             <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
             <div style="font-size: 0.88rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
@@ -246,7 +293,6 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    # API Key con carga segura
     api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
     
     with st.expander("🔑 Configuración de API key", expanded=False):
@@ -278,7 +324,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# 5. Encabezado principal (Hero editorial)
+# 6. Encabezado principal (Hero editorial)
 st.markdown("""
 <div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
     Extracción y traducción de literales
@@ -290,7 +336,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 6. Pestañas de contenido
+# 7. Pestañas de contenido
 tab_app, tab_guia = st.tabs(["🚀 Procesar literales", "📖 Guía de usuario y FAQ"])
 
 with tab_app:
@@ -303,7 +349,6 @@ with tab_app:
         )
         if archivo_subido:
             try:
-                # Detección automática de separador (; , \t)
                 df_devops = pd.read_csv(archivo_subido, sep=None, engine='python')
                 st.success(f"Archivo cargado con éxito: **{len(df_devops)}** historias de usuario detectadas.")
             except Exception as e:
@@ -412,7 +457,6 @@ with tab_app:
                     cols_existentes = [c for c in orden_cols if c in df_literales.columns]
                     df_literales = df_literales[cols_existentes]
 
-                    # Preparar exportaciones
                     output_excel = io.BytesIO()
                     with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
                         df_literales.to_excel(writer, index=False, sheet_name='Catálogo UI')
@@ -441,35 +485,44 @@ with tab_app:
                     )
 
 with tab_guia:
-    col_g1, col_g2 = st.columns(2, gap="medium")
+    st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
+    col_g1, col_g2 = st.columns(2, gap="large")
     
     with col_g1:
-        with st.container(border=True):
-            st.markdown("**:orange[FLUJO FUNCIONAL]**")
-            st.markdown("#### 🚀 Proceso en 4 pasos")
-            st.markdown("""
-            1. **Origen de datos:** Sube el CSV de Azure DevOps o activa el modo demo preconfigurado.
-            2. **Depuración:** El algoritmo elimina marcado HTML (`<div>`, `<p>`) y comentarios.
-            3. **Extracción y fiabilidad:** Aísla literales de UI y asigna el índice de fiabilidad (0–100).
-            4. **Exportación:** Descarga el catálogo multilingüe en **Excel (.xlsx)** o **CSV**.
-            """)
+        st.markdown("""
+        <div class="help-card">
+            <div class="help-pill">Flujo funcional</div>
+            <div class="help-title">🚀 Proceso en 4 pasos</div>
+            <div style="font-size: 0.88rem; line-height: 1.6; color: #333333;">
+                <b>1. Origen de datos:</b> Sube el CSV de Azure DevOps o activa el modo demo preconfigurado.<br>
+                <b>2. Depuración:</b> El algoritmo elimina marcado HTML (<code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>) y comentarios.<br>
+                <b>3. Extracción y fiabilidad:</b> Aísla literales de UI y calcula el índice de confianza (0–100).<br>
+                <b>4. Exportación:</b> Descarga el catálogo multilingüe en <b>Excel (.xlsx)</b> o <b>CSV</b>.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col_g2:
-        with st.container(border=True):
-            st.markdown("**:orange[CONTROL DE CALIDAD]**")
-            st.markdown("#### 🎯 Métricas de confianza IA")
-            st.markdown("""
-            * **🟢 Alta (≥ 85%):** Botones, modales, alertas y etiquetas visibles explícitas.
-            * **🟡 Media (65% – 84%):** Literales inferidos a partir del contexto funcional.
-            * **🔴 Revisar (< 65%):** Posibles reglas de negocio o textos técnicos a validar.
-            """)
-
-    with st.container(border=True):
-        st.markdown("#### ❓ Preguntas frecuentes (FAQ)")
         st.markdown("""
-        **¿Por qué se descarta la prosa técnica larga?**  
-        LimpiaText extrae exclusivamente los literales destinados a los archivos de localización de interfaz (UI), eliminando descripciones internas de arquitectura y reglas de negocio.
+        <div class="help-card">
+            <div class="help-pill-dark">Control de calidad</div>
+            <div class="help-title">🎯 Métricas de confianza IA</div>
+            <div style="font-size: 0.88rem; line-height: 1.6; color: #333333;">
+                <div style="margin-bottom: 4px;"><b>🟢 Alta (≥ 85%):</b> Botones, modales, alertas y etiquetas visibles explícitas.</div>
+                <div style="margin-bottom: 4px;"><b>🟡 Media (65% – 84%):</b> Literales inferidos a partir del contexto funcional.</div>
+                <div><b>🔴 Revisar (&lt; 65%):</b> Posibles reglas de negocio o textos técnicos a validar.</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        **¿Qué idiomas incluye la exportación?**  
-        Español original $\\rightarrow$ **Inglés (EN)**, **Catalán / Valenciano / Balear (CA)**, **Gallego (GL)** y **Euskera (EU)**.
-        """)
+    st.markdown("""
+    <div class="help-card">
+        <div class="help-title">❓ Preguntas frecuentes (FAQ)</div>
+        <div style="font-size: 0.88rem; line-height: 1.6; color: #333333;">
+            <p style="margin-bottom: 8px;"><b>¿Por qué se descarta la prosa técnica larga?</b><br>
+            LimpiaText extrae exclusivamente los literales destinados a los archivos de recursos de interfaz (UI), eliminando descripciones técnicas internas y reglas de negocio.</p>
+            <p style="margin-bottom: 0;"><b>¿Qué idiomas incluye la exportación?</b><br>
+            Español original &rarr; <b>Inglés (EN)</b>, <b>Catalán / Valenciano / Balear (CA)</b>, <b>Gallego (GL)</b> y <b>Euskera (EU)</b>.</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
