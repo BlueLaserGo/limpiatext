@@ -21,7 +21,7 @@ En equipos ágiles de desarrollo de software, la extracción de textos de interf
 ## ✨ Características Principales
 
 * 🧹 **Depuración HTML y normalización de texto:** Algoritmo de limpieza basado en expresiones regulares y decodificación de entidades HTML para extraer texto plano sin artefactos.
-* 🤖 **Extracción inteligente de UI (Google Gemini 2.5 Flash):** Aislamiento estricto de elementos visuales (botones, etiquetas de campo, modales, opciones de desplegables, alertas y mensajes de validación), descartando la narrativa técnica.
+* 🤖 **Extracción inteligente de UI (Google Gemini 3.6 Flash):** Aislamiento estricto de elementos visuales (botones, etiquetas de campo, modales, opciones de desplegables, alertas y mensajes de validación), descartando la narrativa técnica.
 * 🎯 **Métricas de Confianza IA & Sistema de Semáforo:**
   * **🟢 Alta (≥ 85%):** Textos explícitamente identificados como literales visuales en pantalla.
   * **🟡 Media (65% – 84%):** Textos inferidos a partir del contexto funcional o criterios de aceptación.
