@@ -225,7 +225,7 @@ hero_html = (
 st.markdown(hero_html, unsafe_allow_html=True)
 
 # 7. Pestañas de contenido
-tab_app, tab_guia = st.tabs(["🚀 Extraer y traducir textos", "📖 Guía de uso y preguntas frecuentes"])
+tab_app, tab_guia = st.tabs(["🚀 Depura y traduce", "📖 Guía y ayuda"])
 
 with tab_app:
     df_devops = None
