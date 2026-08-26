@@ -228,25 +228,9 @@ IMPORTANTE: Responde EXCLUSIVAMENTE con una lista JSON válida de objetos.
 
 # 4. Barra lateral (Sidebar)
 with st.sidebar:
-    # Perfil / Autoría
-    col_perfil_img, col_perfil_text = st.columns([1, 3], gap="small")
-    with col_perfil_img:
-        if os.path.exists("avatar_lasergo.jpeg"):
-            st.image("avatar_lasergo.jpeg", width=46)
-        else:
-            st.markdown("👤")
-    with col_perfil_text:
-        st.markdown("""
-        <div style="line-height: 1.2;">
-            <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
-            <div style="font-size: 0.88rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
-            <a href="[https://www.linkedin.com/in/lauraserranogomez/](https://www.linkedin.com/in/lauraserranogomez/)" target="_blank" style="font-size: 0.75rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("### ⚙️ Configuración")
 
-    st.write("---")
-
-    # Gestión de API Key: Automática por defecto con opción a introducir una propia
+    # Gestión de API Key: Automática por entorno con opción a meter una propia
     api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
     
     with st.expander("🔑 Configuración de API Key", expanded=False):
@@ -257,8 +241,9 @@ with st.sidebar:
             help="Opcional. Si se deja en blanco, la aplicación usará la clave preconfigurada del entorno."
         )
     
-    # Determinamos la clave final activa
     api_key_activa = api_key_input.strip() if api_key_input.strip() else api_key_env
+
+    st.write("---")
 
     st.markdown("**Fuente de Datos:**")
     modo_entrada = st.radio(
@@ -278,6 +263,23 @@ with st.sidebar:
         <div class="lang-item"><span class="lang-badge">EU</span> Euskera</div>
     </div>
     """, unsafe_allow_html=True)
+
+    st.write("---")
+    
+    # Autoría en el pie del sidebar
+    col_perfil_img, col_perfil_text = st.columns([1, 3], gap="small")
+    with col_perfil_img:
+        if os.path.exists("avatar_lasergo.jpeg"):
+            st.image("avatar_lasergo.jpeg", width=42)
+        else:
+            st.markdown("👤")
+    with col_perfil_text:
+        st.markdown("""
+        <div style="line-height: 1.15; margin-top: 4px;">
+            <div style="font-size: 0.80rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
+            <a href="[https://www.linkedin.com/in/lauraserranogomez/](https://www.linkedin.com/in/lauraserranogomez/)" target="_blank" style="font-size: 0.70rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
+        </div>
+        """, unsafe_allow_html=True)
 
 # 5. Encabezado principal (Hero Editorial)
 st.markdown("""
