@@ -179,8 +179,8 @@ hero_html = (
     "</div>"
     "<div class='hero-title'>LimpiaText</div>"
     "<div class='hero-subtitle'>"
-    "Detección automática de botones, campos y mensajes desde historias de <b>Azure DevOps</b>, "
-    "limpieza de código HTML y traducción directa a 4 idiomas."
+    "Sube tus Historias de Usuario exportadas desde <b>Azure DevOps</b>. LimpiaText elimina el ruido técnico, "
+    "detecta los textos visibles de la aplicación y genera una propuesta de traducción para que las personas podamos revisarla antes de exportarla."
     "</div>"
 )
 st.markdown(hero_html, unsafe_allow_html=True)
