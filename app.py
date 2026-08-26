@@ -271,4 +271,159 @@ st.markdown("""
 tab_app, tab_guia = st.tabs(["🚀 Procesar Literales", "📖 Guía de Usuario & FAQ"])
 
 with tab_app:
-    archivo_
+    archivo_subido = st.file_uploader(
+        "Carga el CSV exportado de Azure DevOps (separador ';')",
+        type=["csv"]
+    )
+
+    if archivo_subido:
+        try:
+            df_devops = pd.read_csv(archivo_subido, sep=";")
+            st.success(f"Archivo cargado con éxito: **{len(df_devops)}** Historias de Usuario detectadas.")
+            
+            with st.expander("Vista previa del CSV original"):
+                st.dataframe(df_devops.head(3), use_container_width=True)
+                
+            if st.button("Limpiar y Traducir Literales"):
+                if not api_key:
+                    st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
+                else:
+                    with st.spinner("Limpiando HTML y normalizando campos..."):
+                        col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id"], 0)
+                        col_title = obtener_columna(df_devops, ["Title", "Título"], 1)
+                        col_desc = obtener_columna(df_devops, ["Description", "Descripción"], 2)
+                        col_ac = obtener_columna(df_devops, ["Acceptance Criteria", "Criterios de Aceptación"], 3)
+                        
+                        df_devops["Description_Clean"] = df_devops[col_desc].apply(limpiar_html_devops) if col_desc else ""
+                        df_devops["Acceptance_Criteria_Clean"] = df_devops[col_ac].apply(limpiar_html_devops) if col_ac else ""
+                        
+                        df_devops["Full_HDU_Text"] = (
+                            "HDU ID: " + df_devops[col_id].astype(str) + "\n" +
+                            "Título: " + df_devops[col_title].astype(str) + "\n" +
+                            "Descripción: " + df_devops["Description_Clean"] + "\n" +
+                            "Criterios de Aceptación: " + df_devops["Acceptance_Criteria_Clean"]
+                        )
+                        texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
+
+                    with st.spinner("Extrayendo literales con Gemini y analizando confianza..."):
+                        client = genai.Client(api_key=api_key)
+                        prompt_usuario = (
+                            "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
+                            f"{texto_completo_hdus}\n\n"
+                            "Extrae todos los literales de UI, calcula el índice de confianza (0-100), clasifícalos y tradúcelos según las directrices."
+                        )
+                        
+                        response = client.models.generate_content(
+                            model='gemini-2.5-flash',
+                            contents=prompt_usuario,
+                            config=types.GenerateContentConfig(
+                                system_instruction=SYSTEM_PROMPT,
+                                response_mime_type="application/json",
+                                temperature=0.1
+                            )
+                        )
+                        
+                        try:
+                            resultado_json = parsear_json_robusto(response.text)
+                        except Exception:
+                            st.error("Gemini no devolvió un formato JSON válido.")
+                            st.code(response.text)
+                            st.stop()
+
+                    with st.spinner("Estructurando catálogo final con métricas de confianza..."):
+                        df_literales = pd.DataFrame(resultado_json)
+                        
+                        if 'confianza' in df_literales.columns:
+                            df_literales['estado'] = df_literales['confianza'].apply(clasificar_confianza)
+                        else:
+                            df_literales['confianza'] = 90
+                            df_literales['estado'] = "🟢 Alta"
+                        
+                        columnas_renombradas = {
+                            'id_hdu': 'ID HDU',
+                            'modulo': 'Módulo Funcional',
+                            'pantalla': 'Pantalla / Vista',
+                            'tipo_elemento': 'Tipo de Elemento',
+                            'texto_es': 'Literal (ES)',
+                            'confianza': 'Confianza IA',
+                            'estado': 'Estado',
+                            'traduccion_en': 'Inglés (EN)',
+                            'traduccion_ca': 'Catalán / Valenciano (CA)',
+                            'traduccion_gl': 'Gallego (GL)',
+                            'traduccion_eu': 'Euskera (EU)'
+                        }
+                        df_literales = df_literales.rename(columns=columnas_renombradas)
+                        
+                        orden_cols = [
+                            'ID HDU', 'Módulo Funcional', 'Pantalla / Vista', 'Tipo de Elemento',
+                            'Literal (ES)', 'Confianza IA', 'Estado',
+                            'Inglés (EN)', 'Catalán / Valenciano (CA)', 'Gallego (GL)', 'Euskera (EU)'
+                        ]
+                        cols_existentes = [c for c in orden_cols if c in df_literales.columns]
+                        df_literales = df_literales[cols_existentes]
+
+                        output_excel = io.BytesIO()
+                        with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
+                            df_literales.to_excel(writer, index=False, sheet_name='Catálogo UI')
+                        excel_data = output_excel.getvalue()
+
+                        csv_data = df_literales.to_csv(index=False, sep=";").encode('utf-8-sig')
+
+                    st.write("---")
+                    st.subheader("Catálogo de UI con Métricas de Confianza")
+                    st.dataframe(df_literales, use_container_width=True)
+                    
+                    col_dl1, col_dl2 = st.columns(2)
+                    with col_dl1:
+                        st.download_button(
+                            label="Descargar Catálogo Excel (.xlsx)",
+                            data=excel_data,
+                            file_name="Catalogo_Literales_LimpiaText.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                    with col_dl2:
+                        st.download_button(
+                            label="Descargar Catálogo CSV (.csv)",
+                            data=csv_data,
+                            file_name="Catalogo_Literales_LimpiaText.csv",
+                            mime="text/csv"
+                        )
+
+        except Exception as e:
+            st.error(f"Ocurrió un error al procesar el archivo: {e}")
+
+with tab_guia:
+    st.write("")
+    
+    col_g1, col_g2 = st.columns(2, gap="medium")
+    
+    with col_g1:
+        with st.container(border=True):
+            st.caption("FLUJO FUNCIONAL")
+            st.markdown("#### 🚀 Proceso en 4 Pasos")
+            st.markdown("""
+            1. **Exportar:** Descarga el CSV desde Azure DevOps con separador punto y coma (`;`).
+            2. **Cargar:** Sube el archivo en el panel principal.
+            3. **Procesar:** Depuración de HTML y extracción de literales con IA.
+            4. **Descargar:** Obtén el catálogo final en **Excel (.xlsx)** o **CSV**.
+            """)
+
+    with col_g2:
+        with st.container(border=True):
+            st.caption("CONTROL DE CALIDAD")
+            st.markdown("#### 🎯 Métricas de Confianza IA")
+            st.markdown("""
+            * **🟢 Alta (≥ 85%):** Botones, modales y etiquetas visibles confirmadas.
+            * **🟡 Media (65% – 84%):** Literales inferidos a partir del contexto funcional.
+            * **🔴 Revisar (< 65%):** Posibles reglas de negocio o textos técnicos a validar.
+            """)
+
+    with st.container(border=True):
+        st.markdown("#### ❓ Preguntas Frecuentes (FAQ)")
+        st.markdown("""
+        **¿Por qué se ignoran las descripciones largas?**  
+        LimpiaText actúa como filtro de calidad funcional: extrae exclusivamente los literales de pantalla (UI) y descarta la prosa técnica interna.
+
+        **¿Qué idiomas traduce?**  
+        Español (ES) original $\\rightarrow$ **Inglés (EN)**, **Catalán / Valenciano / Balear (CA)**, **Gallego (GL)** y **Euskera (EU)**.
+        """)
