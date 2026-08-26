@@ -125,11 +125,11 @@ with st.sidebar:
     st.markdown(sidebar_header_html, unsafe_allow_html=True)
 
     with st.expander("👀 ¿De qué va esto? (Ficha de proyecto)", expanded=False):
-        st.markdown(
-            "**LimpiaText** es una herramienta pensada para equipos de producto y analistas funcionales.\n\n"
-            "• **El problema:** Al exportar Historias de Usuario desde Azure DevOps, los textos de botones, campos y mensajes vienen mezclados con código HTML y explicaciones técnicas largas.\n\n"
-            "• **La solución:** Limpia automáticamente el código residual, aísla únicamente los textos que el usuario final verá en pantalla y genera la traducción directa a 4 idiomas (inglés, catalán/valenciano, gallego y euskera) lista para descargar en Excel o CSV."
-        )
+    st.markdown(
+        "**LimpiaText** es una herramienta pensada para equipos de producto y analistas funcionales.\n\n"
+        "• **El problema:** Al exportar Historias de Usuario desde Azure DevOps, los textos de botones, campos y mensajes vienen mezclados con código HTML y explicaciones técnicas largas.\n\n"
+        "• **La solución:** Limpia automáticamente el código residual, aísla únicamente los textos que el usuario final verá en pantalla y genera la traducción directa a 4 idiomas (inglés, catalán/valenciano, gallego y euskera) lista para descargar en Excel o CSV."
+    )
 
     api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
     
