@@ -110,6 +110,18 @@ SYSTEM_PROMPT = (
     "Responde EXCLUSIVAMENTE con una lista JSON valida de objetos."
 )
 
+# Definición de la ventana modal (fuera de la barra lateral)
+@st.dialog("Ficha de proyecto — LimpiaText")
+def mostrar_ficha():
+    st.markdown(
+        "### 🎯 Propósito\n"
+        "Herramienta concebida para analistas funcionales y equipos de localización.\n\n"
+        "### ⚙️ Flujo de trabajo\n"
+        "1. **Depuración:** Limpieza de marcado HTML y comentarios en exportaciones CSV de Azure DevOps.\n"
+        "2. **Aislamiento:** Extracción de botones, campos y mensajes con índice de confianza IA (0–100).\n"
+        "3. **Localización:** Traducción inmediata a 4 idiomas (EN, CA, GL, EU) descargable en Excel y CSV."
+    )
+
 # 5. Barra lateral (Sidebar)
 with st.sidebar:
     sidebar_header_html = (
@@ -124,13 +136,8 @@ with st.sidebar:
     )
     st.markdown(sidebar_header_html, unsafe_allow_html=True)
 
-    with st.popover("👀 Ficha de proyecto", use_container_width=True):
-        st.markdown("""
-        **LimpiaText** automatiza la extracción de textos de interfaz (UI) a partir de historias de usuario en Azure DevOps.
-        
-        * **Problema:** El cribado manual de etiquetas HTML y la separación entre prosa técnica y textos visibles ralentiza los sprints.
-        * **Solución:** Filtra código residual, aísla botones y mensajes de pantalla y genera el catálogo multilingüe (EN, CA, GL, EU) en segundos.
-        """)
+    if st.button("👀 Ver ficha técnica", use_container_width=True):
+        mostrar_ficha()
 
     api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
     
@@ -141,28 +148,6 @@ with st.sidebar:
             type="password",
             help="Opcional. Si se deja en blanco, la aplicación usará la clave preconfigurada del entorno."
         )
-    
-    api_key_activa = api_key_input.strip() if api_key_input.strip() else api_key_env
-
-    st.markdown("**Fuente de datos:**")
-    modo_entrada = st.radio(
-        "Selecciona el origen:",
-        ["Cargar archivo CSV", "Usar datos de demo (Azure DevOps)"],
-        label_visibility="collapsed"
-    )
-
-    st.write("---")
-
-    sidebar_langs_html = (
-        "<div style='margin-top: 6px;'>"
-        "<div class='lang-item'><span class='lang-badge'>EN</span> Inglés</div>"
-        "<div class='lang-item'><span class='lang-badge'>CA</span> Catalán / Valenciano / Balear</div>"
-        "<div class='lang-item'><span class='lang-badge'>GL</span> Gallego</div>"
-        "<div class='lang-item'><span class='lang-badge'>EU</span> Euskera</div>"
-        "</div>"
-    )
-    st.markdown("**Idiomas de exportación:**")
-    st.markdown(sidebar_langs_html, unsafe_allow_html=True)
 
 # 6. Encabezado principal
 hero_html = (
