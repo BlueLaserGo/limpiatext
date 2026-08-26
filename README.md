@@ -1,72 +1,54 @@
-# 🧹 LimpiaText — Preparación y traducción de textos de UI
+# LimpiaText — UI Localization & Literal Extraction Engine
 
-<p align="left">
-  <img src="https://img.shields.io/badge/Python-3.10+-111111?style=flat-square&logo=python&logoColor=FFDE00" alt="Python" />
-  <img src="https://img.shields.io/badge/Streamlit-App-111111?style=flat-square&logo=streamlit&logoColor=FFDE00" alt="Streamlit" />
-  <img src="https://img.shields.io/badge/Google_GenAI-Gemini_3.6_Flash-111111?style=flat-square&logo=google&logoColor=FFDE00" alt="Gemini" />
-  <img src="https://img.shields.io/badge/Human_in_the_loop-Supervised-111111?style=flat-square&logoColor=FFDE00" alt="Human in the loop" />
-  <img src="https://img.shields.io/badge/Status-Portfolio_Project-FFDE00?style=flat-square&color=FFDE00&labelColor=111111" alt="Status" />
-</p>
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://limpiatext.streamlit.app)
+[![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square)](https://www.python.org/)
+[![Google GenAI SDK](https://img.shields.io/badge/Google%20GenAI-2.5%20Flash-FACC15?style=flat-square&labelColor=111111)](https://ai.google.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-black?style=flat-square)](LICENSE)
 
-> 🎓 **Proyecto de portfolio · Ejercicio práctico**  
-> 📄 **Documentación oficial:** Consulta y descarga la ficha técnica completa en [Ficha_Proyecto_LimpiaText_LauraSerrano.pdf](./Ficha_Proyecto_LimpiaText_LauraSerrano.pdf)
-
-**LimpiaText** es una aplicación web interactiva diseñada para resolver un problema frecuente en equipos de producto, desarrollo y localización: **extraer, limpiar y preparar los textos visibles de una aplicación (botones, campos, mensajes y modales) a partir de historias de usuario en Azure DevOps**, para después generar sus versiones en múltiples idiomas.
+**LimpiaText** es una herramienta especializada en ingeniería de requisitos y localización de software multilingüe. Automatiza la extracción de literales de interfaz de usuario (UI) a partir de exportaciones de **Azure DevOps**, depura el marcado HTML residual de las Historias de Usuario (HDUs) y genera catálogos inmediatos de localización en lenguas autonómicas e inglés, incorporando métricas de fiabilidad y calidad funcional asistida por IA.
 
 ---
 
-## 🎯 ¿Por qué este proyecto?
+## 🎯 Problema que Resuelve
 
-Al redactar o exportar Historias de Usuario (HDUs) desde herramientas como Azure DevOps, la información suele llegar mezclada:
-
-* 🧩 **Ruido técnico:** Marcado HTML residual (`<div>`, `<ul>`, `<b>`, etc.).
-* 💬 **Contexto vs. Pantalla:** Explicaciones funcionales largas mezcladas con el texto que realmente verá el usuario final.
-* 🌐 **Fricción lingüística:** Dificultad para aislar rápidamente los textos de interfaz para desarrolladores o herramientas de traducción (CAT/TMS).
-
-Este proyecto explora cómo combinar **procesamiento de texto determinista (Regex)** con **modelos de lenguaje (IA)** y un flujo de **control humano (*Human-in-the-loop*)** para automatizar esta preparación sin perder precisión ni contexto.
+En equipos ágiles de desarrollo de software, la extracción de textos de interfaz para traducción y parametrización suele ser un proceso manual propenso a errores:
+1. **Ruido HTML y marcado enriquecido:** Las exportaciones de Azure DevOps contienen etiquetas HTML (`<div>`, `<p>`, `<span>`, `<!-- comments -->`) incrustadas en las descripciones y criterios de aceptación.
+2. **Mezcla de prosa técnica y texto visible:** Diferenciar qué textos corresponden a botones/mensajes y cuáles son meras explicaciones funcionales consume tiempo de analistas y desarrolladores.
+3. **Desfase en la localización multilingüe:** La traducción a idiomas oficiales y de soporte suele demorarse, bloqueando el desarrollo de vistas y archivos de recursos (`.json`, `.resx`, `.properties`).
 
 ---
 
-## ⚙️ Arquitectura: Reglas → IA → Revisión humana
+## ✨ Características Principales
 
-El flujo se apoya en tres capas bien diferenciadas:
-
-* 📐 **1. Reglas y patrones (Python + Regex):**  
-  Limpian de forma controlada y determinista las etiquetas HTML, listas y entidades codificadas en las descripciones y criterios de aceptación.
-* 🤖 **2. Comprensión contextual (Gemini 3.6 Flash):**  
-  Analiza la narrativa funcional, distingue qué partes son explicaciones internas y qué partes son componentes reales de pantalla (botones, etiquetas, modales, alertas) y los estructura en una tabla clara.
-* 👩‍💻 **3. Control y supervisión humana (*Human-in-the-loop*):**  
-  El usuario valida y edita directamente los textos extraídos en la interfaz antes de lanzar la traducción multilingüe a **Inglés (EN)**, **Catalán / Valenciano (CA)**, **Gallego (GL)** y **Euskera (EU)**.
-
----
-
-## 🚀 Flujo de uso en 3 pasos
-
-* 📁 **01 · Añade tus datos:**  
-  Prueba de inmediato con el botón de datos de ejemplo o sube tu propio archivo CSV exportado de Azure DevOps.
-* ✏️ **02 · Revisa y traduce:**  
-  La IA propone la extracción de textos visibles. Puedes corregir cualquier celda en directo en la tabla editable y generar las versiones en los cuatro idiomas con un solo clic.
-* 💾 **03 · Exporta:**  
-  Descarga el catálogo estructurado en formato **Excel (.xlsx)** o **CSV (.csv)** con codificación UTF-8, listo para integrar en el código fuente o importar en plataformas como Lokalise, Phrase o Crowdin.
+* 🧹 **Depuración HTML y normalización de texto:** Algoritmo de limpieza basado en expresiones regulares y decodificación de entidades HTML para extraer texto plano sin artefactos.
+* 🤖 **Extracción inteligente de UI (Google Gemini 2.5 Flash):** Aislamiento estricto de elementos visuales (botones, etiquetas de campo, modales, opciones de desplegables, alertas y mensajes de validación), descartando la narrativa técnica.
+* 🎯 **Métricas de Confianza IA & Sistema de Semáforo:**
+  * **🟢 Alta (≥ 85%):** Textos explícitamente identificados como literales visuales en pantalla.
+  * **🟡 Media (65% – 84%):** Textos inferidos a partir del contexto funcional o criterios de aceptación.
+  * **🔴 Revisar (< 65%):** Textos ambiguos o con posible naturaleza técnica interna que requieren validación funcional previa.
+* 🌐 **Localización Multilingüe Automática:**
+  * **ES:** Español (Original)
+  * **EN:** Inglés (Localización internacional)
+  * **CA:** Catalán / Valenciano / Balear
+  * **GL:** Gallego
+  * **EU:** Euskera
+* 🛡️ **Procesamiento de JSON Robusto:** Mecanismo de parsing resiliente capaz de neutralizar bloques de marcado markdown o texto introductorio devuelto por el LLM.
+* 📊 **Exportación Profesional:** Descarga directa en formatos **Excel (.xlsx)** estructurado y **CSV (separador `;` con codificación UTF-8-sig)**.
+* 🎨 **Diseño Editorial Minimalista:** Interfaz responsiva inspirada en tipografía suiza y diseño editorial funcional.
 
 ---
 
-## 🛠️ Tecnologías utilizadas
+## 🛠️ Arquitectura y Tecnologías
 
-| Área | Herramientas y Librerías |
-| :--- | :--- |
-| 🐍 **Núcleo & Lógica** | `Python 3.10+` · `Pandas` · `re (Regex)` |
-| 🧠 **Inteligencia Artificial** | `Google GenAI SDK` (`gemini-3.6-flash`) |
-| 🖥️ **Interfaz & UX** | `Streamlit` · `CSS3 personalizado` · `HTML5` |
-| 📦 **Gestión de Archivos** | `OpenPyXL` · `BytesIO / StringIO` · `CSV (UTF-8-SIG)` |
+* **Frontend & UI:** [Streamlit](https://streamlit.io/) con inyección de CSS personalizado y Google Fonts (*Space Grotesk*, *Inter*).
+* **Tratamiento y Análisis de Datos:** [Pandas](https://pandas.pydata.org/), `openpyxl`, `re`, `html`, `io`.
+* **Motor de IA / NLP:** [Google GenAI SDK](https://pypi.org/project/google-genai/) ejecutando el modelo `gemini-2.5-flash` con *Structured Outputs* y *System Instructions* especializadas.
 
 ---
 
-## 💻 Instalación y ejecución local
+## 🚀 Instalación y Despliegue Local
 
-Si deseas clonar y ejecutar este proyecto en tu entorno local:
-
-1. 📥 **Clonar el repositorio:**
-   ```bash
-   git clone [https://github.com/BlueLaserGo/limpiatext.git](https://github.com/BlueLaserGo/limpiatext.git)
-   cd limpiatext
+### 1. Clonar el repositorio
+```bash
+git clone [https://github.com/BlueLaserGo/limpiatext.git](https://github.com/BlueLaserGo/limpiatext.git)
+cd limpiatext
