@@ -32,7 +32,7 @@ css_styles = (
     "@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');\n"
     ".block-container { padding-top: 4.5rem !important; padding-bottom: 2rem !important; }\n"
     ".stApp { background-color: #EFEFEF; color: #111111; font-family: 'Inter', sans-serif; }\n"
-    "section[data-testid='st'] { background-color: #E8E8E6; border-right: 1px solid #D5D5D0; }\n"
+    "section[data-testid='stSidebar'] { background-color: #E8E8E6; border-right: 1px solid #D5D5D0; }\n"
     ".hero-title { font-family: 'Space Grotesk', sans-serif; font-size: 2.1rem; font-weight: 700; letter-spacing: -1px; text-transform: uppercase; line-height: 1.1; color: #111111; margin-top: 0.4rem; margin-bottom: 0.2rem; }\n"
     ".hero-subtitle { font-size: 0.95rem; color: #555555; line-height: 1.4; max-width: 800px; margin-bottom: 1rem; }\n"
     ".stTabs [data-baseweb='tab-list'] { gap: 1.5rem; border-bottom: 1px solid #CCCCCC; }\n"
@@ -43,9 +43,9 @@ css_styles = (
     "div[data-testid='stFileUploader'] section button::after { content: 'Examinar archivos'; font-family: 'Space Grotesk', sans-serif !important; font-size: 0.85rem !important; font-weight: 600 !important; color: #FFFFFF !important; }\n"
     "div[data-testid='stFileUploader'] section button:hover { background-color: #FACC15 !important; border-color: #FACC15 !important; }\n"
     "div[data-testid='stFileUploader'] section button:hover::after { color: #111111 !important; }\n"
-    "div[data-testid='stFileUploaderInstructions'] * { display: none !important; }\n"
     "div[data-testid='stFileUploaderInstructions'] small, div[data-testid='stFileUploaderInstructions'] > div:last-child { font-size: 0 !important; }\n"
-    "div[data-testid='stFileUploaderInstructions'] small::after, div[data-testid='stFileUploaderInstructions'] > div:last-child::after { content: '📄 Solo archivos CSV • Máximo 200 MB'; font-family: 'Inter', sans-serif !important; font-size: 0.82rem !important; color: #666666 !important; display: inline-block; }\n"
+    "div[data-testid='stFileUploaderInstructions'] small::after, div[data-testid='stFileUploaderInstructions'] > div:last-child::after { content: '📄 Solo archivos CSV • Máximo 200 MB'; font-family: 'Inter', sans-serif !important; font-size: 0.82rem !important; color: #666666 !important; display: inline-block; margin-left: 0.75rem; }\n"
+    ".lang-item { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 0.84rem; color: #111111; white-space: nowrap; }\n"
     ".lang-badge { background-color: #000000; color: #FFDE00; font-family: 'Space Grotesk', monospace; font-weight: 700; padding: 3px 6px; border-radius: 4px; font-size: 0.75rem; min-width: 28px; text-align: center; flex-shrink: 0; }\n"
     ".floating-card { background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 8px; padding: 1.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; margin-bottom: 1rem; }\n"
     ".floating-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #BDBDB5; }\n"
@@ -109,18 +109,6 @@ SYSTEM_PROMPT = (
     "traduccion_en, traduccion_ca, traduccion_gl, traduccion_eu. "
     "Responde EXCLUSIVAMENTE con una lista JSON valida de objetos."
 )
-
-# Definición de la ventana modal (fuera de la barra lateral)
-@st.dialog("Ficha de proyecto — LimpiaText")
-def mostrar_ficha():
-    st.markdown(
-        "### 🎯 Propósito\n"
-        "Herramienta concebida para analistas funcionales y equipos de localización.\n\n"
-        "### ⚙️ Flujo de trabajo\n"
-        "1. **Depuración:** Limpieza de marcado HTML y comentarios en exportaciones CSV de Azure DevOps.\n"
-        "2. **Aislamiento:** Extracción de botones, campos y mensajes con índice de confianza IA (0–100).\n"
-        "3. **Localización:** Traducción inmediata a 4 idiomas (EN, CA, GL, EU) descargable en Excel y CSV."
-    )
 
 # Definición de la ventana modal (fuera de la barra lateral)
 @st.dialog("Ficha de proyecto — LimpiaText")
