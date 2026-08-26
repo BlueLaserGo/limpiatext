@@ -402,22 +402,58 @@ with tab_app:
 with tab_guia:
     st.markdown("### 📘 Manual de Uso y Criterios Funcionales")
     
-    col_g1, col_g2 = st.columns(2, gap="medium")
+    col_g1, col_g2 = st.columns(2, gap="large")
     
     with col_g1:
         st.markdown("""
-        <div style="background:#FFFFFF; border:1px solid #D5D5D0; border-radius:6px; padding:1.2rem; height:100%;">
-            <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.6rem; color:#111111;">
+        <div style="background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 8px; padding: 1.4rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); height: 100%;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.5px; color: #111111; margin-bottom: 0.8rem; border-bottom: 2px solid #FACC15; padding-bottom: 4px; display: inline-block;">
                 🚀 Flujo de Trabajo en 4 Pasos
             </div>
-            <ol style="margin-left:1.2rem; padding-left:0; font-size:0.88rem; line-height:1.6; color:#333333;">
-                <li><b>Exportación:</b> Extrae el CSV desde el backlog/consulta de Azure DevOps con columnas <code>ID</code>, <code>Title</code>, <code>Description</code> y <code>Acceptance Criteria</code> (separador <code>;</code>).</li>
-                <li><b>Carga:</b> Arrastra o selecciona el archivo CSV en el área de subida.</li>
-                <li><b>Procesamiento:</b> La app depura el HTML residual, aísla literales visuales de UI y extrae traducciones en 4 idiomas.</li>
-                <li><b>Auditoría y Descarga:</b> Revisa las métricas de confianza y exporta el catálogo final a <b>Excel (.xlsx)</b> o <b>CSV</b>.</li>
+            <ol style="margin-left: 1.2rem; padding-left: 0; font-size: 0.88rem; line-height: 1.6; color: #333333;">
+                <li style="margin-bottom: 6px;"><b>Exportar:</b> Descarga el CSV desde Azure DevOps con las columnas estándar (<code>ID</code>, <code>Title</code>, <code>Description</code> y <code>Acceptance Criteria</code> con separador <code>;</code>).</li>
+                <li style="margin-bottom: 6px;"><b>Cargar:</b> Sube el archivo en el panel principal.</li>
+                <li style="margin-bottom: 6px;"><b>Procesar:</b> El motor limpia el HTML residual, aísla literales visuales de UI y genera traducciones a 4 idiomas.</li>
+                <li><b>Descargar:</b> Obtén el catálogo auditado con métricas de confianza en formato <b>Excel (.xlsx)</b> o <b>CSV</b>.</li>
             </ol>
         </div>
         """, unsafe_allow_html=True)
+
+    with col_g2:
+        st.markdown("""
+        <div style="background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 8px; padding: 1.4rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); height: 100%;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.5px; color: #111111; margin-bottom: 0.8rem; border-bottom: 2px solid #FACC15; padding-bottom: 4px; display: inline-block;">
+                🎯 Criterios de Confianza IA
+            </div>
+            <div style="font-size: 0.86rem; line-height: 1.55; color: #333333;">
+                <div style="margin-bottom: 8px;">
+                    <span style="font-weight: 700; color: #111111;">🟢 Alta (≥ 85%):</span> Literales explícitos de pantalla (botones, etiquetas de campo, títulos de modal, mensajes de error literales).
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <span style="font-weight: 700; color: #111111;">🟡 Media (65% – 84%):</span> Literales inferidos a partir del contexto funcional o criterios de aceptación.
+                </div>
+                <div>
+                    <span style="font-weight: 700; color: #111111;">🔴 Revisar (&lt; 65%):</span> Textos ambiguos o con posible naturaleza técnica interna que requieren validación funcional previa.
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-top: 1.2rem;'></div>", unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style="background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 8px; padding: 1.4rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.5px; color: #111111; margin-bottom: 0.8rem; border-bottom: 2px solid #FACC15; padding-bottom: 4px; display: inline-block;">
+            ❓ Preguntas Frecuentes (FAQ)
+        </div>
+        <div style="font-size: 0.88rem; line-height: 1.6; color: #333333;">
+            <p style="margin-bottom: 8px;"><b>¿Por qué se descartan textos narrativos largos?</b><br>
+            LimpiaText aplica un filtro funcional estricto: extrae exclusivamente los literales destinados a los archivos de recursos de interfaz (UI), eliminando descripciones técnicas y reglas de negocio internas.</p>
+            <p style="margin-bottom: 0;"><b>¿Qué idiomas incluye el catálogo?</b><br>
+            Español original $\\rightarrow$ <b>Inglés (EN)</b>, <b>Catalán / Valenciano / Balear (CA)</b>, <b>Gallego (GL)</b> y <b>Euskera (EU)</b>.</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     with col_g2:
         st.markdown("""
