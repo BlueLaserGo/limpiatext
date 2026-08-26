@@ -127,18 +127,52 @@ def mostrar_ficha():
     )
 
 # 5. Barra lateral (Sidebar)
+# 5. Barra lateral (Sidebar)
 with st.sidebar:
     sidebar_header_html = (
-        "<div style='display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; padding-bottom: 0.6rem; border-bottom: 1px solid #D5D5D0;'>"
-        f"<img src='{avatar_src}' style='width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;'>"
-        "<div style='line-height: 1.2;'>"
-        "<div style='font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;'>Desarrollado por</div>"
-        "<div style='font-size: 0.88rem; font-weight: 700; color: #111111;'>Laura Serrano Gómez</div>"
-        "<a href='https://www.linkedin.com/in/lauserrano' target='_blank' style='font-size: 0.72rem; color: #0066CC; text-decoration: none; font-weight: 500;'>Conectar en LinkedIn &#8599;</a>"
+        "<div style='display: flex; align-items: center; gap: 8px; margin-bottom: 0.4rem; padding-bottom: 0.4rem; border-bottom: 1px solid #D5D5D0;'>"
+        f"<img src='{avatar_src}' style='width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;'>"
+        "<div style='line-height: 1.15;'>"
+        "<div style='font-size: 0.60rem; text-transform: uppercase; letter-spacing: 0.4px; color: #777777; font-weight: 600;'>Desarrollado por</div>"
+        "<div style='font-size: 0.80rem; font-weight: 700; color: #111111;'>Laura Serrano Gómez</div>"
+        "<a href='https://www.linkedin.com/in/lauserrano' target='_blank' style='font-size: 0.68rem; color: #0066CC; text-decoration: none; font-weight: 500;'>Conectar en LinkedIn &#8599;</a>"
         "</div>"
         "</div>"
     )
     st.markdown(sidebar_header_html, unsafe_allow_html=True)
+
+    if st.button("Información del proyecto", use_container_width=True):
+        mostrar_ficha()
+
+    api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
+    
+    with st.expander("🔑 Configuración de API key", expanded=False):
+        api_key_input = st.text_input(
+            "Clave Gemini API:",
+            value="",
+            type="password",
+            help="Opcional. Si se deja en blanco, la aplicación usará la clave preconfigurada del entorno."
+        )
+    
+    api_key_activa = api_key_input.strip() if api_key_input.strip() else api_key_env
+
+    st.markdown("<div style='font-size: 0.82rem; font-weight: 700; margin-top: 0.4rem;'>Fuente de datos:</div>", unsafe_allow_html=True)
+    modo_entrada = st.radio(
+        "Selecciona el origen:",
+        ["Cargar archivo CSV", "Usar datos de demo (Azure DevOps)"],
+        label_visibility="collapsed"
+    )
+
+    st.markdown("<hr style='margin: 0.5rem 0; border: none; border-top: 1px solid #D5D5D0;'>", unsafe_allow_html=True)
+
+    sidebar_langs_html = (
+        "<div style='font-size: 0.82rem; font-weight: 700; margin-bottom: 4px;'>Idiomas de exportación:</div>"
+        "<div class='lang-item'><span class='lang-badge'>EN</span> Inglés</div>"
+        "<div class='lang-item'><span class='lang-badge'>CA</span> Catalán / Valenciano / Balear</div>"
+        "<div class='lang-item'><span class='lang-badge'>GL</span> Gallego</div>"
+        "<div class='lang-item'><span class='lang-badge'>EU</span> Euskera</div>"
+    )
+    st.markdown(sidebar_langs_html, unsafe_allow_html=True)
 
     if st.button("¿Para qué sirve LimpiaText?", use_container_width=True):
         mostrar_ficha()
