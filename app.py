@@ -9,12 +9,12 @@ import base64
 from google import genai
 from google.genai import types
 
-# 1. Configuracion de pagina
+# 1. Configuración de página
 st.set_page_config(
-    page_title="LimpiaText — Limpieza y traduccion de textos de pantalla",
+    page_title="LimpiaText — Limpieza y traducción de textos de pantalla",
     page_icon="🧹",
     layout="wide",
-    initial__state="expanded"
+    initial_sidebar_state="expanded"
 )
 
 # 2. Carga de avatar en Base64 con fallback
