@@ -114,9 +114,9 @@ SYSTEM_PROMPT = (
 @st.dialog("Ficha de proyecto — LimpiaText")
 def mostrar_ficha():
     st.markdown(
-        "### 🎯 Propósito\n"
+        "### Propósito\n"
         "Herramienta concebida para analistas funcionales y equipos de localización.\n\n"
-        "### ⚙️ Flujo de trabajo\n"
+        "### Flujo de trabajo\n"
         "1. **Depuración:** Limpieza de marcado HTML y comentarios en exportaciones CSV de Azure DevOps.\n"
         "2. **Aislamiento:** Extracción de botones, campos y mensajes con índice de confianza IA (0–100).\n"
         "3. **Localización:** Traducción inmediata a 4 idiomas (EN, CA, GL, EU) descargable en Excel y CSV."
@@ -136,12 +136,12 @@ with st.sidebar:
     )
     st.markdown(sidebar_header_html, unsafe_allow_html=True)
 
-    if st.button("👀 Ver ficha técnica", use_container_width=True):
+    if st.button("¿Para qué sirve LimpiaText?", use_container_width=True):
         mostrar_ficha()
 
     api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
     
-    with st.expander("🔑 Configuración de API key", expanded=False):
+    with st.expander("🔑 Configura tu API key (si quieres)", expanded=False):
         api_key_input = st.text_input(
             "Clave Gemini API:",
             value="",
@@ -342,7 +342,7 @@ with tab_guia:
         card_pasos_html = (
             "<div class='floating-card'>"
             "<div class='card-pill-yellow'>Paso a paso</div>"
-            "<div class='card-heading'>🚀 Cómo funciona</div>"
+            "<div class='card-heading'>Cómo funciona</div>"
             "<div style='font-size: 0.88rem; line-height: 1.6; color: #333333;'>"
             "<b>1. Elige el origen:</b> Sube el CSV de Azure DevOps o prueba el modo demo con un clic.<br>"
             "<b>2. Limpieza de código:</b> Se eliminan automáticamente etiquetas HTML (<code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>) y notas internas.<br>"
@@ -357,7 +357,7 @@ with tab_guia:
         card_calidad_html = (
             "<div class='floating-card'>"
             "<div class='card-pill-dark'>Fiabilidad</div>"
-            "<div class='card-heading'>🎯 Niveles de confianza de la IA</div>"
+            "<div class='card-heading'> Niveles de confianza de la IA</div>"
             "<div style='font-size: 0.88rem; line-height: 1.6; color: #333333;'>"
             "<div style='margin-bottom: 5px;'><b>🟢 Alta (≥ 85%):</b> Botones, modales, alertas y nombres de campo confirmados.</div>"
             "<div style='margin-bottom: 5px;'><b>🟡 Media (65% – 84%):</b> Textos deducidos a partir del contexto funcional.</div>"
@@ -369,7 +369,7 @@ with tab_guia:
 
     card_faq_html = (
         "<div class='floating-card'>"
-        "<div class='card-heading'>❓ Preguntas frecuentes</div>"
+        "<div class='card-heading'>Preguntas frecuentes</div>"
         "<div style='font-size: 0.88rem; line-height: 1.6; color: #333333;'>"
         "<p style='margin-bottom: 8px;'><b>¿Por qué no se extraen las explicaciones largas de las historias?</b><br>"
         "LimpiaText descarta la narrativa técnica y los comentarios de desarrollo para quedarse únicamente con los textos que el usuario final verá en la pantalla.</p>"
