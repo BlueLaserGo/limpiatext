@@ -306,3 +306,13 @@ with tab_app:
                     st.download_button(
                         label="Descargar en Excel (.xlsx)",
                         data=excel_data,
+                        file_name="Textos_Pantalla_LimpiaText.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                with col_dl2:
+                    st.download_button(
+                        label="Descargar en CSV (.csv)",
+                        data=csv_data,
+                        file_name="Textos_Pantalla_LimpiaText.csv",
+                        mime="text/csv"
+                    )
