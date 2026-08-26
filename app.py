@@ -11,13 +11,13 @@ from google.genai import types
 
 # 1. Configuración de página
 st.set_page_config(
-    page_title="LimpiaText — Localización de UI",
+    page_title="LimpiaText — Limpieza y traducción de textos de pantalla",
     page_icon="🧹",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# 2. Función para cargar imagen en Base64 (Carga infalible)
+# 2. Carga infalible de avatar en Base64
 def obtener_imagen_base64(ruta_imagen):
     if os.path.exists(ruta_imagen):
         with open(ruta_imagen, "rb") as img_file:
@@ -78,7 +78,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Caja del uploader */
+    /* Caja del uploader con borde discontinuo amarillo */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #FACC15 !important;
@@ -147,16 +147,23 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* Tarjetas de ayuda */
-    .help-card {
+    /* Tarjetas flotantes dinámicas con elevación */
+    .floating-card {
         background-color: #FFFFFF;
         border: 1px solid #D5D5D0;
         border-radius: 8px;
         padding: 1.4rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         margin-bottom: 1rem;
     }
-    .help-pill {
+    .floating-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        border-color: #BDBDB5;
+    }
+
+    .card-pill-yellow {
         display: inline-block;
         background-color: #FACC15;
         color: #111111;
@@ -169,7 +176,7 @@ st.markdown("""
         letter-spacing: 0.5px;
         margin-bottom: 0.6rem;
     }
-    .help-pill-dark {
+    .card-pill-dark {
         display: inline-block;
         background-color: #111111;
         color: #FFDE00;
@@ -182,7 +189,7 @@ st.markdown("""
         letter-spacing: 0.5px;
         margin-bottom: 0.6rem;
     }
-    .help-title {
+    .card-heading {
         font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
         font-size: 1.05rem;
@@ -190,6 +197,7 @@ st.markdown("""
         margin-bottom: 0.6rem;
     }
 
+    /* Botón principal */
     .stButton > button {
         background-color: #111111;
         color: #FFFFFF;
@@ -210,7 +218,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 4. Funciones de depuración y soporte
+# 4. Funciones de limpieza y soporte
 def limpiar_html_devops(texto: str) -> str:
     if not isinstance(texto, str) or not texto.strip():
         return ""
@@ -250,33 +258,33 @@ def parsear_json_robusto(texto_respuesta: str):
     return json.loads(texto_limpio)
 
 SYSTEM_PROMPT = """
-Eres una analista funcional senior y especialista en localización de software multilingüe para el ámbito autonómico e internacional.
-Tu tarea es analizar las Historias de Usuario (HDUs) de una iteración, una vez ya han sido refinadas, de una aplicación de software de gestión y extraer ÚNICAMENTE los literales que sean nuevos de interfaz (UI):
-- Nombres de campos, botones, pestañas, títulos de nuevos formularios y ventanas, y selectores.
-- Mensajes de validación, alertas, mensajes de error, modales o toasts.
-- Opciones de menús desplegables y títulos de sección.
+Eres una analista funcional senior y especialista en localización lingüística de software.
+Tu tarea es analizar las Historias de Usuario (HDUs) de una aplicación y extraer ÚNICAMENTE los textos visibles en pantalla que verá el usuario final:
+- Nombres de campos, botones, pestañas, títulos de formularios y selectores.
+- Mensajes de validación, avisos, mensajes de error, modales o alertas.
+- Opciones de listas desplegables y títulos de sección.
 
-NO extraigas descripciones narrativas ni requisitos técnicos. Extrae solo textos visibles para el usuario final en la UI.
+NO extraigas descripciones explicativas, narrativa interna ni requisitos técnicos. Extrae solo textos visibles para el usuario final.
 
-CRITERIOS DE ASIGNACIÓN DE CONFIANZA (0 a 100):
-- 90-100: Textos claramente visibles en pantalla (botones, títulos, mensajes, alertas, modales o textos explícitos de UI en la HDU).
-- 70-89: Textos probablemente visibles pero inferidos parcialmente a partir del contexto funcional.
-- 50-69: Textos ambiguos o cuya naturaleza visual en pantalla no es completamente evidente.
-- 0-49: Textos que podrían corresponder a reglas de negocio internas, explicaciones técnicas o contenido no visible para el usuario final.
+CRITERIOS DE CONFIANZA (0 a 100):
+- 90-100: Textos claramente visibles en pantalla (botones, títulos, mensajes, alertas, modales o textos explícitos).
+- 70-89: Textos probablemente visibles inferidos a partir del contexto de la historia.
+- 50-69: Textos ambiguos o cuya naturaleza visual en pantalla no es totalmente evidente.
+- 0-49: Textos que podrían ser notas internas, explicaciones técnicas o lógica de negocio no visible en pantalla.
 
-Para cada literal encontrado, debes proporcionar obligatoriamente:
-1. id_hdu: El ID de la Historia de Usuario correspondiente.
-2. modulo: El área funcional o módulo (ej. Finanzas, Obras, Contabilidad).
-3. pantalla: La vista o contexto dentro del módulo.
+Para cada texto encontrado, devuelve:
+1. id_hdu: El ID de la Historia de Usuario.
+2. modulo: El módulo funcional o área (ej. Facturación, Clientes, Obras).
+3. pantalla: La vista o formulario dentro del módulo.
 4. tipo_elemento: Tipo de elemento (Botón, Campo, Mensaje de error, Alerta, Opción desplegable, etc.).
-5. texto_es: El literal original en español.
-6. confianza: Número entero entre 0 y 100 según los criterios indicados.
-7. traduccion_en: Traducción profesional al inglés.
-8. traduccion_ca: Traducción profesional al catalán / valenciano / balear.
-9. traduccion_gl: Traducción profesional al gallego.
-10. traduccion_eu: Traducción profesional al euskera.
+5. texto_es: El texto visible original en español.
+6. confianza: Número entero entre 0 y 100 según los criterios.
+7. traduccion_en: Traducción al inglés.
+8. traduccion_ca: Traducción al catalán / valenciano / balear.
+9. traduccion_gl: Traducción al gallego.
+10. traduccion_eu: Traducción al euskera.
 
-IMPORTANTE: Responde EXCLUSIVAMENTE con una lista JSON válida de objetos.
+Responde EXCLUSIVAMENTE con una lista JSON válida de objetos.
 """
 
 # 5. Barra lateral (Sidebar)
@@ -288,7 +296,7 @@ with st.sidebar:
         <div style="line-height: 1.2;">
             <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
             <div style="font-size: 0.88rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
-            <a href="[https://www.linkedin.com/in/lauraserranogomez/](https://www.linkedin.com/in/lauraserranogomez/)" target="_blank" style="font-size: 0.72rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
+            <a href="[https://www.linkedin.com/in/lauserrano](https://www.linkedin.com/in/lauserrano)" target="_blank" style="font-size: 0.72rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -324,20 +332,20 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# 6. Encabezado principal (Hero editorial)
+# 6. Encabezado principal
 st.markdown("""
 <div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;">
-    Extracción y traducción de literales
+    Extracción y traducción de textos de pantalla
 </div>
 <div class="hero-title">LimpiaText</div>
 <div class="hero-subtitle">
-    Extracción inteligente de literales de interfaz desde exportaciones de <b>Azure DevOps</b>, 
-    depuración de marcado HTML residual y catálogo de localización multilingüe inmediato.
+    Detección automática de botones, campos y mensajes desde historias de <b>Azure DevOps</b>, 
+    limpieza de código HTML y traducción directa a 4 idiomas.
 </div>
 """, unsafe_allow_html=True)
 
 # 7. Pestañas de contenido
-tab_app, tab_guia = st.tabs(["🚀 Procesar literales", "📖 Guía de usuario y FAQ"])
+tab_app, tab_guia = st.tabs(["🚀 Extraer y traducir textos", "📖 Guía de uso y preguntas frecuentes"])
 
 with tab_app:
     df_devops = None
@@ -348,181 +356,4 @@ with tab_app:
             type=["csv"]
         )
         if archivo_subido:
-            try:
-                df_devops = pd.read_csv(archivo_subido, sep=None, engine='python')
-                st.success(f"Archivo cargado con éxito: **{len(df_devops)}** historias de usuario detectadas.")
-            except Exception as e:
-                st.error(f"Error al leer el archivo CSV: {e}")
-    else:
-        st.info("📦 **Modo demo activado:** utilizando conjunto de datos representativo de Azure DevOps con marcado HTML residual.")
-        datos_demo = {
-            "ID": [1042, 1043, 1045],
-            "Title": [
-                "Gestión de facturas proforma",
-                "Alta de nuevo proveedor comunitario",
-                "Modificación de estado de expediente"
-            ],
-            "Description": [
-                "<div>El usuario accederá a la pestaña <b>Facturación emitida</b> y pulsará el botón <i>Guardar borrador</i>.</div>",
-                "<p>Formulario con selectores de tipo de IVA: <span>Exento</span>, <span>General 21%</span> y campo <b>NIF intracomunitario</b>.</p>",
-                "<!-- Comentario interno: revisar permisos --><div>Si el expediente está bloqueado se mostrará el mensaje modal: <b>El expediente no admite modificaciones en estado Liquidado</b>.</div>"
-            ],
-            "Acceptance Criteria": [
-                "<div>Criterio 1: El botón <b>Emitir factura definitiva</b> solo se habilitará tras validar el NIF. Toast de éxito: <i>Factura registrada correctamente</i>.</div>",
-                "<p>Criterio 2: Al pulsar <b>Cancelar registro</b> se solicita confirmación con la alerta: <i>¿Desea descartar los cambios no guardados?</i>.</p>",
-                "<div>Criterio 3: Mensaje de error de validación: <b>Debe adjuntar al menos un justificante de pago</b>.</div>"
-            ]
-        }
-        df_devops = pd.DataFrame(datos_demo)
-
-    if df_devops is not None:
-        with st.expander("Vista previa de historias de usuario a procesar", expanded=(modo_entrada != "Cargar archivo CSV")):
-            st.dataframe(df_devops.head(5), use_container_width=True)
-            
-        if st.button("Limpiar y traducir literales"):
-            if not api_key_activa:
-                st.error("Introduce tu clave Gemini API en la barra lateral para continuar.")
-            else:
-                with st.spinner("Limpiando HTML y normalizando campos..."):
-                    col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id"], 0)
-                    col_title = obtener_columna(df_devops, ["Title", "Título"], 1)
-                    col_desc = obtener_columna(df_devops, ["Description", "Descripción"], 2)
-                    col_ac = obtener_columna(df_devops, ["Acceptance Criteria", "Criterios de Aceptación"], 3)
-                    
-                    df_devops["Description_Clean"] = df_devops[col_desc].apply(limpiar_html_devops) if col_desc else ""
-                    df_devops["Acceptance_Criteria_Clean"] = df_devops[col_ac].apply(limpiar_html_devops) if col_ac else ""
-                    
-                    df_devops["Full_HDU_Text"] = (
-                        "HDU ID: " + df_devops[col_id].astype(str) + "\n" +
-                        "Título: " + df_devops[col_title].astype(str) + "\n" +
-                        "Descripción: " + df_devops["Description_Clean"] + "\n" +
-                        "Criterios de Aceptación: " + df_devops["Acceptance_Criteria_Clean"]
-                    )
-                    texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
-
-                with st.spinner("Extrayendo literales con Gemini y analizando confianza..."):
-                    client = genai.Client(api_key=api_key_activa)
-                    prompt_usuario = (
-                        "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
-                        f"{texto_completo_hdus}\n\n"
-                        "Extrae todos los literales de UI, calcula el índice de confianza (0-100), clasifícalos y tradúcelos según las directrices."
-                    )
-                    
-                    response = client.models.generate_content(
-                        model='gemini-2.5-flash',
-                        contents=prompt_usuario,
-                        config=types.GenerateContentConfig(
-                            system_instruction=SYSTEM_PROMPT,
-                            response_mime_type="application/json",
-                            temperature=0.1
-                        )
-                    )
-                    
-                    try:
-                        resultado_json = parsear_json_robusto(response.text)
-                    except Exception:
-                        st.error("Gemini no devolvió un formato JSON válido.")
-                        st.code(response.text)
-                        st.stop()
-
-                with st.spinner("Estructurando catálogo final con métricas de confianza..."):
-                    df_literales = pd.DataFrame(resultado_json)
-                    
-                    if 'confianza' in df_literales.columns:
-                        df_literales['estado'] = df_literales['confianza'].apply(clasificar_confianza)
-                    else:
-                        df_literales['confianza'] = 90
-                        df_literales['estado'] = "🟢 Alta"
-                    
-                    columnas_renombradas = {
-                        'id_hdu': 'ID HDU',
-                        'modulo': 'Módulo funcional',
-                        'pantalla': 'Pantalla / Vista',
-                        'tipo_elemento': 'Tipo de elemento',
-                        'texto_es': 'Literal (ES)',
-                        'confianza': 'Confianza IA',
-                        'estado': 'Estado',
-                        'traduccion_en': 'Inglés (EN)',
-                        'traduccion_ca': 'Catalán / Valenciano (CA)',
-                        'traduccion_gl': 'Gallego (GL)',
-                        'traduccion_eu': 'Euskera (EU)'
-                    }
-                    df_literales = df_literales.rename(columns=columnas_renombradas)
-                    
-                    orden_cols = [
-                        'ID HDU', 'Módulo funcional', 'Pantalla / Vista', 'Tipo de elemento',
-                        'Literal (ES)', 'Confianza IA', 'Estado',
-                        'Inglés (EN)', 'Catalán / Valenciano (CA)', 'Gallego (GL)', 'Euskera (EU)'
-                    ]
-                    cols_existentes = [c for c in orden_cols if c in df_literales.columns]
-                    df_literales = df_literales[cols_existentes]
-
-                    output_excel = io.BytesIO()
-                    with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
-                        df_literales.to_excel(writer, index=False, sheet_name='Catálogo UI')
-                    excel_data = output_excel.getvalue()
-
-                    csv_data = df_literales.to_csv(index=False, sep=";").encode('utf-8-sig')
-
-                st.write("---")
-                st.subheader("Catálogo de UI con métricas de confianza")
-                st.dataframe(df_literales, use_container_width=True)
-                
-                col_dl1, col_dl2 = st.columns(2)
-                with col_dl1:
-                    st.download_button(
-                        label="Descargar catálogo Excel (.xlsx)",
-                        data=excel_data,
-                        file_name="Catalogo_Literales_LimpiaText.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-                with col_dl2:
-                    st.download_button(
-                        label="Descargar catálogo CSV (.csv)",
-                        data=csv_data,
-                        file_name="Catalogo_Literales_LimpiaText.csv",
-                        mime="text/csv"
-                    )
-
-with tab_guia:
-    st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
-    col_g1, col_g2 = st.columns(2, gap="large")
-    
-    with col_g1:
-        st.markdown("""
-        <div class="help-card">
-            <div class="help-pill">Flujo funcional</div>
-            <div class="help-title">🚀 Proceso en 4 pasos</div>
-            <div style="font-size: 0.88rem; line-height: 1.6; color: #333333;">
-                <b>1. Origen de datos:</b> Sube el CSV de Azure DevOps o activa el modo demo preconfigurado.<br>
-                <b>2. Depuración:</b> El algoritmo elimina marcado HTML (<code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>) y comentarios.<br>
-                <b>3. Extracción y fiabilidad:</b> Aísla literales de UI y calcula el índice de confianza (0–100).<br>
-                <b>4. Exportación:</b> Descarga el catálogo multilingüe en <b>Excel (.xlsx)</b> o <b>CSV</b>.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col_g2:
-        st.markdown("""
-        <div class="help-card">
-            <div class="help-pill-dark">Control de calidad</div>
-            <div class="help-title">🎯 Métricas de confianza IA</div>
-            <div style="font-size: 0.88rem; line-height: 1.6; color: #333333;">
-                <div style="margin-bottom: 4px;"><b>🟢 Alta (≥ 85%):</b> Botones, modales, alertas y etiquetas visibles explícitas.</div>
-                <div style="margin-bottom: 4px;"><b>🟡 Media (65% – 84%):</b> Literales inferidos a partir del contexto funcional.</div>
-                <div><b>🔴 Revisar (&lt; 65%):</b> Posibles reglas de negocio o textos técnicos a validar.</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="help-card">
-        <div class="help-title">❓ Preguntas frecuentes (FAQ)</div>
-        <div style="font-size: 0.88rem; line-height: 1.6; color: #333333;">
-            <p style="margin-bottom: 8px;"><b>¿Por qué se descarta la prosa técnica larga?</b><br>
-            LimpiaText extrae exclusivamente los literales destinados a los archivos de recursos de interfaz (UI), eliminando descripciones técnicas internas y reglas de negocio.</p>
-            <p style="margin-bottom: 0;"><b>¿Qué idiomas incluye la exportación?</b><br>
-            Español original &rarr; <b>Inglés (EN)</b>, <b>Catalán / Valenciano / Balear (CA)</b>, <b>Gallego (GL)</b> y <b>Euskera (EU)</b>.</p>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+            try
