@@ -9,9 +9,9 @@ import base64
 from google import genai
 from google.genai import types
 
-# 1. Configuración de página
+# 1. Configuracion de pagina
 st.set_page_config(
-    page_title="LimpiaText — Limpieza y traducción de textos de pantalla",
+    page_title="LimpiaText — Limpieza y traduccion de textos de pantalla",
     page_icon="🧹",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -86,7 +86,7 @@ st.markdown("""
         padding: 0.8rem !important;
     }
 
-    /* Botón uploader */
+    /* Boton uploader */
     div[data-testid="stFileUploader"] section button {
         background-color: #111111 !important;
         border: 1px solid #111111 !important;
@@ -116,7 +116,7 @@ st.markdown("""
         display: none !important;
     }
     div[data-testid="stFileUploaderInstructions"]::after {
-        content: "Máx. 200 MB por archivo • Archivo CSV";
+        content: "Max. 200 MB por archivo • Archivo CSV";
         font-family: 'Inter', sans-serif !important;
         font-size: 0.82rem !important;
         color: #666666 !important;
@@ -124,7 +124,7 @@ st.markdown("""
         margin-left: 0.75rem;
     }
 
-    /* Píldoras de idiomas */
+    /* Pildoras de idiomas */
     .lang-item {
         display: flex;
         align-items: center;
@@ -147,7 +147,7 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* Tarjetas flotantes dinámicas con elevación */
+    /* Tarjetas flotantes */
     .floating-card {
         background-color: #FFFFFF;
         border: 1px solid #D5D5D0;
@@ -197,7 +197,7 @@ st.markdown("""
         margin-bottom: 0.6rem;
     }
 
-    /* Botón principal */
+    /* Boton principal */
     .stButton > button {
         background-color: #111111;
         color: #FFFFFF;
@@ -218,7 +218,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 4. Funciones de depuración y soporte
+# 4. Funciones de depuracion y soporte
 def limpiar_html_devops(texto: str) -> str:
     if not isinstance(texto, str) or not texto.strip():
         return ""
@@ -257,27 +257,77 @@ def parsear_json_robusto(texto_respuesta: str):
         
     return json.loads(texto_limpio)
 
-SYSTEM_PROMPT = """
-Eres una analista funcional senior y especialista en localización lingüística de software.
-Tu tarea es analizar las Historias de Usuario (HDUs) de una aplicación y extraer ÚNICAMENTE los textos visibles en pantalla que verá el usuario final:
-- Nombres de campos, botones, pestañas, títulos de formularios y selectores.
-- Mensajes de validación, avisos, mensajes de error, modales o alertas.
-- Opciones de listas desplegables y títulos de sección.
+SYSTEM_PROMPT = (
+    "Eres una analista funcional senior y especialista en localizacion linguistica de software.\n"
+    "Tu tarea es analizar las Historias de Usuario (HDUs) de una aplicacion y extraer UNICAMENTE los textos visibles en pantalla que vera el usuario final:\n"
+    "- Nombres de campos, botones, pestanas, titulos de formularios y selectores.\n"
+    "- Mensajes de validacion, avisos, mensajes de error, modales o alertas.\n"
+    "- Opciones de listas desplegables y titulos de seccion.\n\n"
+    "NO extraigas descripciones explicativas, narrativa interna ni requisitos tecnicos. Extrae solo textos visibles para el usuario final.\n\n"
+    "CRITERIOS DE CONFIANZA (0 a 100):\n"
+    "- 90-100: Textos claramente visibles en pantalla (botones, titulos, mensajes, alertas, modales o textos explicitos).\n"
+    "- 70-89: Textos probablemente visibles inferidos a partir del contexto de la historia.\n"
+    "- 50-69: Textos ambiguos o cuya naturaleza visual en pantalla no es totalmente evidente.\n"
+    "- 0-49: Textos que podrian ser notas internas, explicaciones tecnicas o logica de negocio no visible en pantalla.\n\n"
+    "Para cada texto encontrado, devuelve obligatoriamente:\n"
+    "1. id_hdu: El ID de la Historia de Usuario.\n"
+    "2. modulo: El modulo funcional o area (ej. Facturacion, Clientes, Obras).\n"
+    "3. pantalla: La vista o formulario dentro del modulo.\n"
+    "4. tipo_elemento: Tipo de elemento (Boton, Campo, Mensaje de error, Alerta, Opcion desplegable, etc.).\n"
+    "5. texto_es: El texto visible original en espanol.\n"
+    "6. confianza: Numero entero entre 0 y 100 segun los criterios.\n"
+    "7. traduccion_en: Traduccion al ingles.\n"
+    "8. traduccion_ca: Traduccion al catalan / valenciano / balear.\n"
+    "9. traduccion_gl: Traduccion al gallego.\n"
+    "10. traduccion_eu: Traduccion al euskera.\n\n"
+    "Responde EXCLUSIVAMENTE con una lista JSON valida de objetos."
+)
 
-NO extraigas descripciones explicativas, narrativa interna ni requisitos técnicos. Extrae solo textos visibles para el usuario final.
+# 5. Barra lateral (Sidebar)
+with st.sidebar:
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; padding-bottom: 0.6rem; border-bottom: 1px solid #D5D5D0;">
+        <img src="{avatar_src}" 
+             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;">
+        <div style="line-height: 1.2;">
+            <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
+            <a href="[https://www.linkedin.com/in/lauserrano](https://www.linkedin.com/in/lauserrano)" target="_blank" style="font-size: 0.72rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-CRITERIOS DE CONFIANZA (0 a 100):
-- 90-100: Textos claramente visibles en pantalla (botones, títulos, mensajes, alertas, modales o textos explícitos).
-- 70-89: Textos probablemente visibles inferidos a partir del contexto de la historia.
-- 50-69: Textos ambiguos o cuya naturaleza visual en pantalla no es totalmente evidente.
-- 0-49: Textos que podrían ser notas internas, explicaciones técnicas o lógica de negocio no visible en pantalla.
+    api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
+    
+    with st.expander("🔑 Configuración de API key", expanded=False):
+        api_key_input = st.text_input(
+            "Clave Gemini API:",
+            value="",
+            type="password",
+            help="Opcional. Si se deja en blanco, la aplicacion usara la clave preconfigurada del entorno."
+        )
+    
+    api_key_activa = api_key_input.strip() if api_key_input.strip() else api_key_env
 
-Para cada texto encontrado, devuelve:
-1. id_hdu: El ID de la Historia de Usuario.
-2. modulo: El módulo funcional o área (ej. Facturación, Clientes, Obras).
-3. pantalla: La vista o formulario dentro del módulo.
-4. tipo_elemento: Tipo de elemento (Botón, Campo, Mensaje de error, Alerta, Opción desplegable, etc.).
-5. texto_es: El texto visible original en español.
-6. confianza: Número entero entre 0 y 100 según los criterios.
-7. traduccion_en: Traducción al inglés.
-8. traduccion_ca: Traducción
+    st.markdown("**Fuente de datos:**")
+    modo_entrada = st.radio(
+        "Selecciona el origen:",
+        ["Cargar archivo CSV", "Usar datos de demo (Azure DevOps)"],
+        label_visibility="collapsed"
+    )
+
+    st.write("---")
+
+    st.markdown("**Idiomas de exportación:**")
+    st.markdown("""
+    <div style="margin-top: 6px;">
+        <div class="lang-item"><span class="lang-badge">EN</span> Inglés</div>
+        <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
+        <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
+        <div class="lang-item"><span class="lang-badge">EU</span> Euskera</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# 6. Encabezado principal
+st.markdown("""
+<div style="display: inline-block; background-color: #FACC15; color: #
