@@ -32,6 +32,7 @@ En equipos ágiles de desarrollo de software, la extracción de textos de interf
   * **CA:** Catalán / Valenciano / Balear
   * **GL:** Gallego
   * **EU:** Euskera
+* 📦 **Modo Demo Integrado:** Dataset de prueba representativo con historias de Azure DevOps para evaluar la herramienta con un solo clic sin necesidad de cargar archivos.
 * 🛡️ **Procesamiento de JSON Robusto:** Mecanismo de parsing resiliente capaz de neutralizar bloques de marcado markdown o texto introductorio devuelto por el LLM.
 * 📊 **Exportación Profesional:** Descarga directa en formatos **Excel (.xlsx)** estructurado y **CSV (separador `;` con codificación UTF-8-sig)**.
 * 🎨 **Diseño Editorial Minimalista:** Interfaz responsiva inspirada en tipografía suiza y diseño editorial funcional.
