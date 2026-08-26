@@ -400,17 +400,57 @@ with tab_app:
             st.error(f"Ocurrió un error al procesar el archivo: {e}")
 
 with tab_guia:
-    st.markdown("### 📘 Manual de Uso")
+    st.markdown("### 📘 Manual de Uso y Criterios Funcionales")
+    
+    col_g1, col_g2 = st.columns(2, gap="medium")
+    
+    with col_g1:
+        st.markdown("""
+        <div style="background:#FFFFFF; border:1px solid #D5D5D0; border-radius:6px; padding:1.2rem; height:100%;">
+            <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.6rem; color:#111111;">
+                🚀 Flujo de Trabajo en 4 Pasos
+            </div>
+            <ol style="margin-left:1.2rem; padding-left:0; font-size:0.88rem; line-height:1.6; color:#333333;">
+                <li><b>Exportación:</b> Extrae el CSV desde el backlog/consulta de Azure DevOps con columnas <code>ID</code>, <code>Title</code>, <code>Description</code> y <code>Acceptance Criteria</code> (separador <code>;</code>).</li>
+                <li><b>Carga:</b> Arrastra o selecciona el archivo CSV en el área de subida.</li>
+                <li><b>Procesamiento:</b> La app depura el HTML residual, aísla literales visuales de UI y extrae traducciones en 4 idiomas.</li>
+                <li><b>Auditoría y Descarga:</b> Revisa las métricas de confianza y exporta el catálogo final a <b>Excel (.xlsx)</b> o <b>CSV</b>.</li>
+            </ol>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_g2:
+        st.markdown("""
+        <div style="background:#FFFFFF; border:1px solid #D5D5D0; border-radius:6px; padding:1.2rem; height:100%;">
+            <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.6rem; color:#111111;">
+                🎯 Niveles de Confianza IA
+            </div>
+            <div style="font-size:0.86rem; line-height:1.5; color:#333333;">
+                <div style="margin-bottom:8px;">
+                    <span style="font-weight:700;">🟢 Alta (≥ 85%):</span> Literales explícitos de pantalla (botones, etiquetas, títulos de modal, mensajes de error literales).
+                </div>
+                <div style="margin-bottom:8px;">
+                    <span style="font-weight:700;">🟡 Media (65% - 84%):</span> Literales contextuales o deducidos de los criterios de aceptación.
+                </div>
+                <div>
+                    <span style="font-weight:700;">🔴 Revisar (&lt; 65%):</span> Textos que podrían ser descripciones funcionales internas o reglas de negocio que requieren validación funcional.
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-top:1.5rem;'></div>", unsafe_allow_html=True)
+    
     st.markdown("""
-    1. **Exportar desde Azure DevOps:** Desde la consulta o backlog de tu iteración, exporta a CSV con las columnas `ID`, `Title`, `Description` y `Acceptance Criteria` (separador `;`).
-    2. **Cargar el archivo:** Sube el CSV en la pestaña principal.
-    3. **Procesar:** Pulsa el botón de extracción para depurar etiquetas HTML, calcular la confianza IA y generar el catálogo multilingüe.
-    4. **Descargar:** Obtén el archivo `.xlsx` o `.csv` con las columnas `Confianza IA` y `Estado` listo para desarrollo y QA.
-    """)
-    st.markdown("---")
-    st.markdown("### ❓ Métricas de Confianza IA")
-    st.markdown("""
-    * **🟢 Alta (≥ 85%):** Literales explícitos de interfaz (botones, mensajes de error, modales, etiquetas confirmadas).
-    * **🟡 Media (65% - 84%):** Textos probablemente visibles inferidos a partir del contexto funcional.
-    * **🔴 Revisar (< 65%):** Textos con posible naturaleza técnica interna o de reglas de negocio que requieren validación funcional.
-    """)
+    <div style="background:#FFFFFF; border:1px solid #D5D5D0; border-radius:6px; padding:1.2rem;">
+        <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.6rem; color:#111111;">
+            ❓ Preguntas Frecuentes (FAQ)
+        </div>
+        <div style="font-size:0.88rem; line-height:1.6; color:#444444;">
+            <p><b>¿Por qué se ignoran descripciones largas o narrativas?</b><br>
+            LimpiaText actúa como filtro de calidad funcional: extrae exclusivamente los elementos que formarán parte de los archivos de localización de la aplicación (UI), descartando la prosa técnica interna.</p>
+            <p style="margin-bottom:0;"><b>¿Qué idiomas cubre el catálogo automático?</b><br>
+            Español original $\\rightarrow$ <b>Inglés (EN)</b>, <b>Catalán / Valenciano / Balear (CA)</b>, <b>Gallego (GL)</b> y <b>Euskera (EU)</b>.</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
