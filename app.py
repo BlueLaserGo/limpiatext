@@ -121,15 +121,15 @@ with st.sidebar:
         "<a href='https://www.linkedin.com/in/lauserrano' target='_blank' style='font-size: 0.72rem; color: #0066CC; text-decoration: none; font-weight: 500;'>Conectar en LinkedIn &#8599;</a>"
         "</div>"
         "</div>"
-        "<div style='margin-bottom: 0.8rem;'>"
-        "<a href='https://github.com/BlueLaserGo/limpiatext' target='_blank' style='text-decoration: none; display: block;'>"
-        "<div style='background-color: #FACC15; border: 1px solid #EAB308; border-radius: 6px; padding: 0.45rem 0.6rem; text-align: center; font-family: \"Space Grotesk\", sans-serif; font-size: 0.76rem; font-weight: 700; color: #111111; letter-spacing: 0.5px; text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.05);'>"
-        "👀 Ver ficha de proyecto"
-        "</div>"
-        "</a>"
-        "</div>"
     )
     st.markdown(sidebar_header_html, unsafe_allow_html=True)
+
+    with st.expander("👀 ¿De qué va esto? (Ficha de proyecto)", expanded=False):
+        st.markdown(
+            "**LimpiaText** es una herramienta pensada para equipos de producto y analistas funcionales.\n\n"
+            "• **El problema:** Al exportar Historias de Usuario desde Azure DevOps, los textos de botones, campos y mensajes vienen mezclados con código HTML y explicaciones técnicas largas.\n\n"
+            "• **La solución:** Limpia automáticamente el código residual, aísla únicamente los textos que el usuario final verá en pantalla y genera la traducción directa a 4 idiomas (inglés, catalán/valenciano, gallego y euskera) lista para descargar en Excel o CSV."
+        )
 
     api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
     
@@ -162,18 +162,6 @@ with st.sidebar:
     )
     st.markdown("**Idiomas de exportación:**")
     st.markdown(sidebar_langs_html, unsafe_allow_html=True)
-    
-    # Botón para compartir la aplicación
-    share_button_html = (
-        "<div style='margin-top: 0.8rem;'>"
-        "<a href='https://www.linkedin.com/sharing/share-offsite/?url=https://limpiatext.streamlit.app' target='_blank' style='text-decoration: none;'>"
-        "<div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 4px; padding: 0.4rem 0.6rem; text-align: center; font-size: 0.75rem; font-weight: 600; color: #111111;'>"
-        "🔗 Compartir proyecto en LinkedIn"
-        "</div>"
-        "</a>"
-        "</div>"
-    )
-    st.markdown(share_button_html, unsafe_allow_html=True)
 
 # 6. Encabezado principal
 hero_html = (
