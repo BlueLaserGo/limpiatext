@@ -332,14 +332,13 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-
 # 5. Encabezado principal
 st.markdown("""
 <div class="hero-tag">Proyecto de Portfolio · Ejercicio Práctico</div>
 <div class="hero-title">LimpiaText</div>
 <div class="hero-subtitle">
-    Encuentra y prepara los textos que aparecen en tu aplicación.<br>
-    Limpia el código residual, identifica botones y mensajes visibles, permite revisarlos y genera versiones en varios idiomas.
+    Convierte historias de usuario en los textos de tu aplicación.<br>
+    Limpia el HTML residual de Azure DevOps, identifica elementos de interfaz (botones, mensajes, avisos, modales), permite revisarlos en directo y genera sus traducciones a varios idiomas.
 </div>
 """, unsafe_allow_html=True)
 
