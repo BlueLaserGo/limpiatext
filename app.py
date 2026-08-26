@@ -14,7 +14,7 @@ st.set_page_config(
     page_title="LimpiaText — Limpieza y traduccion de textos de pantalla",
     page_icon="🧹",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial__state="expanded"
 )
 
 # 2. Carga de avatar en Base64 con fallback
@@ -32,7 +32,7 @@ css_styles = (
     "@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');\n"
     ".block-container { padding-top: 4.5rem !important; padding-bottom: 2rem !important; }\n"
     ".stApp { background-color: #EFEFEF; color: #111111; font-family: 'Inter', sans-serif; }\n"
-    "section[data-testid='stSidebar'] { background-color: #E8E8E6; border-right: 1px solid #D5D5D0; }\n"
+    "section[data-testid='st'] { background-color: #E8E8E6; border-right: 1px solid #D5D5D0; }\n"
     ".hero-title { font-family: 'Space Grotesk', sans-serif; font-size: 2.1rem; font-weight: 700; letter-spacing: -1px; text-transform: uppercase; line-height: 1.1; color: #111111; margin-top: 0.4rem; margin-bottom: 0.2rem; }\n"
     ".hero-subtitle { font-size: 0.95rem; color: #555555; line-height: 1.4; max-width: 800px; margin-bottom: 1rem; }\n"
     ".stTabs [data-baseweb='tab-list'] { gap: 1.5rem; border-bottom: 1px solid #CCCCCC; }\n"
@@ -118,7 +118,7 @@ with st.sidebar:
         "<div style='line-height: 1.2;'>"
         "<div style='font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;'>Desarrollado por</div>"
         "<div style='font-size: 0.88rem; font-weight: 700; color: #111111;'>Laura Serrano Gómez</div>"
-        <a href='https://www.linkedin.com/in/lauserrano' target='_blank' style='font-size: 0.72rem; color: #0066CC; text-decoration: none; font-weight: 500;'>Conectar en LinkedIn ↗</a>
+        "<a href='https://www.linkedin.com/in/lauserrano' target='_blank' style='font-size: 0.72rem; color: #0066CC; text-decoration: none; font-weight: 500;'>Conectar en LinkedIn &#8599;</a>"
         "</div>"
         "</div>"
     )
@@ -145,7 +145,7 @@ with st.sidebar:
 
     st.write("---")
 
-    sidebar_langs_html = (
+    _langs_html = (
         "<div style='margin-top: 6px;'>"
         "<div class='lang-item'><span class='lang-badge'>EN</span> Inglés</div>"
         "<div class='lang-item'><span class='lang-badge'>CA</span> Catalán / Valenciano / Balear</div>"
@@ -154,7 +154,7 @@ with st.sidebar:
         "</div>"
     )
     st.markdown("**Idiomas de exportación:**")
-    st.markdown(sidebar_langs_html, unsafe_allow_html=True)
+    st.markdown(_langs_html, unsafe_allow_html=True)
 
 # 6. Encabezado principal
 hero_html = (
