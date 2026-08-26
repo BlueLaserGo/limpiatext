@@ -97,7 +97,7 @@ st.markdown("""
 </style>
 
 <div class="sidebar-tab">
-OPCIONES
+menú
 </div>
 """, unsafe_allow_html=True)
 
