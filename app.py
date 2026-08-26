@@ -118,7 +118,7 @@ def mostrar_ficha():
         "Herramienta concebida para analistas funcionales y equipos de localización.\n\n"
         "### Flujo de trabajo\n"
         "1. **Depuración:** Limpieza de marcado HTML y comentarios en exportaciones CSV de Azure DevOps.\n"
-        "2. **Aislamiento:** Extracción de botones, campos y mensajes con índice de confianza IA (0–100).\n"
+        "2. **Extracción:** Extracción de botones, campos y mensajes con índice de confianza IA (0–100).\n"
         "3. **Localización:** Traducción inmediata a 4 idiomas (EN, CA, GL, EU) descargable en Excel y CSV."
     )
 
