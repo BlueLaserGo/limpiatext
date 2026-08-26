@@ -14,7 +14,7 @@ st.set_page_config(
     page_title="LimpiaText — Limpieza y traducción de textos de pantalla",
     page_icon="🧹",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # 2. Carga de avatar en Base64 con fallback
