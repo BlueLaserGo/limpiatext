@@ -4,6 +4,7 @@ import json
 import re
 import html
 import io
+import os
 from google import genai
 from google.genai import types
 
@@ -67,7 +68,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* Caja del uploader */
+    /* Caja del uploader con borde discontinuo amarillo */
     div[data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
         border: 2px dashed #FACC15 !important;
@@ -75,6 +76,7 @@ st.markdown("""
         padding: 0.8rem !important;
     }
 
+    /* Botón Uploader */
     div[data-testid="stFileUploader"] section button {
         background-color: #111111 !important;
         border: 1px solid #111111 !important;
@@ -226,19 +228,38 @@ IMPORTANTE: Responde EXCLUSIVAMENTE con una lista JSON válida de objetos.
 
 # 4. Barra lateral (Sidebar)
 with st.sidebar:
-    st.markdown("### ⚙️ Configuración")
-    
-    # Credenciales de entorno o input manual
-    api_key_default = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") else ""
-    api_key = st.text_input(
-        "Gemini API Key:",
-        value=api_key_default,
-        type="password",
-        help="Introduce tu propia clave de Google Gemini o usa las credenciales seguras del entorno."
-    )
+    # Perfil / Autoría
+    col_perfil_img, col_perfil_text = st.columns([1, 3], gap="small")
+    with col_perfil_img:
+        if os.path.exists("avatar_lasergo.jpeg"):
+            st.image("avatar_lasergo.jpeg", width=46)
+        else:
+            st.markdown("👤")
+    with col_perfil_text:
+        st.markdown("""
+        <div style="line-height: 1.2;">
+            <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; font-weight: 600;">Desarrollado por</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
+            <a href="[https://www.linkedin.com/in/lauraserranogomez/](https://www.linkedin.com/in/lauraserranogomez/)" target="_blank" style="font-size: 0.75rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.write("---")
+
+    # Gestión de API Key: Automática por defecto con opción a introducir una propia
+    api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
     
+    with st.expander("🔑 Configuración de API Key", expanded=False):
+        api_key_input = st.text_input(
+            "Gemini API Key:",
+            value="",
+            type="password",
+            help="Opcional. Si se deja en blanco, la aplicación usará la clave preconfigurada del entorno."
+        )
+    
+    # Determinamos la clave final activa
+    api_key_activa = api_key_input.strip() if api_key_input.strip() else api_key_env
+
     st.markdown("**Fuente de Datos:**")
     modo_entrada = st.radio(
         "Selecciona el origen:",
@@ -255,21 +276,6 @@ with st.sidebar:
         <div class="lang-item"><span class="lang-badge">CA</span> Catalán / Valenciano / Balear</div>
         <div class="lang-item"><span class="lang-badge">GL</span> Gallego</div>
         <div class="lang-item"><span class="lang-badge">EU</span> Euskera</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.write("---")
-    
-    # Autoría con imagen de perfil
-    st.markdown("""
-    <div style="display: flex; align-items: center; gap: 10px; margin-top: 1rem;">
-        <img src="[https://avatars.githubusercontent.com/u/169123869?v=4](https://avatars.githubusercontent.com/u/169123869?v=4)" 
-             style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;"
-             onerror="this.onerror=null; this.src='[https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg](https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg)';">
-        <div style="line-height: 1.15;">
-            <div style="font-size: 0.78rem; font-weight: 700; color: #111111;">Laura Serrano Gómez</div>
-            <a href="[https://www.linkedin.com/in/lauraserranogomez/](https://www.linkedin.com/in/lauraserranogomez/)" target="_blank" style="font-size: 0.70rem; color: #0066CC; text-decoration: none; font-weight: 500;">Conectar en LinkedIn ↗</a>
-        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -304,7 +310,6 @@ with tab_app:
                 st.error(f"Error al leer el archivo CSV: {e}")
     else:
         st.info("📦 **Modo Demo activado:** Utilizando conjunto de datos representativo de Azure DevOps con marcado HTML residual.")
-        # Dataset de prueba de muestra
         datos_demo = {
             "ID": [1042, 1043, 1045],
             "Title": [
@@ -330,7 +335,7 @@ with tab_app:
             st.dataframe(df_devops.head(5), use_container_width=True)
             
         if st.button("Limpiar y Traducir Literales"):
-            if not api_key:
+            if not api_key_activa:
                 st.error("Introduce tu Gemini API Key en la barra lateral para continuar.")
             else:
                 with st.spinner("Limpiando HTML y normalizando campos..."):
@@ -351,7 +356,7 @@ with tab_app:
                     texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
 
                 with st.spinner("Extrayendo literales con Gemini y analizando confianza..."):
-                    client = genai.Client(api_key=api_key)
+                    client = genai.Client(api_key=api_key_activa)
                     prompt_usuario = (
                         "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
                         f"{texto_completo_hdus}\n\n"
@@ -397,4 +402,73 @@ with tab_app:
                         'traduccion_gl': 'Gallego (GL)',
                         'traduccion_eu': 'Euskera (EU)'
                     }
-                    df
+                    df_literales = df_literales.rename(columns=columnas_renombradas)
+                    
+                    orden_cols = [
+                        'ID HDU', 'Módulo Funcional', 'Pantalla / Vista', 'Tipo de Elemento',
+                        'Literal (ES)', 'Confianza IA', 'Estado',
+                        'Inglés (EN)', 'Catalán / Valenciano (CA)', 'Gallego (GL)', 'Euskera (EU)'
+                    ]
+                    cols_existentes = [c for c in orden_cols if c in df_literales.columns]
+                    df_literales = df_literales[cols_existentes]
+
+                    output_excel = io.BytesIO()
+                    with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
+                        df_literales.to_excel(writer, index=False, sheet_name='Catálogo UI')
+                    excel_data = output_excel.getvalue()
+
+                    csv_data = df_literales.to_csv(index=False, sep=";").encode('utf-8-sig')
+
+                st.write("---")
+                st.subheader("Catálogo de UI con Métricas de Confianza")
+                st.dataframe(df_literales, use_container_width=True)
+                
+                col_dl1, col_dl2 = st.columns(2)
+                with col_dl1:
+                    st.download_button(
+                        label="Descargar Catálogo Excel (.xlsx)",
+                        data=excel_data,
+                        file_name="Catalogo_Literales_LimpiaText.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                with col_dl2:
+                    st.download_button(
+                        label="Descargar Catálogo CSV (.csv)",
+                        data=csv_data,
+                        file_name="Catalogo_Literales_LimpiaText.csv",
+                        mime="text/csv"
+                    )
+
+with tab_guia:
+    col_g1, col_g2 = st.columns(2, gap="medium")
+    
+    with col_g1:
+        with st.container(border=True):
+            st.markdown("**:orange[FLUJO FUNCIONAL]**")
+            st.markdown("#### 🚀 Proceso en 4 Pasos")
+            st.markdown("""
+            1. **Origen de Datos:** Sube el CSV de Azure DevOps o activa el modo demo preconfigurado.
+            2. **Depuración:** El algoritmo elimina marcado HTML (`<div>`, `<p>`) y comentarios.
+            3. **Extracción & Scoring:** Aísla literales de UI y asigna el índice de fiabilidad (0–100).
+            4. **Exportación:** Descarga el catálogo multilingüe en **Excel (.xlsx)** o **CSV**.
+            """)
+
+    with col_g2:
+        with st.container(border=True):
+            st.markdown("**:orange[CONTROL DE CALIDAD]**")
+            st.markdown("#### 🎯 Métricas de Confianza IA")
+            st.markdown("""
+            * **🟢 Alta (≥ 85%):** Botones, modales, alertas y etiquetas visibles explícitas.
+            * **🟡 Media (65% – 84%):** Literales inferidos a partir del contexto funcional.
+            * **🔴 Revisar (< 65%):** Posibles reglas de negocio o textos técnicos a validar.
+            """)
+
+    with st.container(border=True):
+        st.markdown("#### ❓ Preguntas Frecuentes (FAQ)")
+        st.markdown("""
+        **¿Por qué se descarta la prosa técnica larga?**  
+        LimpiaText extrae exclusivamente los literales destinados a los archivos de localización de interfaz (UI), eliminando descripciones internas de arquitectura y reglas de negocio.
+
+        **¿Qué idiomas incluye la exportación?**  
+        Español original $\\rightarrow$ **Inglés (EN)**, **Catalán / Valenciano / Balear (CA)**, **Gallego (GL)** y **Euskera (EU)**.
+        """)
