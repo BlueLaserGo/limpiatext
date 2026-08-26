@@ -125,8 +125,6 @@ def mostrar_ficha():
         "2. **Extracción:** Extracción de botones, campos y mensajes con índice de confianza IA (0–100).\n"
         "3. **Localización:** Traducción inmediata a 4 idiomas (EN, CA, GL, EU) descargable en Excel y CSV."
     )
-
-# 5. Barra lateral (Sidebar)
 # 5. Barra lateral (Sidebar)
 with st.sidebar:
     sidebar_header_html = (
@@ -173,42 +171,6 @@ with st.sidebar:
         "<div class='lang-item'><span class='lang-badge'>EU</span> Euskera</div>"
     )
     st.markdown(sidebar_langs_html, unsafe_allow_html=True)
-
-    if st.button("¿Para qué sirve LimpiaText?", use_container_width=True):
-        mostrar_ficha()
-
-    api_key_env = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets else ""
-    
-    with st.expander("🔑 Configura tu API key (si quieres)", expanded=False):
-        api_key_input = st.text_input(
-            "Clave Gemini API:",
-            value="",
-            type="password",
-            help="Opcional. Si se deja en blanco, la aplicación usará la clave preconfigurada del entorno."
-        )
-    
-    api_key_activa = api_key_input.strip() if api_key_input.strip() else api_key_env
-
-    st.markdown("**Fuente de datos:**")
-    modo_entrada = st.radio(
-        "Selecciona el origen:",
-        ["Cargar archivo CSV", "Usar datos de demo (Azure DevOps)"],
-        label_visibility="collapsed"
-    )
-
-    st.write("---")
-
-    sidebar_langs_html = (
-        "<div style='margin-top: 6px;'>"
-        "<div class='lang-item'><span class='lang-badge'>EN</span> Inglés</div>"
-        "<div class='lang-item'><span class='lang-badge'>CA</span> Catalán / Valenciano / Balear</div>"
-        "<div class='lang-item'><span class='lang-badge'>GL</span> Gallego</div>"
-        "<div class='lang-item'><span class='lang-badge'>EU</span> Euskera</div>"
-        "</div>"
-    )
-    st.markdown("**Idiomas de exportación:**")
-    st.markdown(sidebar_langs_html, unsafe_allow_html=True
-    )
 
 # 6. Encabezado principal
 hero_html = (
