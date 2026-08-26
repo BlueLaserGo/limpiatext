@@ -155,6 +155,17 @@ with st.sidebar:
     )
     st.markdown("**Idiomas de exportación:**")
     st.markdown(_langs_html, unsafe_allow_html=True)
+    
+    # Botón para compartir la aplicación
+    st.markdown("""
+    <div style="margin-top: 0.8rem;">
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://limpiatext.streamlit.app" target="_blank" style="text-decoration: none;">
+            <div style="background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 4px; padding: 0.4rem 0.6rem; text-align: center; font-size: 0.75rem; font-weight: 600; color: #111111;">
+                🔗 Compartir proyecto en LinkedIn
+            </div>
+        </a>
+    </div>
+    """, unsafe_allow_html=True)
 
 # 6. Encabezado principal
 hero_html = (
