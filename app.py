@@ -400,24 +400,68 @@ with tab_app:
             st.error(f"Ocurrió un error al procesar el archivo: {e}")
 
 with tab_guia:
-    st.markdown("### 📘 Manual de Uso y Criterios Funcionales")
+    st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
     
-    col_g1, col_g2 = st.columns(2, gap="large")
+    col_g1, col_g2 = st.columns(2, gap="medium")
     
     with col_g1:
-        st.markdown("""
-        <div style="background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 8px; padding: 1.4rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); height: 100%;">
-            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.5px; color: #111111; margin-bottom: 0.8rem; border-bottom: 2px solid #FACC15; padding-bottom: 4px; display: inline-block;">
-                🚀 Flujo de Trabajo en 4 Pasos
-            </div>
-            <ol style="margin-left: 1.2rem; padding-left: 0; font-size: 0.88rem; line-height: 1.6; color: #333333;">
-                <li style="margin-bottom: 6px;"><b>Exportar:</b> Descarga el CSV desde Azure DevOps con las columnas estándar (<code>ID</code>, <code>Title</code>, <code>Description</code> y <code>Acceptance Criteria</code> con separador <code>;</code>).</li>
-                <li style="margin-bottom: 6px;"><b>Cargar:</b> Sube el archivo en el panel principal.</li>
-                <li style="margin-bottom: 6px;"><b>Procesar:</b> El motor limpia el HTML residual, aísla literales visuales de UI y genera traducciones a 4 idiomas.</li>
-                <li><b>Descargar:</b> Obtén el catálogo auditado con métricas de confianza en formato <b>Excel (.xlsx)</b> o <b>CSV</b>.</li>
-            </ol>
-        </div>
-        """, unsafe_allow_html=True)
+        card_pasos = (
+            '<div style="background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 8px; '
+            'padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 260px;">'
+            '<div style="display: inline-block; background-color: #FACC15; color: #111111; font-family: \'Space Grotesk\', sans-serif; '
+            'font-weight: 700; font-size: 0.72rem; padding: 3px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.8rem;">'
+            'Flujo Funcional'
+            '</div>'
+            '<div style="font-family: \'Space Grotesk\', sans-serif; font-weight: 700; font-size: 1.1rem; color: #111111; margin-bottom: 0.8rem;">'
+            '🚀 Proceso en 4 Pasos'
+            '</div>'
+            '<div style="font-size: 0.88rem; line-height: 1.6; color: #333333;">'
+            '<b>1. Exportar:</b> Descarga el CSV desde Azure DevOps con separador punto y coma (<code>;</code>).<br>'
+            '<b>2. Cargar:</b> Sube el archivo en el panel superior.<br>'
+            '<b>3. Procesar:</b> Depuración de HTML y extracción de literales con IA.<br>'
+            '<b>4. Descargar:</b> Obtén el catálogo final en <b>Excel (.xlsx)</b> o <b>CSV</b>.'
+            '</div>'
+            '</div>'
+        )
+        st.markdown(card_pasos, unsafe_allow_html=True)
+
+    with col_g2:
+        card_confianza = (
+            '<div style="background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 8px; '
+            'padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 260px;">'
+            '<div style="display: inline-block; background-color: #111111; color: #FFDE00; font-family: \'Space Grotesk\', monospace; '
+            'font-weight: 700; font-size: 0.72rem; padding: 3px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.8rem;">'
+            'Control de Calidad'
+            '</div>'
+            '<div style="font-family: \'Space Grotesk\', sans-serif; font-weight: 700; font-size: 1.1rem; color: #111111; margin-bottom: 0.8rem;">'
+            '🎯 Métricas de Confianza IA'
+            '</div>'
+            '<div style="font-size: 0.86rem; line-height: 1.6; color: #333333;">'
+            '<b>🟢 Alta (≥ 85%):</b> Botones, modales y etiquetas visibles confirmadas.<br>'
+            '<b>🟡 Media (65% – 84%):</b> Literales inferidos del contexto funcional.<br>'
+            '<b>🔴 Revisar (&lt; 65%):</b> Posibles reglas de negocio o textos técnicos a revisar.'
+            '</div>'
+            '</div>'
+        )
+        st.markdown(card_confianza, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-top: 1.2rem;'></div>", unsafe_allow_html=True)
+    
+    card_faq = (
+        '<div style="background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 8px; '
+        'padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">'
+        '<div style="font-family: \'Space Grotesk\', sans-serif; font-weight: 700; font-size: 1.1rem; color: #111111; margin-bottom: 0.8rem;">'
+        '❓ Preguntas Frecuentes (FAQ)'
+        '</div>'
+        '<div style="font-size: 0.88rem; line-height: 1.6; color: #333333;">'
+        '<b>¿Por qué se ignoran las descripciones largas?</b><br>'
+        'LimpiaText actúa como filtro de calidad funcional: extrae exclusivamente los literales de pantalla (UI) y descarta la prosa técnica interna.<br><br>'
+        '<b>¿Qué idiomas traduce?</b><br>'
+        'Español (ES) original &rarr; <b>Inglés (EN)</b>, <b>Catalán / Valenciano / Balear (CA)</b>, <b>Gallego (GL)</b> y <b>Euskera (EU)</b>.'
+        '</div>'
+        '</div>'
+    )
+    st.markdown(card_faq, unsafe_allow_html=True)
 
     with col_g2:
         st.markdown("""
