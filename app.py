@@ -316,7 +316,8 @@ with tab_app:
                         file_name="Textos_Pantalla_LimpiaText.csv",
                         mime="text/csv"
                     )
-                    with tab_guia:
+
+with tab_guia:
     st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
     col_g1, col_g2 = st.columns(2, gap="large")
     
