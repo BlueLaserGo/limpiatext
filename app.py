@@ -251,7 +251,7 @@ SYSTEM_PROMPT = (
     "Responde EXCLUSIVAMENTE con una lista JSON valida de objetos."
 )
 
-# Definición de la ventana modal (fuera de la barra lateral)
+# Definición de la ventana modal
 @st.dialog("Ficha de proyecto — LimpiaText")
 def mostrar_ficha():
     st.markdown(
@@ -259,8 +259,11 @@ def mostrar_ficha():
         "Herramienta concebida para analistas funcionales y equipos de localización.\n\n"
         "### Flujo de trabajo\n"
         "1. **Depuración:** Limpieza de marcado HTML y comentarios en exportaciones CSV de Azure DevOps.\n"
-        "2. **Extracción:** Extracción de botones, campos y mensajes con índice de confianza IA (0–100).\n"
-        "3. **Localización:** Traducción inmediata a 4 idiomas (EN, CA, GL, EU) descargable en Excel y CSV."
+        "2. **Extracción:** Identificación de botones, campos y mensajes con índice de confianza IA (0–100).\n"
+        "3. **Localización:** Traducción inmediata a 4 idiomas (EN, CA, GL, EU) descargable en Excel y CSV.\n\n"
+        "### Requisitos de uso\n"
+        "• **Modo Demo:** Funciona al instante sin necesidad de configuración.\n"
+        "• **Archivos propios:** Requiere introducir una clave API gratuita de Gemini (Google AI Studio) en la barra lateral para asegurar la privacidad."
     )
 # 5. Barra lateral (Sidebar)
 with st.sidebar:
