@@ -3,7 +3,7 @@
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://limpiatext.streamlit.app)
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square)](https://www.python.org/)
 [![Google GenAI SDK](https://img.shields.io/badge/Google%20GenAI-3.6%20Flash-FACC15?style=flat-square&labelColor=111111)](https://ai.google.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-black?style=flat-square)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-black?style=flat-square)](License_LimpiaText.txt)
 
 **LimpiaText** es una herramienta especializada en ingeniería de requisitos y localización de software multilingüe. Automatiza la extracción de literales de interfaz de usuario (UI) a partir de exportaciones de **Azure DevOps**, depura el marcado HTML residual de las Historias de Usuario (HDUs) y genera catálogos inmediatos de localización en lenguas autonómicas e inglés, incorporando métricas de fiabilidad y calidad funcional asistida por IA.
 
