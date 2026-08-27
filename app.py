@@ -63,6 +63,141 @@ css_styles = (
 )
 st.markdown(css_styles, unsafe_allow_html=True)
 
+# Resultado precalculado para la demo (Cero consumo de tokens)
+DEMO_RESULTADO_JSON = [
+    {
+        "id_hdu": "1042",
+        "modulo": "Facturación",
+        "pantalla": "Facturas proforma",
+        "tipo_elemento": "Pestaña",
+        "texto_es": "Facturación emitida",
+        "confianza": 95,
+        "traduccion_en": "Issued Invoicing",
+        "traduccion_ca": "Facturació emesa",
+        "traduccion_gl": "Facturación emitida",
+        "traduccion_eu": "Jaulkitako fakturazioa"
+    },
+    {
+        "id_hdu": "1042",
+        "modulo": "Facturación",
+        "pantalla": "Facturas proforma",
+        "tipo_elemento": "Botón",
+        "texto_es": "Guardar borrador",
+        "confianza": 95,
+        "traduccion_en": "Save Draft",
+        "traduccion_ca": "Desa l'esborrany",
+        "traduccion_gl": "Gardar borrador",
+        "traduccion_eu": "Gorde zirriborroa"
+    },
+    {
+        "id_hdu": "1042",
+        "modulo": "Facturación",
+        "pantalla": "Facturas proforma",
+        "tipo_elemento": "Botón",
+        "texto_es": "Emitir factura definitiva",
+        "confianza": 95,
+        "traduccion_en": "Issue Final Invoice",
+        "traduccion_ca": "Emet factura definitiva",
+        "traduccion_gl": "Emitir factura definitiva",
+        "traduccion_eu": "Jaulki behin betiko faktura"
+    },
+    {
+        "id_hdu": "1042",
+        "modulo": "Facturación",
+        "pantalla": "Facturas proforma",
+        "tipo_elemento": "Aviso",
+        "texto_es": "Factura registrada correctamente",
+        "confianza": 90,
+        "traduccion_en": "Invoice registered successfully",
+        "traduccion_ca": "Factura registrada correctament",
+        "traduccion_gl": "Factura rexistrada correctamente",
+        "traduccion_eu": "Faktura behar bezala erregistratu da"
+    },
+    {
+        "id_hdu": "1043",
+        "modulo": "Proveedores",
+        "pantalla": "Alta de proveedor",
+        "tipo_elemento": "Selector",
+        "texto_es": "Exento",
+        "confianza": 90,
+        "traduccion_en": "Exempt",
+        "traduccion_ca": "Exempt",
+        "traduccion_gl": "Exento",
+        "traduccion_eu": "Salbuetsita"
+    },
+    {
+        "id_hdu": "1043",
+        "modulo": "Proveedores",
+        "pantalla": "Alta de proveedor",
+        "tipo_elemento": "Selector",
+        "texto_es": "General 21%",
+        "confianza": 90,
+        "traduccion_en": "Standard 21%",
+        "traduccion_ca": "General 21%",
+        "traduccion_gl": "Xeral 21%",
+        "traduccion_eu": "Orokorra % 21"
+    },
+    {
+        "id_hdu": "1043",
+        "modulo": "Proveedores",
+        "pantalla": "Alta de proveedor",
+        "tipo_elemento": "Campo",
+        "texto_es": "NIF intracomunitario",
+        "confianza": 95,
+        "traduccion_en": "Intra-community VAT Number",
+        "traduccion_ca": "NIF intracomunitari",
+        "traduccion_gl": "NIF intracomunitario",
+        "traduccion_eu": "Erkidego barruko IFZ"
+    },
+    {
+        "id_hdu": "1043",
+        "modulo": "Proveedores",
+        "pantalla": "Alta de proveedor",
+        "tipo_elemento": "Botón",
+        "texto_es": "Cancelar registro",
+        "confianza": 95,
+        "traduccion_en": "Cancel Registration",
+        "traduccion_ca": "Cancel·la el registre",
+        "traduccion_gl": "Cancelar rexistro",
+        "traduccion_eu": "Utzi erregistroa"
+    },
+    {
+        "id_hdu": "1043",
+        "modulo": "Proveedores",
+        "pantalla": "Alta de proveedor",
+        "tipo_elemento": "Alerta",
+        "texto_es": "¿Desea descartar los cambios no guardados?",
+        "confianza": 90,
+        "traduccion_en": "Do you want to discard unsaved changes?",
+        "traduccion_ca": "Voleu descartar els canvis no desats?",
+        "traduccion_gl": "Desexa descartar os cambios non gardados?",
+        "traduccion_eu": "Gorde gabeko aldaketak baztertu nahi dituzu?"
+    },
+    {
+        "id_hdu": "1045",
+        "modulo": "Expedientes",
+        "pantalla": "Estado de expediente",
+        "tipo_elemento": "Modal",
+        "texto_es": "El expediente no admite modificaciones en estado Liquidado",
+        "confianza": 95,
+        "traduccion_en": "The file cannot be modified in Settled status",
+        "traduccion_ca": "L'expedient no admet modificacions en estat Liquidat",
+        "traduccion_gl": "O expediente non admite modificacións en estado Liquidado",
+        "traduccion_eu": "Espedienteak ez du aldaketarik onartzen Likidatua egoeran"
+    },
+    {
+        "id_hdu": "1045",
+        "modulo": "Expedientes",
+        "pantalla": "Estado de expediente",
+        "tipo_elemento": "Error",
+        "texto_es": "Debe adjuntar al menos un justificante de pago",
+        "confianza": 95,
+        "traduccion_en": "You must attach at least one proof of payment",
+        "traduccion_ca": "Heu d'adjuntar almenys un justificant de pagament",
+        "traduccion_gl": "Debe achegar polo menos un xustificante de pago",
+        "traduccion_eu": "Gutxienez ordainagiria erantsi behar duzu"
+    }
+]
 
 # 4. Funciones de depuracion y soporte
 def limpiar_html_devops(texto: str) -> str:
