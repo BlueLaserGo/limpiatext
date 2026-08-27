@@ -36,6 +36,7 @@ css_styles = (
     "section[data-testid='stSidebar'] .block-container { padding-top: 1.5rem !important; padding-bottom: 1rem !important; }\n"
     ".hero-title { font-family: 'Space Grotesk', sans-serif; font-size: 2.55rem; font-weight: 700; letter-spacing: -1.2px; text-transform: uppercase; line-height: 1.05; color: #111111; margin-top: 0.5rem; margin-bottom: 0.25rem; }\n"
     ".hero-subtitle { font-size: 0.96rem; color: #555555; line-height: 1.45; max-width: 820px; margin-bottom: 1.35rem; }\n"
+    ".step-badge { display: inline-block; background-color: #111111; color: #FFFFFF; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem; }\n"
     ".stTabs [data-baseweb='tab-list'] { gap: 1.5rem; border-bottom: 1px solid #CCCCCC; }\n"
     ".stTabs [data-baseweb='tab'] { font-family: 'Space Grotesk', sans-serif !important; font-weight: 600 !important; font-size: 0.9rem !important; color: #111111 !important; }\n"
     "div[data-testid='stFileUploader'] { background-color: #FFFFFF !important; border: 2px dashed #FACC15 !important; border-radius: 6px !important; padding: 0.8rem !important; }\n"
@@ -192,10 +193,15 @@ tab_app, tab_guia = st.tabs(["🚀 Depura y traduce", "📖 Guía y ayuda"])
 with tab_app:
     df_devops = None
 
+    # --- PASO 1 ---
+    st.markdown("<div class='step-badge'>Paso 1</div>", unsafe_allow_html=True)
+    st.markdown("#### Cargar y revisar historias de usuario")
+
     if modo_entrada == "Cargar archivo CSV":
         archivo_subido = st.file_uploader(
             "Carga el CSV exportado de Azure DevOps",
-            type=["csv"]
+            type=["csv"],
+            label_visibility="collapsed"
         )
         if archivo_subido:
             try:
@@ -226,8 +232,15 @@ with tab_app:
         df_devops = pd.DataFrame(datos_demo)
 
     if df_devops is not None:
-        with st.expander("Vista previa de las historias de usuario", expanded=(modo_entrada != "Cargar archivo CSV")):
+        with st.expander("Vista previa de las historias de usuario originales", expanded=False):
             st.dataframe(df_devops.head(5), use_container_width=True)
+            
+        st.write("")
+        
+        # --- PASO 2 ---
+        st.markdown("<div class='step-badge'>Paso 2</div>", unsafe_allow_html=True)
+        st.markdown("#### Depuración de HTML y extracción con IA")
+        st.caption("Se eliminarán las etiquetas HTML y se enviará la información a Gemini para aislar los literales de pantalla.")
             
         if st.button("Limpiar y traducir textos"):
             if not api_key_activa:
@@ -250,7 +263,7 @@ with tab_app:
                     )
                     texto_completo_hdus = "\n\n---\n\n".join(df_devops["Full_HDU_Text"].tolist())
 
-                with st.spinner("Identificando textos visibles y generando traducciones con IA..."):
+                with st.spinner("Identificando textos visibles y generando traducciones con Gemini..."):
                     client = genai.Client(api_key=api_key_activa)
                     prompt_usuario = (
                         "A continuación tienes el conjunto de Historias de Usuario para procesar:\n\n"
@@ -275,6 +288,11 @@ with tab_app:
                         st.code(response.text)
                         st.stop()
 
+                # --- PASO 3 ---
+                st.write("---")
+                st.markdown("<div class='step-badge'>Paso 3</div>", unsafe_allow_html=True)
+                st.markdown("#### Revisión de literales y exportación")
+                
                 with st.spinner("Preparando tabla de resultados y exportaciones..."):
                     df_literales = pd.DataFrame(resultado_json)
                     
@@ -315,8 +333,6 @@ with tab_app:
 
                     csv_data = df_literales.to_csv(index=False, sep=";").encode('utf-8-sig')
 
-                st.write("---")
-                st.subheader("Textos identificados y traducidos")
                 st.dataframe(df_literales, use_container_width=True)
                 
                 col_dl1, col_dl2 = st.columns(2)
@@ -333,6 +349,7 @@ with tab_app:
                         data=csv_data,
                         file_name="Textos_Pantalla_LimpiaText.csv",
                         mime="text/csv"
+                    )
                     )
 
 with tab_guia:
