@@ -114,19 +114,43 @@ SYSTEM_PROMPT = (
 )
 
 # Definición de la ventana modal
-@st.dialog("Ficha de proyecto — LimpiaText")
+@st.dialog("Ficha de proyecto: LimpiaText")
 def mostrar_ficha():
-    st.markdown(
-        "### Propósito\n"
-        "Herramienta concebida para analistas funcionales y equipos de localización.\n\n"
-        "### Flujo de trabajo\n"
-        "1. **Depuración:** Limpieza de marcado HTML y comentarios en exportaciones CSV de Azure DevOps.\n"
-        "2. **Extracción:** Identificación de botones, campos y mensajes con índice de confianza IA (0–100).\n"
-        "3. **Localización:** Traducción inmediata a 4 idiomas (EN, CA, GL, EU) descargable en Excel y CSV.\n\n"
-        "### Requisitos de uso\n"
-        "• **Modo Demo:** Funciona al instante sin necesidad de configuración.\n"
-        "• **Archivos propios:** Requiere introducir una clave API gratuita de Gemini (Google AI Studio) en la barra lateral para asegurar la privacidad."
+    ficha_html = (
+        "<div style='font-family: \"Inter\", sans-serif; color: #111111;'>"
+        "<div style='margin-bottom: 1.2rem;'>"
+        "<span class='card-pill-yellow'>Propósito</span>"
+        "<div style='font-size: 0.92rem; line-height: 1.5; color: #333333; margin-top: 0.4rem;'>"
+        "Herramienta diseñada para <b>analistas funcionales</b> y <b>equipos de localización</b> que necesitan extraer, validar y traducir textos de interfaz a partir de historias de usuario exportadas desde Azure DevOps."
+        "</div>"
+        "</div>"
+        "<div style='margin-bottom: 1.2rem;'>"
+        "<span class='card-pill-dark'>Flujo de trabajo</span>"
+        "<div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 6px; padding: 0.9rem; margin-top: 0.4rem;'>"
+        "<div style='font-size: 0.85rem; line-height: 1.6; color: #222222;'>"
+        "<b>1. Depuración:</b> Limpieza automática de etiquetas HTML (<code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>) y comentarios internos.<br>"
+        "<b>2. Extracción IA:</b> Detección de botones, selectores y avisos visibles con cálculo de fiabilidad (0 a 100).<br>"
+        "<b>3. Localización:</b> Generación de propuestas en 4 idiomas (EN, CA, GL, EU) listas para revisión humana."
+        "</div>"
+        "</div>"
+        "</div>"
+        "<div style='margin-bottom: 0.5rem;'>"
+        "<span class='card-pill-yellow'>Modos de uso</span>"
+        "<div style='display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 0.4rem;'>"
+        "<div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 6px; padding: 0.75rem; font-size: 0.82rem; line-height: 1.4;'>"
+        "<b style='font-family: \"Space Grotesk\", sans-serif;'>📦 Modo Demo</b><br>"
+        "<span style='color: #666666;'>Listo para probar al instante sin necesidad de clave API ni configuración previa.</span>"
+        "</div>"
+        "<div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 6px; padding: 0.75rem; font-size: 0.82rem; line-height: 1.4;'>"
+        "<b style='font-family: \"Space Grotesk\", sans-serif;'>🔑 Archivos propios</b><br>"
+        "<span style='color: #666666;'>Requiere introducir tu clave gratuita de Gemini API en la barra lateral.</span>"
+        "</div>"
+        "</div>"
+        "</div>"
+        "</div>"
     )
+    st.markdown(ficha_html, unsafe_allow_html=True)
+
 
 # 5. Barra lateral (Sidebar)
 with st.sidebar:
