@@ -232,6 +232,10 @@ with tab_app:
         df_devops = pd.DataFrame(datos_demo)
 
     if df_devops is not None:
+        # Vista previa del texto original con HTML / sucio
+        with st.expander("Vista previa de las historias de usuario originales (con código HTML)", expanded=False):
+            st.dataframe(df_devops.head(5), use_container_width=True)
+        
         # --- PASO 2: DEPURACIÓN LOCAL (Sin coste de IA) ---
         col_id = obtener_columna(df_devops, ["ID", "Id", "Work Item Id"], 0)
         col_title = obtener_columna(df_devops, ["Title", "Título"], 1)
