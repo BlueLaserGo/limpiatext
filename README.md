@@ -1,15 +1,15 @@
-# LimpiaText — UI Localization & Literal Extraction Engine
+# LimpiaText — Limpia archivos de HdUs de DevOps, detecta literales y los traduce.
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://limpiatext.streamlit.app)
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square)](https://www.python.org/)
-[![Google GenAI SDK](https://img.shields.io/badge/Google%20GenAI-2.5%20Flash-FACC15?style=flat-square&labelColor=111111)](https://ai.google.dev/)
+[![Google GenAI SDK](https://img.shields.io/badge/Google%20GenAI-3.6%20Flash-FACC15?style=flat-square&labelColor=111111)](https://ai.google.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black?style=flat-square)](LICENSE)
 
 **LimpiaText** es una herramienta especializada en ingeniería de requisitos y localización de software multilingüe. Automatiza la extracción de literales de interfaz de usuario (UI) a partir de exportaciones de **Azure DevOps**, depura el marcado HTML residual de las Historias de Usuario (HDUs) y genera catálogos inmediatos de localización en lenguas autonómicas e inglés, incorporando métricas de fiabilidad y calidad funcional asistida por IA.
 
 ---
 
-## 🎯 Problema que Resuelve
+## 🎯 Problema que resuelve
 
 En equipos ágiles de desarrollo de software, la extracción de textos de interfaz para traducción y parametrización suele ser un proceso manual propenso a errores:
 1. **Ruido HTML y marcado enriquecido:** Las exportaciones de Azure DevOps contienen etiquetas HTML (`<div>`, `<p>`, `<span>`, `<!-- comments -->`) incrustadas en las descripciones y criterios de aceptación.
@@ -43,7 +43,7 @@ En equipos ágiles de desarrollo de software, la extracción de textos de interf
 
 * **Frontend & UI:** [Streamlit](https://streamlit.io/) con inyección de CSS personalizado y Google Fonts (*Space Grotesk*, *Inter*).
 * **Tratamiento y Análisis de Datos:** [Pandas](https://pandas.pydata.org/), `openpyxl`, `re`, `html`, `io`.
-* **Motor de IA / NLP:** [Google GenAI SDK](https://pypi.org/project/google-genai/) ejecutando el modelo `gemini-2.5-flash` con *Structured Outputs* y *System Instructions* especializadas.
+* **Motor de IA / NLP:** [Google GenAI SDK](https://pypi.org/project/google-genai/) ejecutando el modelo `gemini-3.6-flash` con *Structured Outputs* y *System Instructions* especializadas.
 
 ---
 
@@ -51,5 +51,5 @@ En equipos ágiles de desarrollo de software, la extracción de textos de interf
 
 ### 1. Clonar el repositorio
 ```bash
-git clone [https://github.com/BlueLaserGo/limpiatext.git](https://github.com/BlueLaserGo/limpiatext.git)
+git clone https://github.com/BlueLaserGo/limpiatext.git
 cd limpiatext
