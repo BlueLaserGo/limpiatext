@@ -39,15 +39,9 @@ section[data-testid='stSidebar'] .block-container { padding-top: 1.5rem !importa
 .step-badge { display: inline-block; background-color: #111111; color: #FFFFFF; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem; }
 .stTabs [data-baseweb='tab-list'] { gap: 1.5rem; border-bottom: 1px solid #CCCCCC; }
 .stTabs [data-baseweb='tab'] { font-family: 'Space Grotesk', sans-serif !important; font-weight: 600 !important; font-size: 0.9rem !important; color: #111111 !important; }
-div[data-testid='stFileUploader'] { background-color: #FFFFFF !important; border: 2px dashed #FACC15 !important; border-radius: 6px !important; padding: 0.8rem !important; }
-div[data-testid='stFileUploader'] section button { font-size: 0 !important; background-color: #111111 !important; color: transparent !important; border: 1px solid #111111 !important; border-radius: 4px !important; padding: 0.35rem 1rem !important; transition: all 0.2s ease !important; }
-div[data-testid='stFileUploader'] section button::after { content: 'Examinar archivos' !important; font-family: 'Space Grotesk', sans-serif !important; font-size: 0.85rem !important; font-weight: 600 !important; color: #FFFFFF !important; display: block !important; }
-div[data-testid='stFileUploader'] section button:hover { background-color: #FACC15 !important; border-color: #FACC15 !important; }
-div[data-testid='stFileUploader'] section button:hover::after { color: #111111 !important; }
-div[data-testid='stFileUploader'] section span { font-size: 0 !important; color: transparent !important; }
-div[data-testid='stFileUploader'] section span::after { content: 'o arrastra y suelta tu archivo aquí' !important; font-size: 0.85rem !important; color: #555555 !important; font-family: 'Inter', sans-serif !important; display: inline !important; }
-div[data-testid='stFileUploader'] section small { font-size: 0 !important; color: transparent !important; }
-div[data-testid='stFileUploader'] section small::after { content: '📄 Solo archivos CSV • Máximo 200 MB' !important; font-size: 0.80rem !important; color: #777777 !important; font-family: 'Inter', sans-serif !important; display: block !important; margin-top: 4px !important; }
+div[data-testid='stFileUploader'] { background-color: #FFFFFF !important; border: 2px dashed #FACC15 !important; border-radius: 6px !important; padding: 1rem !important; }
+div[data-testid='stFileUploader'] button { background-color: #111111 !important; color: #FFFFFF !important; border: 1px solid #111111 !important; border-radius: 4px !important; font-family: 'Space Grotesk', sans-serif !important; font-weight: 600 !important; font-size: 0.85rem !important; padding: 0.35rem 1.2rem !important; transition: all 0.2s ease !important; }
+div[data-testid='stFileUploader'] button:hover { background-color: #FACC15 !important; border-color: #FACC15 !important; color: #111111 !important; }
 .lang-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 0.80rem; color: #222222; white-space: nowrap; }
 .lang-badge { background-color: #000000; color: #FFDE00; font-family: 'Space Grotesk', monospace; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 0.70rem; min-width: 24px; text-align: center; flex-shrink: 0; }
 .floating-card { background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 8px; padding: 1.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; margin-bottom: 1rem; }
