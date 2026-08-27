@@ -4,3 +4,13 @@ primaryColor = "#111111"
 backgroundColor = "#EFEFEF"
 secondaryBackgroundColor = "#E8E8E6"
 textColor = "#111111"
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"
+primaryColor = "#FACC15"
+backgroundColor = "#EFEFEF"
+secondaryBackgroundColor = "#E8E8E6"
+textColor = "#111111"
