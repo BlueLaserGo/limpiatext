@@ -333,7 +333,8 @@ with tab_app:
         archivo_subido = st.file_uploader(
             "Carga el CSV exportado de Azure DevOps",
             type=["csv"],
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            help="Sube un archivo CSV con las columnas ID, Title, Description y Acceptance Criteria."
         )
         if archivo_subido:
             try:
