@@ -40,10 +40,11 @@ section[data-testid='stSidebar'] .block-container { padding-top: 1.5rem !importa
 .stTabs [data-baseweb='tab-list'] { gap: 1.5rem; border-bottom: 1px solid #CCCCCC; }
 .stTabs [data-baseweb='tab'] { font-family: 'Space Grotesk', sans-serif !important; font-weight: 600 !important; font-size: 0.9rem !important; color: #111111 !important; }
 div[data-testid='stFileUploader'] { background-color: #FFFFFF !important; border: 2px dashed #FACC15 !important; border-radius: 6px !important; padding: 1rem !important; }
-div[data-testid='stFileUploader'] [data-testid='stBaseButton-secondary'], div[data-testid='stFileUploader'] button { position: relative !important; font-size: 0 !important; background-color: #111111 !important; border: 1px solid #111111 !important; border-radius: 4px !important; padding: 0.4rem 1.2rem !important; }
-div[data-testid='stFileUploader'] [data-testid='stBaseButton-secondary']::after, div[data-testid='stFileUploader'] button::after { content: 'Examinar archivos' !important; font-family: 'Space Grotesk', sans-serif !important; font-size: 0.85rem !important; font-weight: 600 !important; color: #FFFFFF !important; visibility: visible !important; display: block !important; }
-div[data-testid='stFileUploader'] [data-testid='stBaseButton-secondary']:hover, div[data-testid='stFileUploader'] button:hover { background-color: #FACC15 !important; border-color: #FACC15 !important; }
-div[data-testid='stFileUploader'] [data-testid='stBaseButton-secondary']:hover::after, div[data-testid='stFileUploader'] button:hover::after { color: #111111 !important; }
+div[data-testid='stFileUploader'] button { font-size: 0 !important; background-color: #111111 !important; border: 1px solid #111111 !important; border-radius: 4px !important; padding: 0.4rem 1.2rem !important; transition: all 0.2s ease !important; }
+div[data-testid='stFileUploader'] button * { display: none !important; }
+div[data-testid='stFileUploader'] button::after { content: 'Examinar archivos' !important; font-family: 'Space Grotesk', sans-serif !important; font-size: 0.85rem !important; font-weight: 600 !important; color: #FFFFFF !important; display: block !important; }
+div[data-testid='stFileUploader'] button:hover { background-color: #FACC15 !important; border-color: #FACC15 !important; }
+div[data-testid='stFileUploader'] button:hover::after { color: #111111 !important; }
 .lang-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 0.80rem; color: #222222; white-space: nowrap; }
 .lang-badge { background-color: #000000; color: #FFDE00; font-family: 'Space Grotesk', monospace; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 0.70rem; min-width: 24px; text-align: center; flex-shrink: 0; }
 .floating-card { background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 8px; padding: 1.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; margin-bottom: 1rem; }
