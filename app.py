@@ -164,3 +164,7 @@ with st.sidebar:
     modo_entrada = st.radio(
         "Selecciona el origen:",
         ["Cargar archivo CSV", "Usar datos de demo (Azure DevOps)"],
+        label_visibility="collapsed"
+    )
+
+    st.markdown("<hr style='margin: 0.5rem 0; border: none; border-top: 1px solid #D5D5D0;'>", unsafe_allow_html=True)
