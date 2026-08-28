@@ -11,6 +11,9 @@ import streamlit as st
 from google import genai
 from google.genai import types
 
+# ==========================================
+# 1. CONFIGURACIÓN DE PÁGINA Y CONSTANTES
+# ==========================================
 st.set_page_config(
     page_title="LimpiaText — Limpieza y traducción de textos de pantalla",
     page_icon="🧹",
@@ -32,7 +35,9 @@ NOMBRES_COLUMNAS = {
 }
 CARACTERES_FORMULA = ("=", "+", "-", "@")
 
-
+# ==========================================
+# 2. CARGA DE AVATAR (Base64 / Fallback)
+# ==========================================
 def obtener_imagen_base64(ruta_imagen):
     if os.path.exists(ruta_imagen):
         with open(ruta_imagen, "rb") as img_file:
@@ -40,173 +45,20 @@ def obtener_imagen_base64(ruta_imagen):
         return f"data:image/jpeg;base64,{contenido}"
     return "https://raw.githubusercontent.com/BlueLaserGo/limpiatext/main/avatar_lasergo.jpeg"
 
-
-def limpiar_html_devops(texto):
-    if not isinstance(texto, str) or not texto.strip():
-        return ""
-    texto = html.unescape(texto)
-    texto = re.sub(r"<!--.*?-->", "", texto, flags=re.DOTALL)
-    texto = re.sub(r"<(br|/p|/div|/li|/tr|/h[1-6])\b[^>]*>", "\n", texto, flags=re.IGNORECASE)
-    texto = re.sub(r"<[^>]+>", "", texto)
-    texto = re.sub(r"[ \t]+", " ", texto)
-    texto = re.sub(r"\n\s*\n+", "\n", texto)
-    return texto.strip()
-
-
-def obtener_columna(df, opciones_nombres):
-    columnas_normalizadas = {
-        str(columna).strip().casefold(): columna for columna in df.columns
-    }
-    for opcion in opciones_nombres:
-        columna = columnas_normalizadas.get(opcion.strip().casefold())
-        if columna:
-            return columna
-    return None
-
-
-def clasificar_confianza(valor):
-    try:
-        valor = int(valor)
-    except (ValueError, TypeError):
-        return "🟡 Media"
-    if valor >= 85:
-        return "🟢 Alta"
-    if valor >= 65:
-        return "🟡 Media"
-    return "🔴 Revisar"
-
-
-def parsear_json_robusto(texto_respuesta):
-    texto_limpio = texto_respuesta.strip()
-    if texto_limpio.startswith("```"):
-        texto_limpio = re.sub(r"^```[a-zA-Z]*\n?", "", texto_limpio)
-        texto_limpio = re.sub(r"\n?```$", "", texto_limpio)
-    coincidencia = re.search(r"\[\s*\{.*\}\s*\]", texto_limpio, re.DOTALL)
-    if coincidencia:
-        texto_limpio = coincidencia.group(0)
-    resultado = json.loads(texto_limpio)
-    if not isinstance(resultado, list):
-        raise ValueError("La respuesta de IA no contiene una lista de elementos.")
-    return resultado
-
-
-def proteger_formula_excel(valor):
-    if pd.isna(valor):
-        return ""
-    texto = str(valor)
-    if texto.startswith(CARACTERES_FORMULA):
-        return "'" + texto
-    return texto
-
-
-def preparar_exportacion(df):
-    df_exportacion = df.copy()
-    for columna in df_exportacion.select_dtypes(include="object").columns:
-        df_exportacion[columna] = df_exportacion[columna].map(proteger_formula_excel)
-    return df_exportacion
-
-
-def huella_archivo(archivo):
-    contenido = archivo.getvalue()
-    return hashlib.sha256(contenido).hexdigest()
-
-
-def limpiar_resultado_si_cambia_origen(origen_actual, identificador_actual):
-    origen_anterior = st.session_state.get("origen_anterior")
-    identificador_anterior = st.session_state.get("identificador_archivo_anterior")
-    if (
-        origen_anterior is not None
-        and (origen_anterior != origen_actual or identificador_anterior != identificador_actual)
-    ):
-        st.session_state.pop("df_resultado", None)
-    st.session_state["origen_anterior"] = origen_actual
-    st.session_state["identificador_archivo_anterior"] = identificador_actual
-
-
-def validar_respuesta_ia(resultado_json, ids_hdu_validos):
-    campos_obligatorios = {
-        "id_hdu",
-        "modulo",
-        "pantalla",
-        "tipo_elemento",
-        "texto_es",
-        "confianza",
-        "traduccion_en",
-        "traduccion_ca",
-        "traduccion_gl",
-        "traduccion_eu",
-    }
-    elementos_validos = []
-    avisos = []
-
-    for indice, elemento in enumerate(resultado_json, start=1):
-        if not isinstance(elemento, dict):
-            avisos.append(f"Elemento {indice}: formato no válido; se ha omitido.")
-            continue
-
-        faltantes = campos_obligatorios - set(elemento.keys())
-        if faltantes:
-            avisos.append(
-                f"Elemento {indice}: faltan campos ({', '.join(sorted(faltantes))}); se ha omitido."
-            )
-            continue
-
-        elemento["id_hdu"] = str(elemento["id_hdu"]).strip()
-        if elemento["id_hdu"] not in ids_hdu_validos:
-            avisos.append(
-                f"Elemento {indice}: el ID de HDU '{elemento['id_hdu']}' no pertenece al archivo procesado; se ha omitido."
-            )
-            continue
-
-        try:
-            elemento["confianza"] = max(0, min(100, int(elemento["confianza"])))
-        except (TypeError, ValueError):
-            elemento["confianza"] = 50
-            avisos.append(
-                f"Elemento {indice}: confianza no válida; se ha establecido en 50."
-            )
-
-        elemento["texto_es"] = str(elemento["texto_es"]).strip()
-        if not elemento["texto_es"]:
-            avisos.append(f"Elemento {indice}: texto en español vacío; se ha omitido.")
-            continue
-
-        for campo in campos_obligatorios - {"confianza"}:
-            elemento[campo] = str(elemento[campo]).strip()
-
-        elementos_validos.append(elemento)
-
-    if not elementos_validos:
-        raise ValueError("No se ha recibido ningún elemento válido de la IA.")
-
-    return elementos_validos, avisos
-
-
-SYSTEM_PROMPT = (
-    "Eres una analista funcional senior y especialista en localización lingüística de software. "
-    "Analiza Historias de Usuario (HDUs) y extrae ÚNICAMENTE textos que verá el usuario final en la interfaz: "
-    "nombres de campos, botones, pestañas, títulos de formularios, selectores, mensajes de validación, "
-    "avisos, errores, modales y opciones de listas. "
-    "NO extraigas descripciones narrativas, requisitos técnicos, lógica interna, nombres de variables ni comentarios de desarrollo. "
-    "Conserva sin modificar variables, placeholders, códigos, URLs, etiquetas HTML, Markdown, siglas y tokens como {0}, {nombre}, %s, {{user}} o {{count}}. "
-    "Para modulo y pantalla, usa 'No indicado' cuando no esté explícito. No inventes datos. "
-    "Para tipo_elemento utiliza una categoría breve y concreta: Título, Etiqueta de campo, Botón, Pestaña, Opción de selector, "
-    "Mensaje de éxito, Mensaje de error, Mensaje de validación, Modal de confirmación, Texto de ayuda, Placeholder o Texto de tabla. "
-    "CRITERIOS DE CONFIANZA (0 a 100): "
-    "90-100: texto explícitamente visible en la HDU; 70-89: probablemente visible e inferido del contexto; "
-    "50-69: ambiguo; 0-49: técnico o no claramente visible. "
-    "Devuelve para cada texto: id_hdu, modulo, pantalla, tipo_elemento, texto_es, confianza, traduccion_en, traduccion_ca, traduccion_gl, traduccion_eu. "
-    "Responde EXCLUSIVAMENTE con una lista JSON válida de objetos."
-)
-
 avatar_src = obtener_imagen_base64("avatar_lasergo.jpeg")
 
+# ==========================================
+# 3. ESTILOS CSS (Editorial Minimalista)
+# ==========================================
 css_styles = """
 <style>
+:root {
+    color-scheme: light !important;
+}
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
 .block-container { padding-top: 4.5rem !important; padding-bottom: 2rem !important; }
-.stApp { background-color: #EFEFEF; color: #111111; font-family: 'Inter', sans-serif; }
-section[data-testid='stSidebar'] { background-color: #E8E8E6; border-right: 1px solid #D5D5D0; }
+.stApp { background-color: #EFEFEF !important; color: #111111 !important; font-family: 'Inter', sans-serif; }
+section[data-testid='stSidebar'] { background-color: #E8E8E6 !important; border-right: 1px solid #D5D5D0; }
 section[data-testid='stSidebar'] .block-container { padding-top: 1.5rem !important; padding-bottom: 1rem !important; }
 .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: 2.55rem; font-weight: 700; letter-spacing: -1.2px; text-transform: uppercase; line-height: 1.05; color: #111111; margin-top: 0.5rem; margin-bottom: 0.25rem; }
 .hero-subtitle { font-size: 0.96rem; color: #555555; line-height: 1.45; max-width: 820px; margin-bottom: 1.35rem; }
@@ -235,7 +87,147 @@ section[data-testid='stSidebar'] hr { margin-top: 0.6rem !important; margin-bott
 """
 st.markdown(css_styles, unsafe_allow_html=True)
 
+# ==========================================
+# 4. FUNCIONES DE PROCESAMIENTO Y SOPORTE
+# ==========================================
+def limpiar_html_devops(texto):
+    if not isinstance(texto, str) or not texto.strip():
+        return ""
+    texto = html.unescape(texto)
+    texto = re.sub(r"<!--.*?-->", "", texto, flags=re.DOTALL)
+    texto = re.sub(r"<(br|/p|/div|/li|/tr|/h[1-6])\b[^>]*>", "\n", texto, flags=re.IGNORECASE)
+    texto = re.sub(r"<[^>]+>", "", texto)
+    texto = re.sub(r"[ \t]+", " ", texto)
+    texto = re.sub(r"\n\s*\n+", "\n", texto)
+    return texto.strip()
 
+def obtener_columna(df, opciones_nombres):
+    columnas_normalizadas = {
+        str(columna).strip().casefold(): columna for columna in df.columns
+    }
+    for opcion in opciones_nombres:
+        columna = columnas_normalizadas.get(opcion.strip().casefold())
+        if columna:
+            return columna
+    return None
+
+def clasificar_confianza(valor):
+    try:
+        valor = int(valor)
+    except (ValueError, TypeError):
+        return "🟡 Media"
+    if valor >= 85:
+        return "🟢 Alta"
+    if valor >= 65:
+        return "🟡 Media"
+    return "🔴 Revisar"
+
+def parsear_json_robusto(texto_respuesta):
+    texto_limpio = texto_respuesta.strip()
+    if texto_limpio.startswith("```"):
+        texto_limpio = re.sub(r"^```[a-zA-Z]*\n?", "", texto_limpio)
+        texto_limpio = re.sub(r"\n?```$", "", texto_limpio)
+    coincidencia = re.search(r"\[\s*\{.*\}\s*\]", texto_limpio, re.DOTALL)
+    if coincidencia:
+        texto_limpio = coincidencia.group(0)
+    resultado = json.loads(texto_limpio)
+    if not isinstance(resultado, list):
+        raise ValueError("La respuesta de IA no contiene una lista de elementos.")
+    return resultado
+
+def proteger_formula_excel(valor):
+    if pd.isna(valor):
+        return ""
+    texto = str(valor)
+    if texto.startswith(CARACTERES_FORMULA):
+        return "'" + texto
+    return texto
+
+def preparar_exportacion(df):
+    df_exportacion = df.copy()
+    for columna in df_exportacion.select_dtypes(include="object").columns:
+        df_exportacion[columna] = df_exportacion[columna].map(proteger_formula_excel)
+    return df_exportacion
+
+def huella_archivo(archivo):
+    contenido = archivo.getvalue()
+    return hashlib.sha256(contenido).hexdigest()
+
+def limpiar_resultado_si_cambia_origen(origen_actual, identificador_actual):
+    origen_anterior = st.session_state.get("origen_anterior")
+    identificador_anterior = st.session_state.get("identificador_archivo_anterior")
+    if (
+        origen_anterior is not None
+        and (origen_anterior != origen_actual or identificador_anterior != identificador_actual)
+    ):
+        st.session_state.pop("df_resultado", None)
+    st.session_state["origen_anterior"] = origen_actual
+    st.session_state["identificador_archivo_anterior"] = identificador_actual
+
+def validar_respuesta_ia(resultado_json, ids_hdu_validos):
+    campos_obligatorios = {
+        "id_hdu", "modulo", "pantalla", "tipo_elemento", "texto_es",
+        "confianza", "traduccion_en", "traduccion_ca", "traduccion_gl", "traduccion_eu"
+    }
+    elementos_validos = []
+    avisos = []
+
+    for indice, elemento in enumerate(resultado_json, start=1):
+        if not isinstance(elemento, dict):
+            avisos.append(f"Elemento {indice}: formato no válido; se ha omitido.")
+            continue
+
+        faltantes = campos_obligatorios - set(elemento.keys())
+        if faltantes:
+            avisos.append(f"Elemento {indice}: faltan campos ({', '.join(sorted(faltantes))}); se ha omitido.")
+            continue
+
+        elemento["id_hdu"] = str(elemento["id_hdu"]).strip()
+        if elemento["id_hdu"] not in ids_hdu_validos:
+            avisos.append(f"Elemento {indice}: el ID '{elemento['id_hdu']}' no pertenece al archivo procesado; se ha omitido.")
+            continue
+
+        try:
+            elemento["confianza"] = max(0, min(100, int(elemento["confianza"])))
+        except (TypeError, ValueError):
+            elemento["confianza"] = 50
+            avisos.append(f"Elemento {indice}: confianza no válida; se ha establecido en 50.")
+
+        elemento["texto_es"] = str(elemento["texto_es"]).strip()
+        if not elemento["texto_es"]:
+            avisos.append(f"Elemento {indice}: texto en español vacío; se ha omitido.")
+            continue
+
+        for campo in campos_obligatorios - {"confianza"}:
+            elemento[campo] = str(elemento[campo]).strip()
+
+        elementos_validos.append(elemento)
+
+    if not elementos_validos:
+        raise ValueError("No se ha recibido ningún elemento válido de la IA.")
+
+    return elementos_validos, avisos
+
+SYSTEM_PROMPT = (
+    "Eres una analista funcional senior y especialista en localización lingüística de software. "
+    "Analiza Historias de Usuario (HDUs) y extrae ÚNICAMENTE textos que verá el usuario final en la interfaz: "
+    "nombres de campos, botones, pestañas, títulos de formularios, selectores, mensajes de validación, "
+    "avisos, errores, modales y opciones de listas. "
+    "NO extraigas descripciones narrativas, requisitos técnicos, lógica interna, nombres de variables ni comentarios de desarrollo. "
+    "Conserva sin modificar variables, placeholders, códigos, URLs, etiquetas HTML, Markdown, siglas y tokens como {0}, {nombre}, %s, {{user}} o {{count}}. "
+    "Para modulo y pantalla, usa 'No indicado' cuando no esté explícito. No inventes datos. "
+    "Para tipo_elemento utiliza una categoría breve y concreta: Título, Etiqueta de campo, Botón, Pestaña, Opción de selector, "
+    "Mensaje de éxito, Mensaje de error, Mensaje de validación, Modal de confirmación, Texto de ayuda, Placeholder o Texto de tabla. "
+    "CRITERIOS DE CONFIANZA (0 a 100): "
+    "90-100: texto explícitamente visible en la HDU; 70-89: probablemente visible e inferido del contexto; "
+    "50-69: ambiguo; 0-49: técnico o no claramente visible. "
+    "Devuelve para cada texto: id_hdu, modulo, pantalla, tipo_elemento, texto_es, confianza, traduccion_en, traduccion_ca, traduccion_gl, traduccion_eu. "
+    "Responde EXCLUSIVAMENTE con una lista JSON válida de objetos."
+)
+
+# ==========================================
+# 5. VENTANA MODAL (Ficha de Proyecto)
+# ==========================================
 @st.dialog("Ficha de proyecto: LimpiaText")
 def mostrar_ficha():
     ficha_html = """
@@ -249,22 +241,31 @@ def mostrar_ficha():
       <div style='margin-bottom: 1.2rem;'>
         <span class='card-pill-dark'>Flujo de trabajo</span>
         <div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 6px; padding: 0.9rem; margin-top: 0.4rem; font-size: 0.85rem; line-height: 1.6; color: #222222;'>
-          <b>1. Depuración:</b> limpieza automática de etiquetas HTML y comentarios internos.<br>
-          <b>2. Extracción IA:</b> detección de elementos visibles y propuesta de traducción.<br>
-          <b>3. Revisión:</b> edición humana y exportación a Excel o CSV.
+          <b>1. Depuración:</b> limpieza automática de marcado HTML y comentarios internos.<br>
+          <b>2. Extracción IA:</b> detección de elementos visibles con cálculo de confianza (0–100).<br>
+          <b>3. Localización:</b> generación de propuestas en 4 idiomas (EN, CA, GL, EU) listas para revisión humana.
         </div>
       </div>
       <div>
-        <span class='card-pill-yellow'>Alcance de la demo</span>
-        <div style='font-size: 0.88rem; line-height: 1.5; color: #333333; margin-top: 0.4rem;'>
-          Esta es una <b>demo de portfolio</b>, no un entorno productivo. El modo demo usa ejemplos ficticios. Para archivos propios, la muestra admite un máximo de 5 HDUs y requiere una clave personal de Gemini API.
+        <span class='card-pill-yellow'>Modos de uso</span>
+        <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 0.4rem;'>
+          <div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 6px; padding: 0.75rem; font-size: 0.82rem; line-height: 1.4;'>
+            <b style='font-family: "Space Grotesk", sans-serif;'>📦 Modo Demo</b><br>
+            <span style='color: #666666;'>Listo para probar al instante con ejemplos ficticios sin configurar clave API.</span>
+          </div>
+          <div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 6px; padding: 0.75rem; font-size: 0.82rem; line-height: 1.4;'>
+            <b style='font-family: "Space Grotesk", sans-serif;'>🔑 CSV Propio</b><br>
+            <span style='color: #666666;'>Admite hasta 5 HDUs anonimizadas usando tu clave personal de Gemini API.</span>
+          </div>
         </div>
       </div>
     </div>
     """
     st.markdown(ficha_html, unsafe_allow_html=True)
 
-
+# ==========================================
+# 6. BARRA LATERAL (Sidebar)
+# ==========================================
 api_key_env = ""
 try:
     api_key_env = st.secrets.get("GEMINI_API_KEY", "")
@@ -278,7 +279,7 @@ with st.sidebar:
       <div style='line-height: 1.15;'>
         <div style='font-size: 0.60rem; text-transform: uppercase; letter-spacing: 0.4px; color: #777777; font-weight: 600;'>Desarrollado por</div>
         <div style='font-size: 0.80rem; font-weight: 700; color: #111111;'>Laura Serrano Gómez</div>
-        <a href='https://www.linkedin.com/in/lauserrano' target='_blank' style='font-size: 0.68rem; color: #0066CC; text-decoration: none; font-weight: 500;'>Conectar en LinkedIn &#8599;</a>
+        <a href='[https://www.linkedin.com/in/lauserrano](https://www.linkedin.com/in/lauserrano)' target='_blank' style='font-size: 0.68rem; color: #0066CC; text-decoration: none; font-weight: 500;'>Conectar en LinkedIn &#8599;</a>
       </div>
     </div>
     """
@@ -303,10 +304,7 @@ with st.sidebar:
             key="api_key_input",
             help="Solo es necesaria para procesar un CSV propio. Se usa durante esta sesión y no se almacena.",
         )
-        st.caption(
-            "El modo demo utiliza una clave limitada del proyecto. "
-            "Para archivos propios debes usar tu propia clave."
-        )
+        st.caption("El modo demo funciona con la clave preconfigurada. Para archivos propios usa tu clave personal.")
 
     st.markdown("<hr style='margin: 0.5rem 0; border: none; border-top: 1px solid #D5D5D0;'>", unsafe_allow_html=True)
     st.markdown(
@@ -318,6 +316,9 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
+# ==========================================
+# 7. ENCABEZADO PRINCIPAL
+# ==========================================
 hero_html = """
 <div style='display: inline-block; background-color: #FACC15; color: #111111; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;'>
   Extracción y traducción de textos de pantalla
@@ -338,6 +339,9 @@ plantilla_csv = """ID,Title,Description,Acceptance Criteria
 1043,Alta de proveedor comunitario,"Formulario con el campo <b>NIF intracomunitario</b>.","Validar el NIF antes de guardar."
 """
 
+# ==========================================
+# 8. PESTAÑAS DE CONTENIDO
+# ==========================================
 tab_app, tab_guia = st.tabs(["🚀 Depura y traduce", "📖 Guía y ayuda"])
 
 with tab_app:
@@ -347,6 +351,7 @@ with tab_app:
     col_desc = None
     col_ac = None
 
+    # --- PASO 1: CARGA DE DATOS ---
     st.markdown("<div class='step-badge'>Paso 1</div>", unsafe_allow_html=True)
     st.markdown("#### Cargar historias de usuario")
 
@@ -379,9 +384,7 @@ with tab_app:
             try:
                 tamano_mb = archivo_subido.size / (1024 * 1024)
                 if tamano_mb > MAX_TAMANO_ARCHIVO_MB:
-                    st.error(
-                        f"El archivo supera el límite de {MAX_TAMANO_ARCHIVO_MB} MB establecido para esta demo."
-                    )
+                    st.error(f"El archivo supera el límite de {MAX_TAMANO_ARCHIVO_MB} MB establecido para esta demo.")
                     st.stop()
 
                 df_devops = pd.read_csv(
@@ -415,9 +418,7 @@ with tab_app:
                 if not col_title:
                     errores.append("Falta la columna Title o Título.")
                 if not col_desc and not col_ac:
-                    errores.append(
-                        "Debe existir Description/Descripción o Acceptance Criteria/Criterios de Aceptación."
-                    )
+                    errores.append("Debe existir Description/Descripción o Acceptance Criteria/Criterios de Aceptación.")
 
                 if errores:
                     st.error("No se ha podido validar el formato del CSV:")
@@ -467,6 +468,7 @@ with tab_app:
         col_desc = "Description"
         col_ac = "Acceptance Criteria"
 
+    # --- PASO 2: DEPURACIÓN LOCAL (Sin coste de IA) ---
     if df_devops is not None and all([col_id, col_title]) and (col_desc or col_ac):
         with st.expander("Vista previa de las historias de usuario originales (con código HTML)", expanded=False):
             st.dataframe(df_devops.head(MAX_HDUS_DEMO), use_container_width=True)
@@ -503,6 +505,8 @@ with tab_app:
             st.dataframe(df_vista_limpia, use_container_width=True)
 
         st.write("")
+        
+        # --- PASO 3: EXTRACCIÓN Y TRADUCCIÓN CON IA ---
         st.markdown("<div class='step-badge'>Paso 3</div>", unsafe_allow_html=True)
         st.markdown("#### Identificación y traducción con IA")
 
@@ -520,18 +524,14 @@ with tab_app:
 
         if st.button("Identificar y traducir", key="procesar_ia"):
             if modo_entrada == "Cargar archivo CSV propio" and not api_key_activa:
-                st.warning(
-                    "Para procesar un archivo propio debes introducir tu clave personal de Gemini API en la barra lateral."
-                )
+                st.warning("Para procesar un archivo propio debes introducir tu clave personal de Gemini API en la barra lateral.")
                 st.stop()
 
             if not api_key_activa:
-                st.error(
-                    "La clave de la demo no está configurada. Prueba con tu propia clave de Gemini API."
-                )
+                st.error("La clave de la demo no está configurada. Prueba con tu propia clave de Gemini API.")
                 st.stop()
 
-            with st.spinner("Analizando historias y generando una propuesta de traducción..."):
+            with st.spinner("Analizando historias y generando una propuesta de traducción con Gemini 3.6 Flash..."):
                 try:
                     client = genai.Client(api_key=api_key_activa)
                     prompt_usuario = (
@@ -573,17 +573,9 @@ with tab_app:
                     }
                     df_res = df_res.rename(columns=columnas_renombradas)
                     orden_cols = [
-                        "ID Historia",
-                        "Módulo",
-                        "Pantalla / Formulario",
-                        "Tipo de elemento",
-                        "Elemento en pantalla (ES)",
-                        "Confianza IA",
-                        "Estado",
-                        "Inglés (EN)",
-                        "Catalán / Valenciano (CA)",
-                        "Gallego (GL)",
-                        "Euskera (EU)",
+                        "ID Historia", "Módulo", "Pantalla / Formulario", "Tipo de elemento",
+                        "Elemento en pantalla (ES)", "Confianza IA", "Estado",
+                        "Inglés (EN)", "Catalán / Valenciano (CA)", "Gallego (GL)", "Euskera (EU)",
                     ]
                     st.session_state["df_resultado"] = df_res[orden_cols]
                     st.success("Propuesta generada. Revisa y ajusta los textos antes de exportarlos.")
@@ -593,6 +585,7 @@ with tab_app:
                 except Exception as error:
                     st.error(f"No se ha podido completar el procesamiento: {error}")
 
+    # --- PASO 4: REVISIÓN HUMANA Y EXPORTACIÓN ---
     if st.session_state.get("df_resultado") is not None:
         st.write("---")
         st.markdown("<div class='step-badge'>Paso 4</div>", unsafe_allow_html=True)
