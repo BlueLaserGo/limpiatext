@@ -702,4 +702,3 @@ with tab_guia:
         """,
         unsafe_allow_html=True,
     )
-```[cite: 1, 2]
