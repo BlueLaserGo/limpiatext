@@ -260,7 +260,8 @@ def mostrar_ficha():
         "</div>"
         "</div>"
         "<div style='font-size: 0.72rem; color: #777777; border-top: 1px solid #E0E0E0; padding-top: 0.6rem; margin-top: 0.8rem; text-align: right;'>"
-        "Licencia: <a href='https://github.com/BlueLaserGo/limpiatext/blob/main/License_LimpiaText.txt' target='_blank' rel='noopener noreferrer' style='color: #111111; font-weight: 600; text-decoration: underline;'>MIT License</a> • © 2026 Laura Serrano Gómez"        "</div>"
+        "Licencia: <a href='https://github.com/BlueLaserGo/limpiatext' target='_blank' rel='noopener noreferrer' style='color: #111111; font-weight: 600; text-decoration: underline;'>MIT License</a> • © 2026 Laura Serrano Gómez"
+        "</div>"
         "</div>"
     )
     st.markdown(ficha_html, unsafe_allow_html=True)
