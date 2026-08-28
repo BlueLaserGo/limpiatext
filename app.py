@@ -246,7 +246,7 @@ def mostrar_ficha():
           <b>3. Localización:</b> generación de propuestas en 4 idiomas (EN, CA, GL, EU) listas para revisión humana.
         </div>
       </div>
-      <div>
+      <div style='margin-bottom: 1rem;'>
         <span class='card-pill-yellow'>Modos de uso</span>
         <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 0.4rem;'>
           <div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 6px; padding: 0.75rem; font-size: 0.82rem; line-height: 1.4;'>
@@ -258,6 +258,9 @@ def mostrar_ficha():
             <span style='color: #666666;'>Admite hasta 5 HDUs anonimizadas usando tu clave personal de Gemini API.</span>
           </div>
         </div>
+      </div>
+      <div style='font-size: 0.72rem; color: #777777; border-top: 1px solid #E0E0E0; padding-top: 0.6rem; margin-top: 0.8rem; text-align: right;'>
+        Licencia: <a href='https://github.com/BlueLaserGo/limpiatext/blob/main/License_LimpiaText.txt' target='_blank' style='color: #111111; font-weight: 600; text-decoration: underline;'>MIT License</a> • © 2026 Laura Serrano Gómez
       </div>
     </div>
     """
@@ -279,7 +282,7 @@ with st.sidebar:
       <div style='line-height: 1.15;'>
         <div style='font-size: 0.60rem; text-transform: uppercase; letter-spacing: 0.4px; color: #777777; font-weight: 600;'>Desarrollado por</div>
         <div style='font-size: 0.80rem; font-weight: 700; color: #111111;'>Laura Serrano Gómez</div>
-        <a href='[https://www.linkedin.com/in/lauserrano](https://www.linkedin.com/in/lauserrano)' target='_blank' style='font-size: 0.68rem; color: #0066CC; text-decoration: none; font-weight: 500;'>Conectar en LinkedIn &#8599;</a>
+        <a href='https://www.linkedin.com/in/lauserrano' target='_blank' style='font-size: 0.68rem; color: #0066CC; text-decoration: none; font-weight: 500;'>Conectar en LinkedIn &#8599;</a>
       </div>
     </div>
     """
@@ -313,6 +316,14 @@ with st.sidebar:
         "<div class='lang-item'><span class='lang-badge'>CA</span> Catalán / Valenciano / Balear</div>"
         "<div class='lang-item'><span class='lang-badge'>GL</span> Gallego</div>"
         "<div class='lang-item'><span class='lang-badge'>EU</span> Euskera</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("<hr style='margin: 0.8rem 0 0.4rem 0; border: none; border-top: 1px solid #D5D5D0;'>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='font-size: 0.65rem; color: #777777; text-align: center; line-height: 1.3;'>"
+        "Código abierto bajo <a href='https://github.com/BlueLaserGo/limpiatext/blob/main/License_LimpiaText.txt' target='_blank' style='color: #444444; font-weight: 600; text-decoration: underline;'>Licencia MIT</a><br>© 2026 Laura Serrano Gómez"
+        "</div>",
         unsafe_allow_html=True,
     )
 
