@@ -322,7 +322,7 @@ with st.sidebar:
     sidebar_footer_html = """
     <div style='margin-top: 1.2rem; padding-top: 0.6rem; border-top: 1px solid #D5D5D0; text-align: center;'>
       <div style='font-size: 0.70rem; color: #333333; line-height: 1.4;'>
-        Código abierto bajo <a href='[https://github.com/BlueLaserGo/limpiatext/blob/main/License_LimpiaText.txt](https://github.com/BlueLaserGo/limpiatext/blob/main/License_LimpiaText.txt)' target='_blank' style='color: #000000; font-weight: 700; text-decoration: underline;'>Licencia MIT</a><br>
+        Código abierto bajo <a href='https://github.com/BlueLaserGo/limpiatext/blob/main/License_LimpiaText.txt' target='_blank' rel='noopener noreferrer' style='color: #000000; font-weight: 700; text-decoration: underline;'>Licencia MIT</a><br>
         © 2026 Laura Serrano Gómez
       </div>
     </div>
