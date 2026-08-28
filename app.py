@@ -11,9 +11,7 @@ import streamlit as st
 from google import genai
 from google.genai import types
 
-# ==========================================
-# 1. CONFIGURACIÓN DE PÁGINA Y CONSTANTES
-# ==========================================
+# 1. Configuración de página
 st.set_page_config(
     page_title="LimpiaText — Limpieza y traducción de textos de pantalla",
     page_icon="🧹",
@@ -35,9 +33,7 @@ NOMBRES_COLUMNAS = {
 }
 CARACTERES_FORMULA = ("=", "+", "-", "@")
 
-# ==========================================
-# 2. CARGA DE AVATAR (Base64 / Fallback)
-# ==========================================
+# 2. Carga de avatar
 def obtener_imagen_base64(ruta_imagen):
     if os.path.exists(ruta_imagen):
         with open(ruta_imagen, "rb") as img_file:
@@ -47,9 +43,7 @@ def obtener_imagen_base64(ruta_imagen):
 
 avatar_src = obtener_imagen_base64("avatar_lasergo.jpeg")
 
-# ==========================================
-# 3. ESTILOS CSS (Editorial Minimalista)
-# ==========================================
+# 3. Estilos CSS
 css_styles = """
 <style>
 :root {
@@ -87,9 +81,7 @@ section[data-testid='stSidebar'] hr { margin-top: 0.6rem !important; margin-bott
 """
 st.markdown(css_styles, unsafe_allow_html=True)
 
-# ==========================================
-# 4. FUNCIONES DE PROCESAMIENTO Y SOPORTE
-# ==========================================
+# 4. Funciones de soporte
 def limpiar_html_devops(texto):
     if not isinstance(texto, str) or not texto.strip():
         return ""
@@ -169,3 +161,247 @@ def validar_respuesta_ia(resultado_json, ids_hdu_validos):
         "id_hdu", "modulo", "pantalla", "tipo_elemento", "texto_es",
         "confianza", "traduccion_en", "traduccion_ca", "traduccion_gl", "traduccion_eu"
     }
+    elementos_validos = []
+    avisos = []
+
+    for indice, elemento in enumerate(resultado_json, start=1):
+        if not isinstance(elemento, dict):
+            avisos.append(f"Elemento {indice}: formato no valido; se ha omitido.")
+            continue
+
+        faltantes = campos_obligatorios - set(elemento.keys())
+        if faltantes:
+            avisos.append(f"Elemento {indice}: faltan campos ({', '.join(sorted(faltantes))}); se ha omitido.")
+            continue
+
+        elemento["id_hdu"] = str(elemento["id_hdu"]).strip()
+        if elemento["id_hdu"] not in ids_hdu_validos:
+            avisos.append(f"Elemento {indice}: el ID '{elemento['id_hdu']}' no pertenece al archivo procesado; se ha omitido.")
+            continue
+
+        try:
+            elemento["confianza"] = max(0, min(100, int(elemento["confianza"])))
+        except (TypeError, ValueError):
+            elemento["confianza"] = 50
+            avisos.append(f"Elemento {indice}: confianza no valida; se ha establecido en 50.")
+
+        elemento["texto_es"] = str(elemento["texto_es"]).strip()
+        if not elemento["texto_es"]:
+            avisos.append(f"Elemento {indice}: texto en espanol vacio; se ha omitido.")
+            continue
+
+        for campo in campos_obligatorios - {"confianza"}:
+            elemento[campo] = str(elemento[campo]).strip()
+
+        elementos_validos.append(elemento)
+
+    if not elementos_validos:
+        raise ValueError("No se ha recibido ningun elemento valido de la IA.")
+
+    return elementos_validos, avisos
+
+SYSTEM_PROMPT = (
+    "Eres una analista funcional senior y especialista en localizacion linguistica de software. "
+    "Analiza Historias de Usuario (HDUs) y extrae UNICAMENTE textos que vera el usuario final en la interfaz: "
+    "nombres de campos, botones, pestanas, titulos de formularios, selectores, mensajes de validacion, "
+    "avisos, errores, modales y opciones de listas. "
+    "NO extraigas descripciones narrativas, requisitos tecnicos, logica interna, nombres de variables ni comentarios de desarrollo. "
+    "Conserva sin modificar variables, placeholders, codigos, URLs, etiquetas HTML, Markdown, siglas y tokens como {0}, {nombre}, %s, {{user}} o {{count}}. "
+    "Para modulo y pantalla, usa 'No indicado' cuando no este explicito. No inventes datos. "
+    "Para tipo_elemento utiliza una categoria breve y concreta: Titulo, Etiqueta de campo, Boton, Pestana, Opcion de selector, "
+    "Mensaje de exito, Mensaje de error, Mensaje de validacion, Modal de confirmacion, Texto de ayuda, Placeholder o Texto de tabla. "
+    "CRITERIOS DE CONFIANZA (0 a 100): "
+    "90-100: texto explicitamente visible en la HDU; 70-89: probablemente visible e inferido del contexto; "
+    "50-69: ambiguo; 0-49: tecnico o no claramente visible. "
+    "Devuelve para cada texto: id_hdu, modulo, pantalla, tipo_elemento, texto_es, confianza, traduccion_en, traduccion_ca, traduccion_gl, traduccion_eu. "
+    "Responde EXCLUSIVAMENTE con una lista JSON valida de objetos."
+)
+
+# 5. Ventana modal
+@st.dialog("Ficha de proyecto: LimpiaText")
+def mostrar_ficha():
+    ficha_html = """
+    <div style='font-family: "Inter", sans-serif; color: #111111;'>
+      <div style='margin-bottom: 1.2rem;'>
+        <span class='card-pill-yellow'>Propósito</span>
+        <div style='font-size: 0.92rem; line-height: 1.5; color: #333333; margin-top: 0.4rem;'>
+          Herramienta diseñada para <b>analistas funcionales</b> y <b>equipos de localización</b> que necesitan extraer, validar y traducir textos de interfaz a partir de historias de usuario exportadas desde Azure DevOps.
+        </div>
+      </div>
+      <div style='margin-bottom: 1.2rem;'>
+        <span class='card-pill-dark'>Flujo de trabajo</span>
+        <div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 6px; padding: 0.9rem; margin-top: 0.4rem; font-size: 0.85rem; line-height: 1.6; color: #222222;'>
+          <b>1. Depuración:</b> limpieza automática de marcado HTML y comentarios internos.<br>
+          <b>2. Extracción IA:</b> detección de elementos visibles con cálculo de confianza (0–100).<br>
+          <b>3. Localización:</b> generación de propuestas en 4 idiomas (EN, CA, GL, EU) listas para revisión humana.
+        </div>
+      </div>
+      <div style='margin-bottom: 1rem;'>
+        <span class='card-pill-yellow'>Modos de uso</span>
+        <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 0.4rem;'>
+          <div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 6px; padding: 0.75rem; font-size: 0.82rem; line-height: 1.4;'>
+            <b style='font-family: "Space Grotesk", sans-serif;'>📦 Modo Demo</b><br>
+            <span style='color: #666666;'>Listo para probar al instante con ejemplos ficticios sin configurar clave API.</span>
+          </div>
+          <div style='background-color: #FFFFFF; border: 1px solid #D5D5D0; border-radius: 6px; padding: 0.75rem; font-size: 0.82rem; line-height: 1.4;'>
+            <b style='font-family: "Space Grotesk", sans-serif;'>🔑 CSV Propio</b><br>
+            <span style='color: #666666;'>Admite hasta 5 HDUs anonimizadas usando tu clave personal de Gemini API.</span>
+          </div>
+        </div>
+      </div>
+      <div style='font-size: 0.72rem; color: #777777; border-top: 1px solid #E0E0E0; padding-top: 0.6rem; margin-top: 0.8rem; text-align: right;'>
+        Licencia: <a href='[https://github.com/BlueLaserGo/limpiatext/blob/main/License_LimpiaText.txt](https://github.com/BlueLaserGo/limpiatext/blob/main/License_LimpiaText.txt)' target='_blank' style='color: #111111; font-weight: 600; text-decoration: underline;'>MIT License</a> • © 2026 Laura Serrano Gómez
+      </div>
+    </div>
+    """
+    st.markdown(ficha_html, unsafe_allow_html=True)
+
+# 6. Barra lateral
+api_key_env = ""
+try:
+    api_key_env = st.secrets.get("GEMINI_API_KEY", "")
+except Exception:
+    api_key_env = ""
+
+with st.sidebar:
+    sidebar_header_html = f"""
+    <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 0.4rem; padding-bottom: 0.4rem; border-bottom: 1px solid #D5D5D0;'>
+      <img src='{avatar_src}' style='width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #CCCCCC; flex-shrink: 0;'>
+      <div style='line-height: 1.15;'>
+        <div style='font-size: 0.60rem; text-transform: uppercase; letter-spacing: 0.4px; color: #777777; font-weight: 600;'>Desarrollado por</div>
+        <div style='font-size: 0.80rem; font-weight: 700; color: #111111;'>Laura Serrano Gómez</div>
+        <a href='[https://www.linkedin.com/in/lauserrano](https://www.linkedin.com/in/lauserrano)' target='_blank' style='font-size: 0.68rem; color: #0066CC; text-decoration: none; font-weight: 500;'>Conectar en LinkedIn ↗</a>
+      </div>
+    </div>
+    """
+    st.markdown(sidebar_header_html, unsafe_allow_html=True)
+
+    if st.button("Información del proyecto", use_container_width=True, key="boton_info"):
+        mostrar_ficha()
+
+    st.markdown("<div style='font-size: 0.82rem; font-weight: 700; margin-top: 0.4rem;'>Fuente de datos:</div>", unsafe_allow_html=True)
+    modo_entrada = st.radio(
+        "Selecciona el origen:",
+        ["Usar datos de demo (Azure DevOps)", "Cargar archivo CSV propio"],
+        label_visibility="collapsed",
+        key="modo_entrada",
+    )
+
+    with st.expander("🔑 Clave Gemini API", expanded=False):
+        api_key_input = st.text_input(
+            "Clave personal de Gemini API",
+            value="",
+            type="password",
+            key="api_key_input",
+            help="Solo es necesaria para procesar un CSV propio. Se usa durante esta sesión y no se almacena.",
+        )
+        st.caption("El modo demo funciona con la clave preconfigurada. Para archivos propios usa tu clave personal.")
+
+    st.markdown("<hr style='margin: 0.5rem 0; border: none; border-top: 1px solid #D5D5D0;'>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='font-size: 0.82rem; font-weight: 700; margin-bottom: 4px;'>Idiomas de exportación:</div>"
+        "<div class='lang-item'><span class='lang-badge'>EN</span> Inglés</div>"
+        "<div class='lang-item'><span class='lang-badge'>CA</span> Catalán / Valenciano / Balear</div>"
+        "<div class='lang-item'><span class='lang-badge'>GL</span> Gallego</div>"
+        "<div class='lang-item'><span class='lang-badge'>EU</span> Euskera</div>",
+        unsafe_allow_html=True,
+    )
+
+    sidebar_footer_html = """
+    <div style='margin-top: 1.2rem; padding-top: 0.6rem; border-top: 1px solid #D5D5D0; text-align: center;'>
+      <div style='font-size: 0.70rem; color: #333333; line-height: 1.4;'>
+        Código abierto bajo <a href='[https://github.com/BlueLaserGo/limpiatext/blob/main/License_LimpiaText.txt](https://github.com/BlueLaserGo/limpiatext/blob/main/License_LimpiaText.txt)' target='_blank' style='color: #000000; font-weight: 700; text-decoration: underline;'>Licencia MIT</a><br>
+        © 2026 Laura Serrano Gómez
+      </div>
+    </div>
+    """
+    st.markdown(sidebar_footer_html, unsafe_allow_html=True)
+
+# 7. Encabezado principal
+hero_html = """
+<div style='display: inline-block; background-color: #FACC15; color: #111111; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 0.72rem; padding: 4px 10px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;'>
+  Extracción y traducción de textos de pantalla
+</div>
+<div class='hero-title'>LimpiaText</div>
+<div class='hero-subtitle'>
+  Sube Historias de Usuario exportadas desde <b>Azure DevOps</b>. LimpiaText elimina ruido técnico, detecta textos visibles de la aplicación y genera una propuesta de traducción para revisión humana antes de exportarla.
+</div>
+"""
+st.markdown(hero_html, unsafe_allow_html=True)
+st.info(
+    "🎓 **Demo de portfolio.** Esta muestra ilustra un posible flujo de extracción y localización de textos UI. "
+    "No es un entorno productivo y no debe utilizarse con información real, personal o confidencial."
+)
+
+plantilla_csv = """ID,Title,Description,Acceptance Criteria
+1042,Gestión de facturas proforma,"El usuario accede a la pestaña <b>Facturación emitida</b>.","El botón <b>Guardar borrador</b> estará disponible."
+1043,Alta de proveedor comunitario,"Formulario con el campo <b>NIF intracomunitario</b>.","Validar el NIF antes de guardar."
+"""
+
+# 8. Pestañas
+tab_app, tab_guia = st.tabs(["🚀 Depura y traduce", "📖 Guía y ayuda"])
+
+with tab_app:
+    df_devops = None
+    col_id = None
+    col_title = None
+    col_desc = None
+    col_ac = None
+
+    st.markdown("<div class='step-badge'>Paso 1</div>", unsafe_allow_html=True)
+    st.markdown("#### Cargar historias de usuario")
+
+    if modo_entrada == "Cargar archivo CSV propio":
+        st.warning(
+            f"**Uso de demostración:** carga únicamente ejemplos anonimizados y un máximo de {MAX_HDUS_DEMO} HDUs. "
+            "No subas datos personales, información confidencial, credenciales, datos de clientes ni documentación interna."
+        )
+        st.caption(
+            "Formato recomendado: una HDU por fila y las columnas `ID`, `Title`, `Description` y `Acceptance Criteria`. "
+            "Son obligatorias `ID` y `Title`; debe existir al menos una columna de contenido: `Description` o `Acceptance Criteria`."
+        )
+        st.download_button(
+            label="Descargar plantilla CSV de ejemplo",
+            data=plantilla_csv.encode("utf-8-sig"),
+            file_name="Plantilla_LimpiaText.csv",
+            mime="text/csv",
+            use_container_width=False,
+            key="descargar_plantilla",
+        )
+        archivo_subido = st.file_uploader(
+            "Carga el CSV exportado de Azure DevOps",
+            type=["csv"],
+            label_visibility="collapsed",
+            key="archivo_csv",
+        )
+
+        if archivo_subido:
+            limpiar_resultado_si_cambia_origen("csv", huella_archivo(archivo_subido))
+            try:
+                tamano_mb = archivo_subido.size / (1024 * 1024)
+                if tamano_mb > MAX_TAMANO_ARCHIVO_MB:
+                    st.error(f"El archivo supera el límite de {MAX_TAMANO_ARCHIVO_MB} MB establecido para esta demo.")
+                    st.stop()
+
+                df_devops = pd.read_csv(
+                    archivo_subido,
+                    sep=None,
+                    engine="python",
+                    dtype=str,
+                    keep_default_na=False,
+                )
+
+                if df_devops.empty:
+                    st.error("El CSV no contiene ninguna HDU.")
+                    st.stop()
+
+                if len(df_devops) > MAX_HDUS_DEMO:
+                    st.error(
+                        f"Esta demo admite un máximo de {MAX_HDUS_DEMO} HDUs por archivo. "
+                        f"El archivo contiene {len(df_devops)} filas."
+                    )
+                    st.info("Reduce el CSV a las primeras 5 HDUs e inténtalo de nuevo.")
+                    st.stop()
+
+                col_id = obtener_columna(df_devops, NOMBRES_COLUMNAS["id"])
+                col_title = obtener_columna(df_devops, NOMBRES_COLUMNAS["title"])
